@@ -1,24 +1,12 @@
-# Rspec::Support
+# RSpec::Support
 
-TODO: Write a gem description
+`RSpec::Support` provides common functionality to `RSpec::Core`,
+`RSpec::Expectations` and `RSpec::Mocks`. It is considered
+suitable for internal use only at this time.
 
-## Installation
+## Installation / Usage
 
-Add this line to your application's Gemfile:
-
-    gem 'rspec-support'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install rspec-support
-
-## Usage
-
-TODO: Write usage instructions here
+Install one or more of the `RSpec` gems.
 
 ## Contributing
 
