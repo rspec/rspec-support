@@ -9,6 +9,7 @@ module RSpec
       core
       mocks
       expectations
+      support
       matchers
       rails
     ]
