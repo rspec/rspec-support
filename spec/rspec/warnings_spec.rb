@@ -1,5 +1,10 @@
 require "spec_helper"
 
+unless RSpec::CallerFilter::RSPEC_LIBS.include? 'support'
+  RSpec.send :remove_const, :CallerFilter
+  require 'rspec/support/caller_filter'
+end
+
 %w[rspec/core/warnings rspec/mocks/warnings rspec/expectations/deprecation].each do |file|
   begin
     require file
