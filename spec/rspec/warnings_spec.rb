@@ -19,28 +19,63 @@ end
 require 'rspec/support/warnings'
 
 describe "rspec warnings and deprecations" do
-  describe "#deprecate" do
-    it "passes the hash to the reporter" do
-      expect(RSpec.configuration.reporter).to receive(:deprecation).with(hash_including :deprecated => "deprecated_method", :replacement => "replacement")
-      RSpec.deprecate("deprecated_method", :replacement => "replacement")
+
+  def reset_and_load_warnings
+    RSpec.module_eval do
+      class << self
+        undef deprecate        if defined?(RSpec.deprecate)
+        undef warn_deprecation if defined?(RSpec.warn_deprecation)
+        undef warning          if defined?(RSpec.warning)
+        undef warn_with        if defined?(RSpec.warn_with)
+      end
+    end
+    load 'rspec/support/warnings.rb'
+  end
+
+  context "when rspec-core is available" do
+    before do
+      reset_and_load_warnings
+    end
+    describe "#deprecate" do
+      it "passes the hash to the reporter" do
+        expect(RSpec.configuration.reporter).to receive(:deprecation).with(hash_including :deprecated => "deprecated_method", :replacement => "replacement")
+        RSpec.deprecate("deprecated_method", :replacement => "replacement")
+      end
+
+      it "adds the call site" do
+        expect_deprecation_with_call_site(__FILE__, __LINE__ + 1)
+        RSpec.deprecate("deprecated_method")
+      end
+
+      it "doesn't override a passed call site" do
+        expect_deprecation_with_call_site("some_file.rb", 17)
+        RSpec.deprecate("deprecated_method", :call_site => "/some_file.rb:17")
+      end
     end
 
-    it "adds the call site" do
-      expect_deprecation_with_call_site(__FILE__, __LINE__ + 1)
-      RSpec.deprecate("deprecated_method")
-    end
-
-    it "doesn't override a passed call site" do
-      expect_deprecation_with_call_site("some_file.rb", 17)
-      RSpec.deprecate("deprecated_method", :call_site => "/some_file.rb:17")
+    describe "#warn_deprecation" do
+      it "puts message in a hash" do
+        expect(RSpec.configuration.reporter).to receive(:deprecation).with(hash_including :message => "this is the message")
+        RSpec.warn_deprecation("this is the message")
+      end
     end
   end
 
-  describe "#warn_deprecation" do
-    it "puts message in a hash" do
-      expect(RSpec.configuration.reporter).to receive(:deprecation).with(hash_including :message => "this is the message")
-      RSpec.warn_deprecation("this is the message")
+  context "when rspec-core is not available" do
+    before do
+      allow(RSpec).to receive(:respond_to?).with(:configuration)
+      reset_and_load_warnings
     end
+
+    shared_examples_for "falls back to warn for" do |method|
+      it 'falls back to warning with a plain message' do
+        expect(::Kernel).to receive(:warn).with /message/
+        RSpec.send(method,'message')
+      end
+    end
+
+    it_behaves_like 'falls back to warn for', :deprecate
+    it_behaves_like 'falls back to warn for', :warn_deprecation
   end
 
   shared_examples_for "warning helper" do |helper|

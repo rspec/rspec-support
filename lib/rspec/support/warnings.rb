@@ -1,22 +1,44 @@
 module RSpec
 
-  # @private
-  #
-  # Used internally to print deprecation warnings
-  def self.deprecate(deprecated, data = {})
-    RSpec.configuration.reporter.deprecation(
-      {
-        :deprecated => deprecated,
-        :call_site => CallerFilter.first_non_rspec_line
-      }.merge(data)
-    )
-  end
+  if respond_to?(:configuration)
 
-  # @private
-  #
-  # Used internally to print deprecation warnings
-  def self.warn_deprecation(message)
-    RSpec.configuration.reporter.deprecation :message => message
+    # @private
+    #
+    # Used internally to print deprecation warnings
+    def self.deprecate(deprecated, data = {})
+      RSpec.configuration.reporter.deprecation(
+        {
+          :deprecated => deprecated,
+          :call_site => CallerFilter.first_non_rspec_line
+        }.merge(data)
+      )
+    end
+
+    # @private
+    #
+    # Used internally to print deprecation warnings
+    def self.warn_deprecation(message)
+      RSpec.configuration.reporter.deprecation :message => message
+    end
+
+  else
+
+    # @private
+    #
+    # Used internally to print deprecation warnings
+    # when rspec-core isn't loaded
+    def self.deprecate(deprecated, options = {})
+      warn_with "DEPRECATION: #{deprecated} is deprecated.", options
+    end
+
+    # @private
+    #
+    # Used internally to print deprecation warnings
+    # when rspec-core isn't loaded
+    def self.warn_deprecation(message)
+      warn_with "DEPRECATION: \n #{message}"
+    end
+
   end
 
   # @private
