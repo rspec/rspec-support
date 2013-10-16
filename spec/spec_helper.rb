@@ -7,3 +7,5 @@ unless ENV['NO_COVERALLS']
     add_filter '/tmp/'
   end
 end
+
+require 'rspec/support/spec'
