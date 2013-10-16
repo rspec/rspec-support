@@ -6,12 +6,9 @@ module RSpec
     #
     # Used internally to print deprecation warnings
     def self.deprecate(deprecated, data = {})
-      RSpec.configuration.reporter.deprecation(
-        {
-          :deprecated => deprecated,
-          :call_site => CallerFilter.first_non_rspec_line
-        }.merge(data)
-      )
+      data[:call_site]  ||= CallerFilter.first_non_rspec_line
+      data[:deprecated] ||= deprecated
+      RSpec.configuration.reporter.deprecation(data)
     end
 
     # @private
@@ -52,7 +49,7 @@ module RSpec
   #
   # Used internally to print longer warnings
   def self.warn_with(message, options = {})
-    call_site = options.fetch(:call_site, CallerFilter.first_non_rspec_line)
+    call_site = options.fetch(:call_site) { CallerFilter.first_non_rspec_line }
     message << " Called from #{call_site}." if call_site
     ::Kernel.warn message
   end
