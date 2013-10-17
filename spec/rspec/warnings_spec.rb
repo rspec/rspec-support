@@ -74,7 +74,7 @@ describe "rspec warnings and deprecations" do
 
   context "when rspec-core is not available" do
     before do
-      allow(RSpec).to receive(:respond_to?).with(:configuration)
+      allow(RSpec).to receive(:const_get).with("Core")
       reset_and_load_warnings
     end
 

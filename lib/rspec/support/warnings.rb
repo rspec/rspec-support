@@ -1,6 +1,6 @@
 module RSpec
 
-  if respond_to?(:configuration)
+  if self.const_get("Core")
 
     # @private
     #
