@@ -1,10 +1,15 @@
 require "spec_helper"
 
+# Make sure we're using the `rspec-support` CallerFilter
+# can be removed at a later date
 unless RSpec::CallerFilter::RSPEC_LIBS.include? 'support'
   RSpec.send :remove_const, :CallerFilter
   require 'rspec/support/caller_filter'
 end
+# end cf cleanup #
 
+# Make sure that we're using the warnings code from `rspec-support`
+# Can be removed at a later date
 %w[rspec/core/warnings rspec/mocks/warnings rspec/expectations/deprecation].each do |file|
   begin
     require file
@@ -20,6 +25,7 @@ module RSpec
     undef warn_with        if defined?(RSpec.warn_with)
   end
 end
+# end warnings cleanup #
 
 require 'rspec/support/warnings'
 
