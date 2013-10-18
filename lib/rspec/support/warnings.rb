@@ -1,6 +1,6 @@
 module RSpec
 
-  if self.const_get("Core")
+  if defined?(::RSpec::Core)
 
     # @private
     #
