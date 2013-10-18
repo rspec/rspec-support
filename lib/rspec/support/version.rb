@@ -1,7 +1,7 @@
 module RSpec
   module Support
     module Version
-      STRING = "0.0.1.pre"
+      STRING = "3.0.0.pre"
     end
   end
 end
