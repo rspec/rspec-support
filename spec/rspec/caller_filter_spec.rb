@@ -1,9 +1,4 @@
 require 'spec_helper'
-
-if defined? RSpec::CallerFilter
-  RSpec.send :remove_const, :CallerFilter
-end
-
 require 'rspec/support/caller_filter'
 
 module RSpec
