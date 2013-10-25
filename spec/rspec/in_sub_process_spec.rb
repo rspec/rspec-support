@@ -23,13 +23,13 @@ describe 'isolating code to a sub process' do
     it 'captures and reraises test failures' do
       expect {
         in_sub_process { expect(true).to be false }
-      }.to raise_error /expected #<FalseClass/
+      }.to raise_error(/expected #<FalseClass/)
     end
 
   else
 
     it 'pends the block' do
-      expect { in_sub_process { true } }.to raise_error /This spec requires forking to work properly/
+      expect { in_sub_process { true } }.to raise_error(/This spec requires forking to work properly/)
     end
 
   end
