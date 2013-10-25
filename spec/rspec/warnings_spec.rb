@@ -85,7 +85,7 @@ describe "rspec warnings and deprecations" do
     shared_examples_for "falls back to warn for" do |method|
       it 'falls back to warning with a plain message' do
         run_without_rspec_core do
-          expect(::Kernel).to receive(:warn).with /message/
+          expect(::Kernel).to receive(:warn).with(/message/)
           RSpec.send(method,'message')
         end
       end
