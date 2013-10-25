@@ -1,29 +1,10 @@
 require "spec_helper"
 require 'rspec/support/spec/in_sub_process'
 
-# Make sure we're using the `rspec-support` CallerFilter
-# can be removed at a later date
-unless RSpec::CallerFilter::RSPEC_LIBS.include? 'support'
-  RSpec.send :remove_const, :CallerFilter
-  require 'rspec/support/caller_filter'
-end
-# end cf cleanup #
-
-# Make sure that we're using the warnings code from `rspec-support`
-# Can be removed at a later date
-%w[rspec/core/warnings rspec/mocks/warnings rspec/expectations/deprecation].each do |file|
-  begin
-    require file
-  rescue LoadError
-  end
-end
-
 module RSpec
   class << self
     undef deprecate        if defined?(RSpec.deprecate)
     undef warn_deprecation if defined?(RSpec.warn_deprecation)
-    undef warning          if defined?(RSpec.warning)
-    undef warn_with        if defined?(RSpec.warn_with)
   end
 end
 # end warnings cleanup #
@@ -33,6 +14,7 @@ describe "rspec warnings and deprecations" do
 
   def run_with_rspec_core
     in_sub_process do
+      load 'rspec/core/warnings.rb'
       load 'rspec/support/warnings.rb'
       yield
     end
