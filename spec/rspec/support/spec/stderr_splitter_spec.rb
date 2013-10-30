@@ -49,7 +49,7 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'will fail an example which generates a warning' do
-    warn 'a warning'
+    true unless @undefined
     expect { splitter.verify_example! self }.to raise_error(/Warnings were generated:/)
   end
 
