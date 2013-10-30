@@ -1,13 +1,16 @@
 require "spec_helper"
 require 'rspec/support/spec/in_sub_process'
 
+# RSpec Core has already loaded these, we wish to test there
+# definition so we undefine them first.
 module RSpec
   class << self
     undef deprecate        if defined?(RSpec.deprecate)
     undef warn_deprecation if defined?(RSpec.warn_deprecation)
+    undef warn_with        if defined?(RSpec.warn_with)
+    undef warning          if defined?(RSpec.warning)
   end
 end
-# end warnings cleanup #
 
 describe "rspec warnings and deprecations" do
   include RSpec::Support::InSubProcess
@@ -15,14 +18,12 @@ describe "rspec warnings and deprecations" do
   def run_with_rspec_core
     in_sub_process do
       load 'rspec/core/warnings.rb'
-      load 'rspec/support/warnings.rb'
       yield
     end
   end
 
   def run_without_rspec_core
     in_sub_process do
-      hide_const "::RSpec::Core"
       load 'rspec/support/warnings.rb'
       yield
     end
