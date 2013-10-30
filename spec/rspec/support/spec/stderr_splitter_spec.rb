@@ -48,9 +48,11 @@ describe 'RSpec::Support::StdErrSplitter' do
     splitter.verify_example! self
   end
 
-  it 'will fail an example which generates a warning' do
-    true unless @undefined
-    expect { splitter.verify_example! self }.to raise_error(/Warnings were generated:/)
+  unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
+    it 'will fail an example which generates a warning' do
+      true unless @undefined
+      expect { splitter.verify_example! self }.to raise_error(/Warnings were generated:/)
+    end
   end
 
 end
