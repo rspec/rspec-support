@@ -1,1 +1,2 @@
 --warnings
+-r spec_helper
