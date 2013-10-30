@@ -33,6 +33,15 @@ module RSpec
         !output.empty?
       end
 
+      def reset!
+        @output_tracker = ::StringIO.new
+      end
+
+      def verify_example!(example)
+        example.send(:fail,"Warnings were generated: #{output}") if has_output?
+        reset!
+      end
+
       def output
         @output_tracker.string
       end
