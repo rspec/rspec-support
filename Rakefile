@@ -13,3 +13,13 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 task :default => [:spec]
+
+task :verify_private_key_present do
+  private_key = File.expand_path('~/.gem/rspec-gem-private_key.pem')
+  unless File.exists?(private_key)
+    raise "Your private key is not present. This gem should not be built without that."
+  end
+end
+
+task :build => :verify_private_key_present
+

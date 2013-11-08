@@ -21,6 +21,12 @@ Gem::Specification.new do |spec|
   spec.rdoc_options  = ["--charset=UTF-8"]
   spec.require_paths = ["lib"]
 
+  private_key = File.expand_path('~/.gem/rspec-gem-private_key.pem')
+  if File.exists?(private_key)
+    spec.signing_key = private_key
+    spec.cert_chain = [File.expand_path('~/.gem/rspec-gem-public_cert.pem')]
+  end
+
   spec.required_ruby_version = '>= 1.8.7'
 
   spec.add_development_dependency "bundler", "~> 1.3"
