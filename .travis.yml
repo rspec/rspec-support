@@ -11,3 +11,7 @@ rvm:
   - rbx-19mode
   - 2.0.0
   - 2.1.0-preview1
+matrix:
+  allow_failures:
+    - rvm: rbx-19mode
+    - rvm: rbx-18mode
