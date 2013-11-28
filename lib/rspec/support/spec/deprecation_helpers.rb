@@ -18,6 +18,10 @@ module RSpecHelpers
     allow(RSpec.configuration.reporter).to receive(:deprecation)
   end
 
+  def expect_no_deprecations
+    expect(RSpec.configuration.reporter).not_to receive(:deprecation)
+  end
+
   def expect_warning_without_call_site(expected = //)
     expect(::Kernel).to receive(:warn) do |message|
       expect(message).to match expected
