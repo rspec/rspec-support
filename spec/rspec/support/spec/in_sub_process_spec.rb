@@ -23,7 +23,7 @@ describe 'isolating code to a sub process' do
     it 'captures and reraises test failures' do
       expect {
         in_sub_process { expect(true).to be false }
-      }.to raise_error(/expected #<FalseClass/)
+      }.to raise_error(/expected false/)
     end
 
   else
