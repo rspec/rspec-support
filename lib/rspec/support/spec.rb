@@ -17,14 +17,15 @@ end
 
 module RSpec::Support::Spec
   def self.setup_simplecov(&block)
+    # Simplecov emits some ruby warnings when loaded, so silence them.
+    old_verbose, $VERBOSE = $VERBOSE, false
+
     return if ENV['NO_COVERAGE'] || RUBY_VERSION < '1.9.3'
 
     # Don't load it when we're running a single isolated
     # test file rather than the whole suite.
     return if RSpec.configuration.files_to_run.one?
 
-    # Simplecov emits some ruby warnings when loaded, so silence them.
-    old_verbose, $VERBOSE = $VERBOSE, false
     require 'simplecov'
 
     SimpleCov.start do
