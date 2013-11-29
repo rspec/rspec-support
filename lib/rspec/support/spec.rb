@@ -34,7 +34,7 @@ module RSpec::Support::Spec
       add_filter do |source_file|
         # Filter out `spec` directory except when it is under `lib`
         # (as is the case in rspec-support)
-        source_file.filename.include?('spec') && !source_file.filename.include?('lib')
+        source_file.filename.include?('/spec/') && !source_file.filename.include?('/lib/')
       end
 
       instance_eval(&block) if block
