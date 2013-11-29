@@ -13,7 +13,6 @@ gemspec
 end
 
 ### dep for ci/coverage
-gem 'coveralls', :require => false
-gem 'mime-types', '< 2' if RUBY_VERSION.to_f < 1.9
+gem 'simplecov', '~> 0.8'
 
 eval File.read('Gemfile-custom') if File.exist?('Gemfile-custom')
