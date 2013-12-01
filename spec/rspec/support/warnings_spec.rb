@@ -92,6 +92,13 @@ describe "rspec warnings and deprecations" do
         RSpec.send(helper, 'Message')
       end
     end
+
+    it 'optionally sets the replacement' do
+      run_without_rspec_core do
+        expect(::Kernel).to receive(:warn).with(/Use Replacement instead./)
+        RSpec.send(helper, 'Message', :replacement => 'Replacement')
+      end
+    end
   end
 
   describe "#warning" do
