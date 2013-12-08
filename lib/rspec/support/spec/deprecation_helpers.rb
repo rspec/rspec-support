@@ -1,4 +1,9 @@
 module RSpecHelpers
+
+  def expect_no_deprecation
+    expect(RSpec.configuration.reporter).not_to receive(:deprecation)
+  end
+
   def expect_deprecation_with_call_site(file, line, snippet=//)
     expect(RSpec.configuration.reporter).to receive(:deprecation) do |options|
       expect(options[:call_site]).to include([file, line].join(':'))
