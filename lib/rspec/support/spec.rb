@@ -7,12 +7,22 @@ warning_preventer = $stderr = RSpec::Support::StdErrSplitter.new($stderr)
 RSpec.configure do |c|
   c.include RSpecHelpers
   c.include RSpec::Support::WithIsolatedStdErr
+
   c.before do
     warning_preventer.reset!
   end
+
   c.after do |example|
     warning_preventer.verify_example!(example)
   end
+
+  if c.files_to_run.one?
+    c.full_backtrace = true
+    c.formatter = 'doc' if c.formatters.none?
+  end
+
+  c.filter_run :focus
+  c.run_all_when_everything_filtered = true
 end
 
 module RSpec::Support::Spec
