@@ -45,6 +45,16 @@ module RSpec
         expect("foo").not_to match_against(String)
       end
 
+      context "when given two 0-arg lambdas" do
+        it 'returns true when given the same lambda' do
+          expect(lambda { 3 }).to match_against(lambda { 3 })
+        end
+
+        it 'returns false when given different lambdas' do
+          expect(lambda { 3 }).not_to match_against(lambda { 4 })
+        end
+      end
+
       context "when given two arrays" do
         it 'returns true if they have equal values' do
           expect([1, 2.0]).to match_against([1.0, 2])

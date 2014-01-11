@@ -12,7 +12,13 @@ module RSpec
           return hashes_match?(expected, actual)
         end
 
-        expected === actual || actual == expected
+        begin
+          actual == expected || expected === actual
+        rescue ArgumentError
+          # Some objects, like 0-arg lambdas on 1.9+, raise
+          # ArgumentError for `expected === actual`.
+          false
+        end
       end
 
       # @private
