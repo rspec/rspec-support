@@ -47,7 +47,8 @@ module RSpec
 
       context "when given two 0-arg lambdas" do
         it 'returns true when given the same lambda' do
-          expect(lambda { 3 }).to match_against(lambda { 3 })
+          k = lambda { 3 }
+          expect(k).to match_against(k)
         end
 
         it 'returns false when given different lambdas' do
