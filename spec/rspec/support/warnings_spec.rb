@@ -99,6 +99,14 @@ describe "rspec warnings and deprecations" do
         RSpec.send(helper, 'Message', :replacement => 'Replacement')
       end
     end
+
+    it "includes the file and line of the spec if call site is nil" do
+      top_of_spec = __LINE__ - 1
+      run_without_rspec_core do
+        expect(::Kernel).to receive(:warn).with(/Warning occured.*warnings_spec.rb:#{top_of_spec}/)
+        RSpec.send(helper, "bees", :call_site => nil)
+      end
+    end
   end
 
   describe "#warning" do

@@ -35,8 +35,11 @@ module RSpec
   def self.warn_with(message, options = {})
     call_site = options.fetch(:call_site) { CallerFilter.first_non_rspec_line }
     message << " Use #{options[:replacement]} instead." if options[:replacement]
-    message << " Called from #{call_site}." if call_site
+    if call_site
+      message << " Called from #{call_site}."
+    elsif RSpec.respond_to?(:current_example) && RSpec.current_example
+      message << " Warning occured in `#{RSpec.current_example.source_location.join(":")}`."
+    end
     ::Kernel.warn message
   end
-
 end
