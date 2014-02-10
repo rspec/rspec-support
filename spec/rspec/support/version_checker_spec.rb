@@ -22,6 +22,9 @@ module RSpec::Support
     it 'does not raise an error or print a warning when the version is above the min version' do
       expect(Kernel).not_to receive(:warn)
       check_version('some_gem', '2.0.0', '1.0.0')
+      check_version('some_gem', '1.2.0', '1.1.0')
+      check_version('some_gem', '1.1.3', '1.1.1')
+      check_version('some_gem', '1.1.3', '1.1.3')
     end
   end
 end
