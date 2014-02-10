@@ -31,8 +31,8 @@ module RSpec
         end
       else
         def in_sub_process
-          pending "This spec requires forking to work properly, " +
-                  "and your platform does not support forking"
+          skip "This spec requires forking to work properly, " +
+               "and your platform does not support forking"
         end
       end
     end
