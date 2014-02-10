@@ -37,6 +37,7 @@ module RSpec
           when @minor < @min_minor then :too_low
           when @minor > @min_minor then :ok
           when @patch < @min_patch then :too_low
+          else :ok
         end
       end
 
