@@ -1,8 +1,6 @@
 module RSpec
   module Support
     module Warnings
-      extend self
-
       def deprecate(deprecated, options = {})
         warn_with "DEPRECATION: #{deprecated} is deprecated.", options
       end
