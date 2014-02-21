@@ -9,8 +9,8 @@ module RSpec
       #
       # Used internally to print deprecation warnings
       # when rspec-core isn't loaded
-      def warn_deprecation(message)
-        warn_with "DEPRECATION: \n #{message}"
+      def warn_deprecation(message, options = {})
+        warn_with "DEPRECATION: \n #{message}", options
       end
 
       # @private
