@@ -24,9 +24,11 @@ module RSpec
 
       # To work around JRuby error:
       # TypeError: $stderr must have write method, RSpec::StdErrSplitter given
-      def write(*args)
-        @orig_stderr.write(*args)
-        @output_tracker.write(*args)
+      def write(line)
+        if line !~ /^\S+gems\/ruby\-\S+:\d+: warning:/
+          @orig_stderr.write(line)
+          @output_tracker.write(line)
+        end
       end
 
       def has_output?
