@@ -2,9 +2,9 @@ require "spec_helper"
 require "rspec/support/warnings"
 
 describe "rspec warnings and deprecations" do
-  subject(:warning_object) {
-    Object.new.tap {|o| o.extend(RSpec::Support::Warnings)}
-  }
+  let(:warning_object) do
+    Object.new.tap { |o| o.extend(RSpec::Support::Warnings) }
+  end
 
   context "when rspec-core is not available" do
     shared_examples_for "falling back to Kernel.warn" do |args|
@@ -13,6 +13,11 @@ describe "rspec warnings and deprecations" do
       it 'falls back to warning with a plain message' do
         expect(::Kernel).to receive(:warn).with(/message/)
         warning_object.send(method_name, 'message')
+      end
+
+      it "handles being passed options" do
+        expect(::Kernel).to receive(:warn).with(/message/)
+        warning_object.send(method_name, "this is the message", :type => :test)
       end
     end
 
