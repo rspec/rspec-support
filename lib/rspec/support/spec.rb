@@ -1,6 +1,7 @@
-require 'rspec/support/spec/deprecation_helpers'
-require 'rspec/support/spec/with_isolated_stderr'
-require 'rspec/support/spec/stderr_splitter'
+require 'rspec/support'
+RSpec::Support.require_rspec_support "spec/deprecation_helpers"
+RSpec::Support.require_rspec_support "spec/with_isolated_stderr"
+RSpec::Support.require_rspec_support "spec/stderr_splitter"
 
 warning_preventer = $stderr = RSpec::Support::StdErrSplitter.new($stderr)
 
