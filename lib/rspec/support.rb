@@ -4,7 +4,7 @@ module RSpec
     #
     # Defines a helper method that is optimized to require files from the
     # named lib. The passed block MUST be `{ |f| require_relative f }`
-    # because for `require_relative` to work properly from with in the named
+    # because for `require_relative` to work properly from within the named
     # lib the line of code must be IN that lib.
     #
     # `require_relative` is preferred when available because it is always O(1),
@@ -14,7 +14,7 @@ module RSpec
     def self.define_optimized_require_for_rspec(lib, &require_relative)
       name = "require_rspec_#{lib}"
 
-      if Kernel.method_defined?(:require_relative)
+      if Kernel.respond_to?(:require_relative)
         (class << self; self; end).__send__(:define_method, name) do |f|
           require_relative.call("#{lib}/#{f}")
         end
