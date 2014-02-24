@@ -19,9 +19,7 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'conforms to the stderr interface' do
-    stderr.methods.each do |method_name|
-      expect(splitter).to respond_to method_name
-    end
+    expect(splitter).to respond_to(*stderr.methods)
   end
 
   it 'behaves like stderr' do
