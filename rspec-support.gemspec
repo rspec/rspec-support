@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -- lib/*`.split("\n")
   spec.files         += %w[README.md LICENSE.txt Changelog.md]
-  spec.test_files    = spec.files.grep(%r{^(spec)/})
+  spec.test_files    = []
   spec.rdoc_options  = ["--charset=UTF-8"]
   spec.require_paths = ["lib"]
 
