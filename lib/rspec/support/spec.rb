@@ -19,7 +19,7 @@ RSpec.configure do |c|
 
   if c.files_to_run.one?
     c.full_backtrace = true
-    c.formatter = 'doc' if c.formatters.none?
+    c.default_formatter = 'doc'
   end
 
   c.filter_run :focus
