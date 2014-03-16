@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   private_key = File.expand_path('~/.gem/rspec-gem-private_key.pem')
-  if File.exists?(private_key)
+  if File.exist?(private_key)
     spec.signing_key = private_key
     spec.cert_chain = [File.expand_path('~/.gem/rspec-gem-public_cert.pem')]
   end
