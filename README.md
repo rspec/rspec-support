@@ -1,4 +1,4 @@
-# RSpec::Support
+# RSpec::Support [![Inline docs](http://inch-pages.github.io/github/rspec/rspec-support.png)](http://inch-pages.github.io/github/rspec/rspec-support)
 
 `RSpec::Support` provides common functionality to `RSpec::Core`,
 `RSpec::Expectations` and `RSpec::Mocks`. It is considered
