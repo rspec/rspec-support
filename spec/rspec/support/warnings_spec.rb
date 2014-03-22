@@ -7,7 +7,7 @@ describe "rspec warnings and deprecations" do
   end
 
   context "when rspec-core is not available" do
-    shared_examples_for "falling back to Kernel.warn" do |args|
+    shared_examples "falling back to Kernel.warn" do |args|
       let(:method_name) { args.fetch(:method_name) }
 
       it 'falls back to warning with a plain message' do
@@ -25,7 +25,7 @@ describe "rspec warnings and deprecations" do
     it_behaves_like 'falling back to Kernel.warn', :method_name => :warn_deprecation
   end
 
-  shared_examples_for "warning helper" do |helper|
+  shared_examples "warning helper" do |helper|
     it 'warns with the message text' do
       expect(::Kernel).to receive(:warn).with(/Message/)
       warning_object.send(helper, 'Message')
