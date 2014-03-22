@@ -9,12 +9,14 @@ RSpec.configure do |c|
   c.include RSpecHelpers
   c.include RSpec::Support::WithIsolatedStdErr
 
-  c.before do
-    warning_preventer.reset!
-  end
+  unless defined?(Debugger) # debugger causes warnings when used
+    c.before do
+      warning_preventer.reset!
+    end
 
-  c.after do |example|
-    warning_preventer.verify_example!(example)
+    c.after do |example|
+      warning_preventer.verify_example!(example)
+    end
   end
 
   if c.files_to_run.one?
