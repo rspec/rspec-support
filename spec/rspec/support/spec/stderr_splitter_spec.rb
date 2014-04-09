@@ -22,6 +22,10 @@ describe 'RSpec::Support::StdErrSplitter' do
     expect(splitter).to respond_to(*stderr.methods)
   end
 
+  it 'acknowledges its own interface' do
+    expect(splitter).to respond_to :==, :write, :has_output?, :reset!, :verify_example!, :output
+  end
+
   it 'behaves like stderr' do
     splitter.write 'a warning'
     expect(stderr).to have_received(:write)
