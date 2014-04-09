@@ -2,7 +2,7 @@ require 'stringio'
 
 module RSpec
   module Support
-    class StdErrSplitter < (defined?(::BasicObject) ? ::BasicObject : ::Object)
+    class StdErrSplitter
       def initialize(original)
         @orig_stderr    = original
         @output_tracker = ::StringIO.new
@@ -47,6 +47,7 @@ module RSpec
       def output
         @output_tracker.string
       end
+
     end
   end
 end
