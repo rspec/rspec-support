@@ -1,4 +1,5 @@
 require 'rspec/support'
+require "delegate"
 
 module RSpec
   describe Support do
@@ -20,6 +21,84 @@ module RSpec
         request = http_request_class.new(:get, "http://foo.com/")
         expect(Support.method_handle_for(request, :uri).call).to eq "http://foo.com/"
       end
+
+      context "with a delegator that does not implement a private kernel method" do
+        subject {
+          Class.new(SimpleDelegator) do
+            def foo
+              rand(2)
+            end
+          end
+        }
+
+        it "does not issue a warning when stubbing the private kernel method" do
+          hash = subject.new({})
+          expect(hash).not_to receive(:warn)
+
+          allow(hash).to receive(:rand).and_call_original
+          hash.foo
+        end
+
+        it "replaces the rand method" do
+          hash = subject.new({})
+          expect(hash).not_to receive(:warn)
+
+          allow(hash).to receive(:rand).and_return(3)
+          expect(hash.foo).to eq(3)
+        end
+
+        it "puts the correct rand method back" do
+          hash = subject.new({})
+
+          allow(hash).to receive(:rand).and_call_original
+          RSpec::Mocks.space.reset_all
+          expect(hash.send(:rand)).to be_between(0,1)
+        end
+      end
+      context "with a delegator that does implement a private kernel method" do
+        subject {
+          Class.new(SimpleDelegator) do
+            def rand(n)
+              n
+            end
+
+            def foo
+              rand(2)
+            end
+          end
+        }
+
+        it "does not issue a warning when stubbing the private kernel method" do
+          hash = subject.new({})
+          expect(hash).not_to receive(:warn)
+
+          allow(hash).to receive(:rand).and_call_original
+          hash.foo
+        end
+
+        it "gets the correct method with and_call_original" do
+          hash = subject.new({})
+
+          allow(hash).to receive(:rand).and_call_original
+          expect(hash.foo).to eq(2)
+        end
+
+        it "it gets the correct stub implementation" do
+          hash = subject.new({})
+
+          allow(hash).to receive(:rand).and_return(3)
+          expect(hash.foo).to eq(3)
+        end
+
+        it "puts the correct method back" do
+          hash = subject.new({})
+
+          allow(hash).to receive(:rand).and_return(3)
+          RSpec::Mocks.space.reset_all
+          expect(hash.foo).to eq(2)
+        end
+      end
+
 
       context "for a BasicObject subclass", :if => RUBY_VERSION.to_f > 1.8 do
         let(:basic_class) do

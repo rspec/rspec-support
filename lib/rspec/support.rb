@@ -42,7 +42,42 @@ module RSpec
     #   - BasicObject subclasses that mixin a Kernel dup (e.g. SimpleDelegator)
     if RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx'
       def self.method_handle_for(object, method_name)
-        KERNEL_METHOD_METHOD.bind(object).call(method_name)
+        if object_is_a_delegator?(object) && kernel_has_private_method?(method_name) && !object_has_own_method?(object, method_name)
+          ::Kernel.method(method_name)
+        else
+          KERNEL_METHOD_METHOD.bind(object).call(method_name)
+        end
+      end
+
+      # I came up with two implementations of this, one that does ancestor
+      # checking and one that does respond_to __getobj__ checking. I'm not
+      # sure which is more appropriate
+      def self.object_is_a_delegator?(object)
+        object_has_getobj_method?(object)
+      end
+
+      def self.object_is_a_delegator?(object)
+        object_has_class_method?(object) && object_has_delegator_as_an_ancestor?(object)
+      end
+
+      def self.object_has_getobj_method?(object)
+       ::Kernel.instance_method(:methods).bind(object).call.include?(:__getobj__)
+      end
+
+      def self.object_has_delegator_as_an_ancestor?(object)
+         object.class.ancestors.map(&:name).include?("Delegator")
+      end
+
+      def self.object_has_class_method?(object)
+       ::Kernel.instance_method(:methods).bind(object).call.include?(:class)
+      end
+
+      def self.kernel_has_private_method?(method_name)
+        ::Kernel.private_instance_methods.include?(method_name)
+      end
+
+      def self.object_has_own_method?(object, method_name)
+        object.methods.include?(method_name)
       end
     else
       def self.method_handle_for(object, method_name)
