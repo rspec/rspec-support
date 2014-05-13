@@ -15,17 +15,12 @@ module RSpec
 
     describe "the filtering regex" do
       def unmatched_from(files)
-        files.reject { |file| file.match(CallerFilter::LIB_REGEX) }
+        files.reject { |file| file.match(CallerFilter::IGNORE_REGEX) }
       end
 
       %w[ core mocks expectations support ].each do |lib|
         it "matches all ruby files in rspec-#{lib}" do
-          files     = ruby_files_in_lib(lib)
-
-          # We don't care about this file -- it only has a single require statement
-          # and won't show up in any backtraces.
-          files.reject! { |file| file.end_with?('lib/rspec-expectations.rb') }
-
+          files = ruby_files_in_lib(lib)
           expect(unmatched_from files).to eq([])
         end
       end
@@ -37,6 +32,31 @@ module RSpec
         ]
 
         expect(unmatched_from files).to eq(files)
+      end
+
+      def in_rspec_support_lib(name)
+        root = File.expand_path("../../../../lib/rspec/support", __FILE__)
+        dir = "#{root}/#{name}"
+        FileUtils.mkdir(dir)
+        yield dir
+      ensure
+        FileUtils.rm_rf(dir)
+      end
+
+      it 'does not match rubygems lines from `require` statements' do
+        require 'rubygems' # ensure rubygems is laoded
+
+        in_rspec_support_lib("test_dir") do |dir|
+          File.open("#{dir}/file.rb", "w") do |file|
+            file.write("$_caller_filter = RSpec::CallerFilter.first_non_rspec_line")
+          end
+
+          $_caller_filter = nil
+
+          expect {
+            require "rspec/support/test_dir/file"
+          }.to change { $_caller_filter }.to(include "#{__FILE__}:#{__LINE__ - 1}")
+        end
       end
     end
   end
