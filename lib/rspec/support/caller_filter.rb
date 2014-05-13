@@ -18,6 +18,14 @@ module RSpec
 
     LIB_REGEX = %r{/lib/rspec/(#{(RSPEC_LIBS + ADDITIONAL_TOP_LEVEL_FILES).join('|')})(\.rb|/)}
 
+    # rubygems/core_ext/kernel_require.rb isn't actually part of rspec (obviously) but we want
+    # it ignored when we are looking for the first meaningful line of the backtrace outside
+    # of RSpec. It can show up in the backtrace as the immediate first caller
+    # when `CallerFilter.first_non_rspec_line` is called from the top level of a required
+    # file, but it depends on if rubygems is loaded or not. We don't want to have to deal
+    # with this complexity in our `RSpec.deprecate` calls, so we ignore it here.
+    IGNORE_REGEX = Regexp.union(LIB_REGEX, "rubygems/core_ext/kernel_require.rb")
+
     if RUBY_VERSION >= '2.0.0'
       def self.first_non_rspec_line
         # `caller` is an expensive method that scales linearly with the size of
@@ -37,7 +45,7 @@ module RSpec
           stack = caller(i, increment)
           raise "No non-lib lines in stack" unless stack
 
-          line = stack.find { |l| l !~ LIB_REGEX }
+          line = stack.find { |l| l !~ IGNORE_REGEX }
 
           i         += increment
           increment *= 2 # The choice of two here is arbitrary.
@@ -49,7 +57,7 @@ module RSpec
       # Earlier rubies do not support the two argument form of `caller`. This
       # fallback is logically the same, but slower.
       def self.first_non_rspec_line
-        caller.find { |line| line !~ LIB_REGEX }
+        caller.find { |line| line !~ IGNORE_REGEX }
       end
     end
   end

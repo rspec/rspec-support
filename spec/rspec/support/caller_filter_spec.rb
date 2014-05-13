@@ -15,7 +15,7 @@ module RSpec
 
     describe "the filtering regex" do
       def unmatched_from(files)
-        files.reject { |file| file.match(CallerFilter::LIB_REGEX) }
+        files.reject { |file| file.match(CallerFilter::IGNORE_REGEX) }
       end
 
       %w[ core mocks expectations support ].each do |lib|
@@ -37,6 +37,31 @@ module RSpec
         ]
 
         expect(unmatched_from files).to eq(files)
+      end
+
+      def in_rspec_support_lib(name)
+        root = File.expand_path("../../../../lib/rspec/support", __FILE__)
+        dir = "#{root}/#{name}"
+        FileUtils.mkdir(dir)
+        yield dir
+      ensure
+        FileUtils.rm_rf(dir)
+      end
+
+      it 'does not match rubygems lines from `require` statements' do
+        require 'rubygems' # ensure rubygems is laoded
+
+        in_rspec_support_lib("test_dir") do |dir|
+          File.open("#{dir}/file.rb", "w") do |file|
+            file.write("$_caller_filter = RSpec::CallerFilter.first_non_rspec_line")
+          end
+
+          $_caller_filter = nil
+
+          expect {
+            require "rspec/support/test_dir/file"
+          }.to change { $_caller_filter }.to(include "#{__FILE__}:#{__LINE__ - 1}")
+        end
       end
     end
   end
