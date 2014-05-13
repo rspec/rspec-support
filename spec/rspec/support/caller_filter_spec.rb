@@ -20,12 +20,7 @@ module RSpec
 
       %w[ core mocks expectations support ].each do |lib|
         it "matches all ruby files in rspec-#{lib}" do
-          files     = ruby_files_in_lib(lib)
-
-          # We don't care about this file -- it only has a single require statement
-          # and won't show up in any backtraces.
-          files.reject! { |file| file.end_with?('lib/rspec-expectations.rb') }
-
+          files = ruby_files_in_lib(lib)
           expect(unmatched_from files).to eq([])
         end
       end
