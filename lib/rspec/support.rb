@@ -40,7 +40,7 @@ module RSpec
     #
     #   - Objects that redefine #method (e.g. an HTTPRequest struct)
     #   - BasicObject subclasses that mixin a Kernel dup (e.g. SimpleDelegator)
-    if RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx'
+    if RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
       def self.method_handle_for(object, method_name)
         KERNEL_METHOD_METHOD.bind(object).call(method_name)
       end

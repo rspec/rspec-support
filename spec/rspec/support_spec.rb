@@ -53,8 +53,8 @@ module RSpec
         end
 
         def self.supports_rebinding_module_methods?
-          # RBX doesn't yet support this.
-          RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx'
+          # RBX and JRuby doesn't yet support this.
+          RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
         end
 
         it 'still works', :if => supports_rebinding_module_methods? do
