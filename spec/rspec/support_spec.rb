@@ -2,6 +2,8 @@ require 'rspec/support'
 
 module RSpec
   describe Support do
+    extend Support::RubyFeatures
+
     describe '.method_handle_for(object, method_name)' do
       untampered_class = Class.new do
         def foo
@@ -50,11 +52,6 @@ module RSpec
               "foo".__send__(name, *args, &block)
             end
           end
-        end
-
-        def self.supports_rebinding_module_methods?
-          # RBX and JRuby doesn't yet support this.
-          RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
         end
 
         it 'still works', :if => supports_rebinding_module_methods? do

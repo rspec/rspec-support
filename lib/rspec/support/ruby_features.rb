@@ -24,6 +24,12 @@ module RSpec
         Module.private_method_defined?(:prepend)
       end
       module_function :module_prepends_supported?
+
+      def supports_rebinding_module_methods?
+        # RBX and JRuby doesn't yet support this.
+        RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
+      end
+      module_function :supports_rebinding_module_methods?
     end
   end
 end
