@@ -11,12 +11,12 @@ module RSpec
       module_function :optional_and_splat_args_supported?
 
       def kw_args_supported?
-        RUBY_VERSION >= '2.0.0' && RUBY_ENGINE != 'rbx'
+        RUBY_VERSION >= '2.0.0' && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
       end
       module_function :kw_args_supported?
 
       def required_kw_args_supported?
-        RUBY_VERSION >= '2.1.0' && RUBY_ENGINE != 'rbx'
+        RUBY_VERSION >= '2.1.0' && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
       end
       module_function :required_kw_args_supported?
 
@@ -26,7 +26,7 @@ module RSpec
       module_function :module_prepends_supported?
 
       def supports_rebinding_module_methods?
-        # RBX and JRuby doesn't yet support this.
+        # RBX and JRuby don't yet support this.
         RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
       end
       module_function :supports_rebinding_module_methods?
