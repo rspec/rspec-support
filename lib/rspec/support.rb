@@ -27,6 +27,7 @@ module RSpec
 
     define_optimized_require_for_rspec(:support) { |f| require_relative(f) }
     require_rspec_support "version"
+    require_rspec_support "ruby_features"
 
     # @api private
     KERNEL_METHOD_METHOD = ::Kernel.instance_method(:method)
@@ -40,7 +41,7 @@ module RSpec
     #
     #   - Objects that redefine #method (e.g. an HTTPRequest struct)
     #   - BasicObject subclasses that mixin a Kernel dup (e.g. SimpleDelegator)
-    if RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx'
+    if RubyFeatures.supports_rebinding_module_methods?
       def self.method_handle_for(object, method_name)
         KERNEL_METHOD_METHOD.bind(object).call(method_name)
       end
