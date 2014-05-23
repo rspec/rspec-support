@@ -8,4 +8,14 @@ describe 'isolating a spec from the stderr splitter' do
       $stderr.puts "Imma gonna warn you"
     end
   end
+
+  it 'resets $stderr to its original value even if an error is raised' do
+    orig_stderr = $stderr
+
+    expect {
+      with_isolated_stderr { raise "boom" }
+    }.to raise_error("boom")
+
+    expect($stderr).to be(orig_stderr)
+  end
 end
