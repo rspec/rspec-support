@@ -6,6 +6,7 @@ module RSpec
         original = $stderr
         $stderr = StringIO.new
         yield
+      ensure
         $stderr = original
       end
 
