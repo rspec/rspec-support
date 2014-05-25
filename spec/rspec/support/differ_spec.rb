@@ -251,6 +251,16 @@ EOD
           expect(diff).to be_empty
         end
 
+        it "returns a String if no diff is returned" do
+          diff = differ.diff 1, 2
+          expect(diff).to be_a(String)
+        end
+
+        it "returns a String if a diff is performed" do
+          diff = differ.diff "a\n", "b\n"
+          expect(diff).to be_a(String)
+        end
+
         context "with :object_preparer option set" do
           let(:differ) do
             RSpec::Support::Differ.new(:object_preparer => lambda { |s| s.to_s.reverse })
