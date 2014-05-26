@@ -24,12 +24,13 @@ module RSpec
  this
  is
  soo
-@@ -9,6 +9,5 @@
+@@ -9,7 +9,6 @@
  equal
  insert
  a
 -another
  line
+ 
 EOD
 
           diff = differ.diff(actual, expected)
@@ -49,22 +50,23 @@ EOD
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
             expect(differ.diff(actual, expected)).to eql(<<-EOD.encode('UTF-16LE'))
 
-@@ -1,2 +1,2 @@
+@@ -1,3 +1,3 @@
 -Tu avec carte {count} item has
 +Tu avec carté {count} itém has
+ 
 EOD
           end
 
           it 'handles differently encoded strings that are compatible' do
             expected = "abc\n".encode('us-ascii')
             actual   = "강인철\n".encode('UTF-8')
-            expect(differ.diff(actual, expected)).to eql "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
+            expect(differ.diff(actual, expected)).to eql "\n@@ -1,3 +1,3 @@\n-abc\n+강인철\n \n"
           end
 
           it 'uses the default external encoding when the two strings have incompatible encodings' do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eq("\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
+            expect(differ.diff(actual, expected)).to eq("\n@@ -1,3 +1,3 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n \n")
             expect(differ.diff(actual, expected).encoding).to eq(Encoding.default_external)
           end
 
@@ -101,12 +103,14 @@ EOD
 
           expected_diff = <<'EOD'
 
-@@ -1,5 +1,5 @@
+@@ -1,6 +1,6 @@
  <Animal
    name=bob,
 -  species=tortoise
 +  species=giraffe
  >
+ 
+ 
 EOD
 
           diff = differ.diff(expected,actual)
@@ -120,7 +124,7 @@ EOD
           expected_diff = <<'EOD'
 
 
-@@ -5,7 +5,7 @@
+@@ -5,8 +5,8 @@
   :metasyntactic,
   "variable",
   :delta,
@@ -129,6 +133,7 @@ EOD
   :width,
 - "very wide"]
 + "quite wide"]
+ 
 EOD
 
           diff = differ.diff(expected,actual)
@@ -203,6 +208,22 @@ EOD
           expect(diff).to eq expected_diff
         end
 
+        it "diffs strings identical except for newlines" do
+          expected = "this is:\n  one string\n"
+          actual   = "this is:\n  one string"
+
+          expected_diff = <<'EOD'
+
+@@ -1,3 +1,4 @@
+ this is:
+   one string
++
+EOD
+
+          diff = differ.diff(expected,actual)
+          expect(diff).to eq expected_diff
+        end
+
         it "splits items with newlines" do
           expected_diff = <<'EOD'
 
@@ -251,6 +272,12 @@ EOD
           expect(diff).to be_empty
         end
 
+        it "returns an empty string with two single line strings" do
+          diff = differ.diff "abc", "def"
+
+          expect(diff).to be_empty
+        end
+
         it "returns a String if no diff is returned" do
           diff = differ.diff 1, 2
           expect(diff).to be_a(String)
@@ -289,7 +316,7 @@ EOD
           it "outputs colored diffs" do
             expected = "foo bar baz\n"
             actual = "foo bang baz\n"
-            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,2 +1,2 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
+            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,3 +1,3 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m\e[0m \n\e[0m"
 
             diff = differ.diff(expected,actual)
             expect(diff).to eq expected_diff
