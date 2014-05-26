@@ -19,7 +19,7 @@ module RSpec
           end
         end
 
-        diff
+        diff.to_s
       end
 
       def diff_as_string(actual, expected)
