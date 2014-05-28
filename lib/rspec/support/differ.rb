@@ -179,7 +179,7 @@ module RSpec
         when String
           object =~ /\n/ ? object : object.inspect
         else
-          PP.pp(object,"")
+          PP.pp(object,"").chomp
         end
       end
 

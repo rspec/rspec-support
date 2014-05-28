@@ -110,7 +110,6 @@ EOD
 +  species=giraffe
  >
  
- 
 EOD
 
           diff = differ.diff(expected,actual)
@@ -124,7 +123,7 @@ EOD
           expected_diff = <<'EOD'
 
 
-@@ -5,8 +5,8 @@
+@@ -5,7 +5,7 @@
   :metasyntactic,
   "variable",
   :delta,
@@ -133,7 +132,6 @@ EOD
   :width,
 - "very wide"]
 + "quite wide"]
- 
 EOD
 
           diff = differ.diff(expected,actual)
