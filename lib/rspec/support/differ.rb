@@ -43,7 +43,7 @@ module RSpec
         end
 
         if hunks.last
-          finalize_output(output, hunks.last.diff(format).to_s)
+          finalize_output(output, hunks.last.diff(format).to_s.strip)
         end
 
         color_diff output

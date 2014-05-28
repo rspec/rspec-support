@@ -30,7 +30,6 @@ module RSpec
  a
 -another
  line
- 
 EOD
 
           diff = differ.diff(actual, expected)
@@ -53,20 +52,19 @@ EOD
 @@ -1,3 +1,3 @@
 -Tu avec carte {count} item has
 +Tu avec carté {count} itém has
- 
 EOD
           end
 
           it 'handles differently encoded strings that are compatible' do
             expected = "abc\n".encode('us-ascii')
             actual   = "강인철\n".encode('UTF-8')
-            expect(differ.diff(actual, expected)).to eql "\n@@ -1,3 +1,3 @@\n-abc\n+강인철\n \n"
+            expect(differ.diff(actual, expected)).to eql "\n@@ -1,3 +1,3 @@\n-abc\n+강인철\n"
           end
 
           it 'uses the default external encoding when the two strings have incompatible encodings' do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eq("\n@@ -1,3 +1,3 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n \n")
+            expect(differ.diff(actual, expected)).to eq("\n@@ -1,3 +1,3 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
             expect(differ.diff(actual, expected).encoding).to eq(Encoding.default_external)
           end
 
@@ -109,7 +107,6 @@ EOD
 -  species=tortoise
 +  species=giraffe
  >
- 
 EOD
 
           diff = differ.diff(expected,actual)
@@ -314,7 +311,7 @@ EOD
           it "outputs colored diffs" do
             expected = "foo bar baz\n"
             actual = "foo bang baz\n"
-            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,3 +1,3 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m\e[0m \n\e[0m"
+            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,3 +1,3 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
 
             diff = differ.diff(expected,actual)
             expect(diff).to eq expected_diff
