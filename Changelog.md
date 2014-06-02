@@ -1,3 +1,6 @@
+### 3.0.0 / 2014-06-01
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.0.rc1...v3.0.0)
+
 ### 3.0.0.rc1 / 2014-05-18
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.0.beta2...v3.0.0.rc1)
 
