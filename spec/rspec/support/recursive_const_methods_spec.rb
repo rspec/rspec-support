@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'rspec/support/recursive_const_methods'
 
 module RSpec
