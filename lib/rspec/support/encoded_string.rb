@@ -21,8 +21,8 @@ module RSpec
         @string << matching_encoding(string)
       end
 
-      def split(regex_or_string)
-        @string.split(matching_encoding(regex_or_string))
+      def split(regex_or_string, limit=0)
+        @string.split(matching_encoding(regex_or_string), limit)
       end
 
       def to_s

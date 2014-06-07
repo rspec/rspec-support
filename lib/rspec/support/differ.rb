@@ -43,7 +43,7 @@ module RSpec
         end
 
         if hunks.last
-          finalize_output(output, hunks.last.diff(format).to_s)
+          finalize_output(output, hunks.last.diff(format).to_s.strip)
         end
 
         color_diff output
@@ -179,7 +179,7 @@ module RSpec
         when String
           object =~ /\n/ ? object : object.inspect
         else
-          PP.pp(object,"")
+          PP.pp(object,"").chomp
         end
       end
 
