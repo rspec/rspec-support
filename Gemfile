@@ -3,12 +3,13 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in rspec-support.gemspec
 gemspec
 
+branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
 %w[rspec rspec-core rspec-expectations rspec-mocks].each do |lib|
   library_path = File.expand_path("../../#{lib}", __FILE__)
   if File.exist?(library_path) && !ENV['USE_GIT_REPOS']
     gem lib, :path => library_path
   else
-    gem lib, :git => "git://github.com/rspec/#{lib}.git"
+    gem lib, :git => "git://github.com/rspec/#{lib}.git", :branch => branch
   end
 end
 
