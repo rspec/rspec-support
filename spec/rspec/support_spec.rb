@@ -76,18 +76,28 @@ module RSpec
       end
     end
 
-    describe ".proc_to_lambda", :if => Proc.method_defined?(:lambda?) do
-      it "converts a proc to a lambda" do
-        p = Proc.new { 47 }
-        expect(p).not_to be_lambda
-        l = Support.proc_to_lambda(p)
-        expect(l).to be_lambda
-        expect(l.call).to eq(47)
+    describe ".proc_to_lambda" do
+      context "on an interpreter that provides Proc#lambda?", :if => Proc.method_defined?(:lambda?) do
+        it "converts a proc to a lambda" do
+          p = Proc.new { 47 }
+          expect(p).not_to be_lambda
+          l = Support.proc_to_lambda(p)
+          expect(l).to be_lambda
+          expect(l.call).to eq(47)
+        end
+
+        it 'returns a lambda unchanged' do
+          l = lambda { }
+          expect(Support.proc_to_lambda(l)).to be(l)
+        end
       end
 
-      it 'returns a lambda unchanged' do
-        l = lambda { }
-        expect(Support.proc_to_lambda(l)).to be(l)
+      context "on an interpreter that does not provide Proc#lambda?", :unless => Proc.method_defined?(:lambda?) do
+        it 'converts a proc to a lambda' do
+          p = Proc.new { return 47 }
+          l = Support.proc_to_lambda(p)
+          expect(l.call).to eq(47)
+        end
       end
     end
   end

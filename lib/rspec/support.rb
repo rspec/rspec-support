@@ -56,9 +56,15 @@ module RSpec
     end
 
     if RUBY_PLATFORM == 'java'
-      def self.proc_to_lambda(block)
-        return block if block.lambda?
-        lambda(&block)
+      if Proc.method_defined?(:lambda?)
+        def self.proc_to_lambda(block)
+          return block if block.lambda?
+          lambda(&block)
+        end
+      else
+        def self.proc_to_lambda(block)
+          lambda(&block)
+        end
       end
     elsif respond_to?(:define_singleton_method)
       def self.proc_to_lambda(block)
