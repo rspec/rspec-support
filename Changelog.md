@@ -1,3 +1,10 @@
+### 3.0.2 Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.1...3-0-maintenance)
+
+* Revert `BlockSignature` change from 3.0.1 because of a ruby bug that
+  caused it to change the block's behavior (https://bugs.ruby-lang.org/issues/9967).
+  (Myron Marston, rspec-mocks#721)
+
 ### 3.0.1 / 2014-06-19
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.0...v3.0.1)
 

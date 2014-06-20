@@ -54,32 +54,5 @@ module RSpec
         end
       end
     end
-
-    if RUBY_PLATFORM == 'java'
-      if Proc.method_defined?(:lambda?)
-        def self.proc_to_lambda(block)
-          return block if block.lambda?
-          lambda(&block)
-        end
-      else
-        def self.proc_to_lambda(block)
-          lambda(&block)
-        end
-      end
-    elsif respond_to?(:define_singleton_method)
-      def self.proc_to_lambda(block)
-        return block if block.lambda?
-
-        obj = Object.new
-        obj.define_singleton_method(:to_lambda, &block)
-        obj.method(:to_lambda).to_proc
-      end
-    else # 1.8.7
-      def self.proc_to_lambda(block)
-        obj = Object.new
-        (class << obj; self; end).__send__(:define_method, :to_lambda, &block)
-        obj.method(:to_lambda).to_proc
-      end
-    end
   end
 end
