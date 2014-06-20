@@ -3,18 +3,6 @@ require 'rspec/support/method_signature_verifier'
 
 module RSpec
   module Support
-    describe BlockSignature do
-      it 'differentiates optional vs required args', :if => RubyFeatures.optional_and_splat_args_supported? do
-        bs = BlockSignature.new(Proc.new { |a, b| })
-        expect(bs.min_non_kw_args).to eq(2)
-        expect(bs.max_non_kw_args).to eq(2)
-
-        bs = eval("BlockSignature.new(Proc.new { |a, b=2| })")
-        expect(bs.min_non_kw_args).to eq(1)
-        expect(bs.max_non_kw_args).to eq(2)
-      end
-    end
-
     describe MethodSignatureVerifier do
       describe '#verify!' do
         let(:signature) { MethodSignature.new(test_method) }
