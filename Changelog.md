@@ -1,5 +1,5 @@
-### 3.0.1 Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.0...3-0-maintenance)
+### 3.0.1 / 2014-06-19
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.0...v3.0.1)
 
 * Fix `BlockSignature` so that it correctly differentiates between
   required and optional block args. (Myron Marston, rspec-mocks#714)
