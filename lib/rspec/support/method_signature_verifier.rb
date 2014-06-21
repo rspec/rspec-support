@@ -133,8 +133,11 @@ module RSpec
     #
     # @api private
     class BlockSignature < MethodSignature
-      def initialize(block)
-        super(Support.proc_to_lambda(block))
+      if RubyFeatures.optional_and_splat_args_supported?
+        def classify_parameters
+          super
+          @min_non_kw_args = @max_non_kw_args unless @max_non_kw_args == INFINITY
+        end
       end
     end
 
