@@ -23,7 +23,6 @@ module RSpec
         diff.to_s
       end
 
-
       # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
         @encoding = pick_encoding actual, expected
