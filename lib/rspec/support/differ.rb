@@ -37,14 +37,14 @@ module RSpec
             if current_hunk.overlaps?(prev_hunk)
               add_old_hunk_to_hunk(current_hunk, prev_hunk)
             else
-              add_to_output(output, prev_hunk.diff(format).to_s)
+              add_to_output(output, prev_hunk.diff(format_type).to_s)
             end
           ensure
             add_to_output(output, "\n")
           end
         end
 
-        finalize_output(output, hunks.last.diff(format).to_s) if hunks.last
+        finalize_output(output, hunks.last.diff(format_type).to_s) if hunks.last
 
         color_diff output
       rescue Encoding::CompatibilityError
@@ -126,7 +126,7 @@ module RSpec
         hunk.merge(oldhunk)
       end
 
-      def format
+      def format_type
         :unified
       end
 
