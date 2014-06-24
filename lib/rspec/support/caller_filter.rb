@@ -4,7 +4,6 @@ module RSpec
   # the code using the library, which is far more useful than the particular
   # internal method that raised an error.
   class CallerFilter
-
     RSPEC_LIBS = %w[
       core
       mocks
@@ -41,7 +40,7 @@ module RSpec
         i         = 1
         line      = nil
 
-        while !line
+        until line
           stack = caller(i, increment)
           raise "No non-lib lines in stack" unless stack
 

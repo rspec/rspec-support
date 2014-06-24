@@ -1,7 +1,7 @@
 module RSpec
   module Support
     module Warnings
-      def deprecate(deprecated, options = {})
+      def deprecate(deprecated, options={})
         warn_with "DEPRECATION: #{deprecated} is deprecated.", options
       end
 
@@ -9,7 +9,7 @@ module RSpec
       #
       # Used internally to print deprecation warnings
       # when rspec-core isn't loaded
-      def warn_deprecation(message, options = {})
+      def warn_deprecation(message, options={})
         warn_with "DEPRECATION: \n #{message}", options
       end
 
@@ -23,7 +23,7 @@ module RSpec
       # @private
       #
       # Used internally to print longer warnings
-      def warn_with(message, options = {})
+      def warn_with(message, options={})
         call_site = options.fetch(:call_site) { CallerFilter.first_non_rspec_line }
         message << " Use #{options[:replacement]} instead." if options[:replacement]
         message << " Called from #{call_site}." if call_site

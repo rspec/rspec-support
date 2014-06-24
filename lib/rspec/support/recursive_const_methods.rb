@@ -31,9 +31,7 @@ module RSpec
         end
 
         def get_const_defined_on(mod, const_name)
-          if const_defined_on?(mod, const_name)
-            return mod.const_get(const_name)
-          end
+          return mod.const_get(const_name) if const_defined_on?(mod, const_name)
 
           raise NameError, "uninitialized constant #{mod.name}::#{const_name}"
         end

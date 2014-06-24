@@ -2,10 +2,9 @@ module RSpec
   module Support
     # @private
     class EncodedString
-
       MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
 
-      def initialize(string, encoding = nil)
+      def initialize(string, encoding=nil)
         @encoding = encoding
         @source_encoding = detect_source_encoding(string)
         @string = matching_encoding(string)
@@ -57,7 +56,7 @@ module RSpec
           string
         end
 
-        def detect_source_encoding(string)
+        def detect_source_encoding(_string)
           'US-ASCII'
         end
       end

@@ -42,7 +42,6 @@ module RSpec
       def context_lines
         3
       end
-
     end
   end
 end
