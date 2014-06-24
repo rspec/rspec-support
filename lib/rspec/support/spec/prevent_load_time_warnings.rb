@@ -1,18 +1,22 @@
 require 'rspec/support/spec/shell_out'
 
-module RSpec::Support::WarningsPrevention
-  def files_to_require_for(lib)
-    slash         = File::SEPARATOR
-    lib_path_re   = %r|#{slash + lib}[^#{slash}]*#{slash}lib|
-    load_path     = $LOAD_PATH.grep(lib_path_re).first
-    files         = Dir["#{load_path}/**/*.rb"]
-    extract_regex = %r|#{Regexp.escape(load_path) + File::SEPARATOR}(.+)\.rb$|
+module RSpec
+  module Support
+    module WarningsPrevention
+      def files_to_require_for(lib)
+        slash         = File::SEPARATOR
+        lib_path_re   = /#{slash + lib}[^#{slash}]*#{slash}lib/
+        load_path     = $LOAD_PATH.grep(lib_path_re).first
+        files         = Dir["#{load_path}/**/*.rb"]
+        extract_regex = /#{Regexp.escape(load_path) + File::SEPARATOR}(.+)\.rb$/
 
-    # We sort to ensure the files are loaded in a consistent order, regardless
-    # of OS. Otherwise, it could load in a different order on Travis than
-    # locally, and potentially trigger a "circular require considered harmful"
-    # warning or similar.
-    files.sort.map { |file| file[extract_regex, 1] }
+        # We sort to ensure the files are loaded in a consistent order, regardless
+        # of OS. Otherwise, it could load in a different order on Travis than
+        # locally, and potentially trigger a "circular require considered harmful"
+        # warning or similar.
+        files.sort.map { |file| file[extract_regex, 1] }
+      end
+    end
   end
 end
 

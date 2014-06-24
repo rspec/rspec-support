@@ -5,6 +5,7 @@ require 'pp'
 
 module RSpec
   module Support
+    # rubocop:disable ClassLength
     class Differ
       def diff(actual, expected)
         diff = ""
@@ -22,6 +23,7 @@ module RSpec
         diff.to_s
       end
 
+      # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
         @encoding = pick_encoding actual, expected
 
@@ -35,21 +37,20 @@ module RSpec
             if current_hunk.overlaps?(prev_hunk)
               add_old_hunk_to_hunk(current_hunk, prev_hunk)
             else
-              add_to_output(output, prev_hunk.diff(format).to_s)
+              add_to_output(output, prev_hunk.diff(format_type).to_s)
             end
           ensure
             add_to_output(output, "\n")
           end
         end
 
-        if hunks.last
-          finalize_output(output, hunks.last.diff(format).to_s)
-        end
+        finalize_output(output, hunks.last.diff(format_type).to_s) if hunks.last
 
         color_diff output
       rescue Encoding::CompatibilityError
         handle_encoding_errors
       end
+      # rubocop:enable MethodLength
 
       def diff_as_object(actual, expected)
         actual_as_string = object_to_string(actual)
@@ -68,11 +69,11 @@ module RSpec
     private
 
       def no_procs?(*args)
-        args.flatten.none? { |a| Proc === a}
+        args.flatten.none? { |a| Proc === a }
       end
 
       def all_strings?(*args)
-        args.flatten.all? { |a| String === a}
+        args.flatten.all? { |a| String === a }
       end
 
       def any_multiline_strings?(*args)
@@ -80,7 +81,7 @@ module RSpec
       end
 
       def no_numbers?(*args)
-        args.flatten.none? { |a| Numeric === a}
+        args.flatten.none? { |a| Numeric === a }
       end
 
       def coerce_to_string(string_or_array)
@@ -125,7 +126,7 @@ module RSpec
         hunk.merge(oldhunk)
       end
 
-      def format
+      def format_type
         :unified
       end
 
@@ -152,7 +153,7 @@ module RSpec
       def color_diff(diff)
         return diff unless color?
 
-        diff.lines.map { |line|
+        diff.lines.map do |line|
           case line[0].chr
           when "+"
             green line
@@ -163,7 +164,7 @@ module RSpec
           else
             normal(line)
           end
-        }.join
+        end.join
       end
 
       def object_to_string(object)
@@ -179,7 +180,7 @@ module RSpec
         when String
           object =~ /\n/ ? object : object.inspect
         else
-          PP.pp(object,"")
+          PP.pp(object, "")
         end
       end
 
@@ -188,18 +189,19 @@ module RSpec
           Encoding.compatible?(source_a, source_b) || Encoding.default_external
         end
       else
-        def pick_encoding(source_a, source_b)
+        def pick_encoding(_source_a, _source_b)
         end
       end
 
       def handle_encoding_errors
         if @actual.source_encoding != @expected.source_encoding
-          "Could not produce a diff because the encoding of the actual string (#{@actual.source_encoding}) "+
-            "differs from the encoding of the expected string (#{@expected.source_encoding})"
+          "Could not produce a diff because the encoding of the actual string (#{@actual.source_encoding}) " \
+          "differs from the encoding of the expected string (#{@expected.source_encoding})"
         else
           "Could not produce a diff because of the encoding of the string (#{@expected.source_encoding})"
         end
       end
     end
+    # rubocop:enable ClassLength
   end
 end
