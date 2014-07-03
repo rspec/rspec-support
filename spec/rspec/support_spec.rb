@@ -13,6 +13,13 @@ module RSpec
 
       http_request_class = Struct.new(:method, :uri)
 
+      proxy_class = Struct.new(:original) do
+        undef :=~, :method
+        def method_missing(name, *args, &block)
+          original.__send__(name, *args, &block)
+        end
+      end
+
       it 'fetches method definitions for vanilla objects' do
         object = untampered_class.new
         expect(Support.method_handle_for(object, :foo).call).to eq :bar
@@ -21,6 +28,33 @@ module RSpec
       it 'fetches method definitions for objects with method redefined' do
         request = http_request_class.new(:get, "http://foo.com/")
         expect(Support.method_handle_for(request, :uri).call).to eq "http://foo.com/"
+      end
+
+      it 'fetches method definitions for proxy objects' do
+        object = proxy_class.new([])
+        expect(Support.method_handle_for(object, :=~)).to be_a Method
+      end
+
+      it 'fetches method definitions for proxy objects' do
+        object = proxy_class.new([])
+        expect(Support.method_handle_for(object, :=~)).to be_a Method
+      end
+
+      it 'fails with `NameError` when an undefined method is fetched ' +
+         'from an object that has overriden `method` to raise an Exception' do
+        object = double
+        allow(object).to receive(:method).and_raise(Exception)
+        expect {
+          Support.method_handle_for(object, :some_undefined_method)
+        }.to raise_error(NameError)
+      end
+
+      it 'fails with `NameError` when a method is fetched from an object ' +
+         'that has overriden `method` to not return a method' do
+        object = proxy_class.new(double(:method => :baz))
+        expect {
+          Support.method_handle_for(object, :=~)
+        }.to raise_error(NameError)
       end
 
       context "for a BasicObject subclass", :if => RUBY_VERSION.to_f > 1.8 do
