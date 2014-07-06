@@ -3,30 +3,30 @@ require 'rspec/support/method_signature_verifier'
 
 module RSpec
   module Support
-    describe MethodSignatureVerifier do
-      describe '#verify!' do
-        let(:signature) { MethodSignature.new(test_method) }
+    describe 'verifying methods' do
+      let(:signature) { MethodSignature.new(test_method) }
 
-        def valid_non_kw_args?(arity)
-          described_class.new(signature, [nil] * arity).valid?
-        end
+      def valid_non_kw_args?(arity)
+        described_class.new(signature, [nil] * arity).valid?
+      end
 
-        def valid?(*args)
-          described_class.new(signature, args).valid?
-        end
+      def valid?(*args)
+        described_class.new(signature, args).valid?
+      end
 
-        def error_description
-          described_class.new(signature, []).error_message[/Expected (.*),/, 1]
-        end
+      def error_description
+        described_class.new(signature, []).error_message[/Expected (.*),/, 1]
+      end
 
-        def error_for(*args)
-          described_class.new(signature, args).error_message
-        end
+      def error_for(*args)
+        described_class.new(signature, args).error_message
+      end
 
-        def signature_description
-          signature.description
-        end
+      def signature_description
+        signature.description
+      end
 
+      shared_context 'a method verifier' do
         describe 'with a method with arguments' do
           def arity_two(x, y); end
 
@@ -265,6 +265,86 @@ module RSpec
 
           it 'describes the arity precisely' do
             expect(error_description).to eq("1")
+          end
+        end
+      end
+
+      let(:fake_matcher) { Object.new }
+      let(:fake_matcher_def) { lambda {|x| fake_matcher == x }}
+
+      before do
+        RSpec::Support.register_matcher_definition(&fake_matcher_def)
+      end
+
+      after do
+        RSpec::Support.deregister_matcher_definition(&fake_matcher_def)
+      end
+
+
+      describe StrictSignatureVerifier do
+        it_behaves_like 'a method verifier'
+
+        if RubyFeatures.kw_args_supported?
+          describe 'providing a matcher for optional keyword arguments' do
+            eval <<-RUBY
+              def arity_kw(x, y:1); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw) }
+
+            it 'is not allowed' do
+              expect(valid?(nil, fake_matcher)).to eq(false)
+            end
+          end
+        end
+
+        if RubyFeatures.required_kw_args_supported?
+          describe 'providing a matcher for required keyword arguments' do
+            eval <<-RUBY
+              def arity_kw_required(x, y:); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw_required) }
+
+            it 'is not allowed' do
+              expect(valid?(nil, fake_matcher)).to eq(false)
+            end
+          end
+        end
+      end
+
+      describe LooseSignatureVerifier do
+        it_behaves_like 'a method verifier'
+
+        if RubyFeatures.kw_args_supported?
+          describe 'for optional keyword arguments' do
+            eval <<-RUBY
+              def arity_kw(x, y:1, z:2); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw) }
+
+            it 'allows a matcher' do
+              expect(valid?(nil, fake_matcher)).to eq(true)
+            end
+
+            it 'allows a matcher only for positional arguments' do
+              expect(valid?(fake_matcher)).to eq(true)
+            end
+          end
+        end
+
+        if RubyFeatures.required_kw_args_supported?
+          describe 'providing a matcher for required keyword arguments' do
+            eval <<-RUBY
+              def arity_kw_required(x, y:); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw_required) }
+
+            it 'is allowed' do
+              expect(valid?(nil, fake_matcher)).to eq(true)
+            end
           end
         end
       end

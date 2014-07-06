@@ -1,8 +1,10 @@
 require 'rspec/support'
 RSpec::Support.require_rspec_support "ruby_features"
+RSpec::Support.require_rspec_support "matcher_definition"
 
 module RSpec
   module Support
+
     # Extracts info about the number of arguments and allowed/required
     # keyword args of a given method.
     #
@@ -21,6 +23,11 @@ module RSpec
           when INFINITY then "#{min_non_kw_args} or more"
           else "#{min_non_kw_args} to #{max_non_kw_args}"
         end
+      end
+
+      def valid_non_kw_args?(positional_arg_count)
+        min_non_kw_args <= positional_arg_count &&
+          positional_arg_count <= max_non_kw_args
       end
 
       if RubyFeatures.optional_and_splat_args_supported?
@@ -57,8 +64,10 @@ module RSpec
           given_kw_args - @allowed_kw_args
         end
 
-        def has_kw_args_in?(args)
-          return false unless Hash === args.last
+        def has_kw_args_in?(args, kw_check = lambda {|x| Hash === x })
+          last = args.last
+
+          return false unless kw_check.call(last)
           return false if args.count <= min_non_kw_args
 
           @allows_any_kw_args || @allowed_kw_args.any?
@@ -102,7 +111,7 @@ module RSpec
           []
         end
 
-        def has_kw_args_in?(args)
+        def has_kw_args_in?(*_args)
           false
         end
 
@@ -127,9 +136,9 @@ module RSpec
     # For methods, arguments are required unless a default value is provided.
     # For blocks, arguments are optional, even if no default value is provided.
     #
-    # However, we want to treat block args as required since you virtually always
-    # want to pass a value for each received argument and our `and_yield` has
-    # treated block args as required for many years.
+    # However, we want to treat block args as required since you virtually
+    # always want to pass a value for each received argument and our
+    # `and_yield` has treated block args as required for many years.
     #
     # @api private
     class BlockSignature < MethodSignature
@@ -141,10 +150,9 @@ module RSpec
       end
     end
 
-    # Figures out wheter a given method can accept various arguments.
-    # Surprisingly non-trivial.
+    # Abstract base class for signature verifiers.
     #
-    # @private
+    # @api private
     class MethodSignatureVerifier
       attr_reader :non_kw_args, :kw_args
 
@@ -154,7 +162,7 @@ module RSpec
       end
 
       def valid?
-         missing_kw_args.empty? &&
+        missing_kw_args.empty? &&
           invalid_kw_args.empty? &&
           valid_non_kw_args?
       end
@@ -179,8 +187,7 @@ module RSpec
     private
 
       def valid_non_kw_args?
-        actual = non_kw_args.length
-        @signature.min_non_kw_args <= actual && actual <= @signature.max_non_kw_args
+        @signature.valid_non_kw_args?(non_kw_args.length)
       end
 
       def missing_kw_args
@@ -190,6 +197,14 @@ module RSpec
       def invalid_kw_args
         @signature.invalid_kw_args_from(kw_args)
       end
+    end
+
+    # Figures out wheter a given method can accept various arguments.
+    # Surprisingly non-trivial.
+    #
+    # @private
+    class StrictSignatureVerifier < MethodSignatureVerifier
+    private
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
@@ -199,6 +214,61 @@ module RSpec
         end
 
         [args, kw_args]
+      end
+    end
+
+    # Allows matchers to be used instead of providing keyword arguments. In
+    # practice, when this happends only the arity of the method is verified.
+    #
+    # @private
+    class LooseSignatureVerifier < MethodSignatureVerifier
+    private
+
+      def split_args(*args)
+        kw_check = lambda {|x| Hash === x || RSpec::Support.is_a_matcher?(x) }
+        kw_args = if @signature.has_kw_args_in?(args, kw_check)
+          x = args.pop
+          if RSpec::Support.is_a_matcher?(x)
+            @signature = SignatureWithKeywordArgumentsMatcher.new(@signature)
+            []
+          else
+            x.keys
+          end
+        else
+          []
+        end
+
+        [args, kw_args]
+      end
+
+      # If a matcher is used in a signature in place of keyword arguments, all
+      # keyword argument validation needs to be skipped since the matcher is
+      # opaque.
+      #
+      # Instead, keyword arguments will be validated when the method is called
+      # and they are actually known.
+      #
+      # @private
+      class SignatureWithKeywordArgumentsMatcher
+        def initialize(signature)
+          @signature = signature
+        end
+
+        def missing_kw_args_from(_kw_args)
+          []
+        end
+
+        def invalid_kw_args_from(_kw_args)
+          []
+        end
+
+        def non_kw_args_arity_description
+          @signature.non_kw_args_arity_description
+        end
+
+        def valid_non_kw_args?(*args)
+          @signature.valid_non_kw_args?(*args)
+        end
       end
     end
   end
