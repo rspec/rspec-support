@@ -21,7 +21,7 @@ module RSpec
       module_function :required_kw_args_supported?
 
       def module_prepends_supported?
-        Module.private_method_defined?(:prepend)
+        Module.method_defined?(:prepend) || Module.private_method_defined?(:prepend)
       end
       module_function :module_prepends_supported?
 

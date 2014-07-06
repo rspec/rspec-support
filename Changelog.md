@@ -6,6 +6,7 @@ Bug Fixes:
 * Fix regression in `Support#method_handle_for` where proxy objects
   with method delegated would wrongly not return a method handle.
   (Jon Rowe, #90)
+* Fix detection of Module#prepend support in Ruby 2.1+ where it is public
 
 ### 3.0.2 / 2014-06-20
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.1...v3.0.2)
