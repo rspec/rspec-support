@@ -1,9 +1,17 @@
 require "spec_helper"
 require "rspec/support/warnings"
+require 'shellwords'
 
 describe "rspec warnings and deprecations" do
   let(:warning_object) do
     Object.new.tap { |o| o.extend(RSpec::Support::Warnings) }
+  end
+
+  it 'works when required in isolation' do
+    lib_dir = Shellwords.escape(File.expand_path("../../../../lib", __FILE__))
+    output = `ruby -I#{lib_dir} -rrspec/support/warnings -e "RSpec.deprecate('foo')" 2>&1`
+    expect(output).to start_with("DEPRECATION: foo is deprecated")
+    expect($?.exitstatus).to eq(0)
   end
 
   context "when rspec-core is not available" do
