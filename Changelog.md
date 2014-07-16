@@ -7,6 +7,8 @@ Bug Fixes:
   with method delegated would wrongly not return a method handle.
   (Jon Rowe, #90)
 * Properly detect Module#prepend support in Ruby 2.1+ (Ben Langfeld, #91)
+* Fix `rspec/support/warnings.rb` so it can be loaded and used in
+  isolation. (Myron Marston, #93)
 
 ### 3.0.2 / 2014-06-20
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.1...v3.0.2)
