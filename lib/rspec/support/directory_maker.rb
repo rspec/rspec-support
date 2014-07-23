@@ -1,32 +1,30 @@
-module RSpec::Support
-  # @api private
-  #
-  # Replacement for fileutils#mkdir_p because we don't want to require parts
-  # of stdlib in RSpec.
-  class DirectoryMaker
+module RSpec
+  module Support
     # @api private
     #
-    # Implements nested directory construction
-    def self.mkdir_p(path)
-      stack = path.start_with?(File::SEPARATOR) ? File::SEPARATOR : "."
-      path.split(File::SEPARATOR).each do |part|
-        stack = File.join(stack, part)
+    # Replacement for fileutils#mkdir_p because we don't want to require parts
+    # of stdlib in RSpec.
+    class DirectoryMaker
+      # @api private
+      #
+      # Implements nested directory construction
+      def self.mkdir_p(path)
+        stack = path.start_with?(File::SEPARATOR) ? File::SEPARATOR : "."
+        path.split(File::SEPARATOR).each do |part|
+          stack = File.join(stack, part)
 
-        begin
-          unless directory_exists?(stack)
-            Dir.mkdir(stack)
+          begin
+            Dir.mkdir(stack) unless directory_exists?(stack)
+          rescue Errno::ENOTDIR
+            raise Errno::EEXIST.new($!.message)
           end
-        rescue Errno::ENOTDIR
-          raise Errno::EEXIST.new($!.message)
+
         end
-
       end
-    end
 
-    private
-
-    def self.directory_exists?(dirname)
-      File.exist?(dirname) && File.directory?(dirname)
+      def self.directory_exists?(dirname)
+        File.exist?(dirname) && File.directory?(dirname)
+      end
     end
   end
 end

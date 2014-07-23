@@ -40,14 +40,13 @@ module RSpec
       end
 
       def verify_example!(example)
-        example.send(:fail,"Warnings were generated: #{output}") if has_output?
+        example.send(:fail, "Warnings were generated: #{output}") if has_output?
         reset!
       end
 
       def output
         @output_tracker.string
       end
-
     end
   end
 end
