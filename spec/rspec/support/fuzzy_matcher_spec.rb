@@ -56,6 +56,24 @@ module RSpec
         end
       end
 
+      context "when given an object whose implementation of `==` raises an ArgumentError" do
+        it 'surfaces the error' do
+          klass = Class.new do
+            attr_accessor :foo
+            def ==(other)
+              other.foo == foo
+            end
+          end
+          instance = klass.new
+
+          other = Object.new
+          def other.foo(arg); end
+
+          expect { instance == other }.to raise_error(ArgumentError)
+          expect { FuzzyMatcher.values_match?(other, instance) }.to raise_error(ArgumentError)
+        end
+      end
+
       context "when given two arrays" do
         it 'returns true if they have equal values' do
           expect([1, 2.0]).to match_against([1.0, 2])

@@ -1,3 +1,11 @@
+### 3.0.4 Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.3...3-0-maintenance)
+
+Bug Fixes:
+
+* Fix `FuzzyMatcher` so that it does not silence `ArgumentError` raised
+  from broken implementations of `==`. (Myron Marston, #94)
+
 ### 3.0.3 / 2014-07-21
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.2...v3.0.3)
 
