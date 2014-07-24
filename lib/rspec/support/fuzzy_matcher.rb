@@ -10,10 +10,12 @@ module RSpec
           return arrays_match?(expected, actual.to_a)
         elsif Hash === expected && Hash === actual
           return hashes_match?(expected, actual)
+        elsif actual == expected
+          return true
         end
 
         begin
-          actual == expected || expected === actual
+          expected === actual
         rescue ArgumentError
           # Some objects, like 0-arg lambdas on 1.9+, raise
           # ArgumentError for `expected === actual`.
