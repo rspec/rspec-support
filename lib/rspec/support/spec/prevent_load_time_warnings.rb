@@ -7,7 +7,12 @@ module RSpec::Support::WarningsPrevention
     load_path     = $LOAD_PATH.grep(lib_path_re).first
     files         = Dir["#{load_path}/**/*.rb"]
     extract_regex = %r|#{Regexp.escape(load_path) + File::SEPARATOR}(.+)\.rb$|
-    files.map { |file| file[extract_regex, 1] }
+
+    # We sort to ensure the files are loaded in a consistent order, regardless
+    # of OS. Otherwise, it could load in a different order on Travis than
+    # locally, and potentially trigger a "circular require considered harmful"
+    # warning or similar.
+    files.sort.map { |file| file[extract_regex, 1] }
   end
 end
 
