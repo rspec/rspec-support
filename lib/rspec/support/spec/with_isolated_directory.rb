@@ -6,4 +6,4 @@ RSpec.shared_context "isolated directory", :isolated_directory => true do
       Dir.chdir(tmp_dir, &ex)
     end
   end
-end
+end if RSpec.respond_to?(:shared_context)

@@ -1,8 +1,12 @@
 require 'rspec/support'
+require 'rspec/support/spec/prevent_load_time_warnings'
 
 module RSpec
   describe Support do
     extend Support::RubyFeatures
+
+    it_behaves_like "a library that issues no warnings when loaded",
+      "rspec-support", 'require "rspec/support"'
 
     describe '.method_handle_for(object, method_name)' do
       untampered_class = Class.new do
