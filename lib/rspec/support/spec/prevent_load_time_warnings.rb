@@ -2,7 +2,9 @@ require 'rspec/support/spec/shell_out'
 
 module RSpec::Support::WarningsPrevention
   def files_to_require_for(lib)
-    load_path     = $LOAD_PATH.grep(%r{#{File::SEPARATOR}#{lib}[^#{File::SEPARATOR}]*#{File::SEPARATOR}lib}).first
+    slash         = File::SEPARATOR
+    lib_path_re   = %r|#{slash + lib}[^#{slash}]*#{slash}lib|
+    load_path     = $LOAD_PATH.grep(lib_path_re).first
     files         = Dir["#{load_path}/**/*.rb"]
     extract_regex = %r|#{Regexp.escape(load_path) + File::SEPARATOR}(.+)\.rb$|
     files.map { |file| file[extract_regex, 1] }
