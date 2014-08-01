@@ -5,8 +5,10 @@ module RSpec
   describe Support do
     extend Support::RubyFeatures
 
-    it_behaves_like "a library that issues no warnings when loaded",
-      "rspec-support", 'require "rspec/support"'
+    it_behaves_like "a library that issues no warnings when loaded", "rspec-support",
+      # Define methods that some of our rspec/support/spec files use at load time.
+      "module RSpec; def self.configure; end; def self.shared_context(*); end; def self.shared_examples_for(*); end; end",
+      'require "rspec/support"'
 
     describe '.method_handle_for(object, method_name)' do
       untampered_class = Class.new do

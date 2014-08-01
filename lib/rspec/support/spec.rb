@@ -29,7 +29,7 @@ RSpec.configure do |c|
 
   c.filter_run :focus
   c.run_all_when_everything_filtered = true
-end if RSpec.respond_to?(:configure)
+end
 
 module RSpec::Support::Spec
   def self.setup_simplecov(&block)

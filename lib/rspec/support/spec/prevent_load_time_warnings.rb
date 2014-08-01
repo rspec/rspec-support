@@ -37,4 +37,4 @@ RSpec.shared_examples_for "a library that issues no warnings when loaded" do |li
     expect(stderr).to eq("")
     expect(status.exitstatus).to eq(0)
   end
-end if RSpec.respond_to?(:shared_examples_for)
+end
