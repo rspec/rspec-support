@@ -64,12 +64,14 @@ module RSpec
           given_kw_args - @allowed_kw_args
         end
 
-        def has_kw_args_in?(args, kw_check = lambda {|x| Hash === x })
-          last = args.last
+        def has_kw_args_in?(args)
+          Hash === args.last && could_contain_kw_args?(args)
+        end
 
-          return false unless kw_check.call(last)
+        # Without considering what the last arg is, could it
+        # contain keyword arguments?
+        def could_contain_kw_args?(args)
           return false if args.count <= min_non_kw_args
-
           @allows_any_kw_args || @allowed_kw_args.any?
         end
 
@@ -197,14 +199,6 @@ module RSpec
       def invalid_kw_args
         @signature.invalid_kw_args_from(kw_args)
       end
-    end
-
-    # Figures out wheter a given method can accept various arguments.
-    # Surprisingly non-trivial.
-    #
-    # @private
-    class StrictSignatureVerifier < MethodSignatureVerifier
-    private
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
@@ -217,28 +211,26 @@ module RSpec
       end
     end
 
+    # Figures out wether a given method can accept various arguments.
+    # Surprisingly non-trivial.
+    #
+    # @private
+    StrictSignatureVerifier = MethodSignatureVerifier
+
     # Allows matchers to be used instead of providing keyword arguments. In
-    # practice, when this happends only the arity of the method is verified.
+    # practice, when this happens only the arity of the method is verified.
     #
     # @private
     class LooseSignatureVerifier < MethodSignatureVerifier
     private
 
       def split_args(*args)
-        kw_check = lambda {|x| Hash === x || RSpec::Support.is_a_matcher?(x) }
-        kw_args = if @signature.has_kw_args_in?(args, kw_check)
-          x = args.pop
-          if RSpec::Support.is_a_matcher?(x)
-            @signature = SignatureWithKeywordArgumentsMatcher.new(@signature)
-            []
-          else
-            x.keys
-          end
-        else
-          []
+        if RSpec::Support.is_a_matcher?(args.last) && @signature.could_contain_kw_args?(args)
+          args.pop
+          @signature = SignatureWithKeywordArgumentsMatcher.new(@signature)
         end
 
-        [args, kw_args]
+        super(*args)
       end
 
       # If a matcher is used in a signature in place of keyword arguments, all
@@ -268,6 +260,10 @@ module RSpec
 
         def valid_non_kw_args?(*args)
           @signature.valid_non_kw_args?(*args)
+        end
+
+        def has_kw_args_in?(args)
+          @signature.has_kw_args_in?(args)
         end
       end
     end
