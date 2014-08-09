@@ -60,7 +60,8 @@ module RSpec
       end
 
       def recursive_const_defined?(const_name)
-        normalize_const_name(const_name).split('::').inject([Object, '']) do |(mod, full_name), name|
+        parts = normalize_const_name(const_name).split('::')
+        parts.inject([Object, '']) do |(mod, full_name), name|
           yield(full_name, name) if block_given? && !(Module === mod)
           return false unless const_defined_on?(mod, name)
           [get_const_defined_on(mod, name), [mod, name].join('::')]

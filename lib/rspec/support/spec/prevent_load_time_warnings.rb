@@ -20,7 +20,7 @@ module RSpec
   end
 end
 
-RSpec.shared_examples_for "a library that issues no warnings when loaded" do |lib, *preamble_statements|
+RSpec.shared_examples_for "a library that issues no warnings when loaded" do |lib, *preamble_stmnts|
   include RSpec::Support::ShellOut
   include RSpec::Support::WarningsPrevention
 
@@ -29,7 +29,7 @@ RSpec.shared_examples_for "a library that issues no warnings when loaded" do |li
     # aren't automatically loaded, instead being delayed based on an autoload
     # (such as for rspec-expectations' matchers) or based on a config option
     # (e.g. `config.mock_with :rr` => 'rspec/core/mocking_adapters/rr').
-    statements = preamble_statements + files_to_require_for(lib).map do |file|
+    statements = preamble_stmnts + files_to_require_for(lib).map do |file|
       "require '#{file}'"
     end
 
