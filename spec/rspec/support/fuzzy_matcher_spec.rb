@@ -74,6 +74,11 @@ module RSpec
         end
       end
 
+      it "does not match a struct against an array" do
+        struct = Struct.new(:foo, :bar).new("first", 2)
+        expect(["first", 2]).not_to match_against(struct)
+      end
+
       context "when given two arrays" do
         it 'returns true if they have equal values' do
           expect([1, 2.0]).to match_against([1.0, 2])
