@@ -4,7 +4,6 @@ RSpec::Support.require_rspec_support "matcher_definition"
 
 module RSpec
   module Support
-
     # Extracts info about the number of arguments and allowed/required
     # keyword args of a given method.
     #
@@ -19,9 +18,9 @@ module RSpec
 
       def non_kw_args_arity_description
         case max_non_kw_args
-          when min_non_kw_args then min_non_kw_args.to_s
-          when INFINITY then "#{min_non_kw_args} or more"
-          else "#{min_non_kw_args} to #{max_non_kw_args}"
+        when min_non_kw_args then min_non_kw_args.to_s
+        when INFINITY then "#{min_non_kw_args} or more"
+        else "#{min_non_kw_args} to #{max_non_kw_args}"
         end
       end
 
@@ -47,9 +46,7 @@ module RSpec
               parts << "required keyword args (#{@required_kw_args.map(&:inspect).join(", ")})"
             end
 
-            if @allows_any_kw_args
-              parts << "any additional keyword args"
-            end
+            parts << "any additional keyword args" if @allows_any_kw_args
 
             parts.join(" and ")
           end
@@ -82,18 +79,18 @@ module RSpec
 
           @method.parameters.each do |(type, name)|
             case type
-              # def foo(a:)
-              when :keyreq  then @required_kw_args << name
-              # def foo(a: 1)
-              when :key     then @optional_kw_args << name
-              # def foo(**kw_args)
-              when :keyrest then @allows_any_kw_args = true
-              # def foo(a)
-              when :req     then @min_non_kw_args += 1
-              # def foo(a = 1)
-              when :opt     then optional_non_kw_args += 1
-              # def foo(*a)
-              when :rest    then optional_non_kw_args = INFINITY
+            # def foo(a:)
+            when :keyreq  then @required_kw_args << name
+            # def foo(a: 1)
+            when :key     then @optional_kw_args << name
+            # def foo(**kw_args)
+            when :keyrest then @allows_any_kw_args = true
+            # def foo(a)
+            when :req     then @min_non_kw_args += 1
+            # def foo(a = 1)
+            when :opt     then optional_non_kw_args += 1
+            # def foo(*a)
+            when :rest    then optional_non_kw_args = INFINITY
             end
           end
 
@@ -105,15 +102,15 @@ module RSpec
           "arity of #{non_kw_args_arity_description}"
         end
 
-        def missing_kw_args_from(given_kw_args)
+        def missing_kw_args_from(_given_kw_args)
           []
         end
 
-        def invalid_kw_args_from(given_kw_args)
+        def invalid_kw_args_from(_given_kw_args)
           []
         end
 
-        def has_kw_args_in?(*_args)
+        def has_kw_args_in?(_args)
           false
         end
 
@@ -131,7 +128,7 @@ module RSpec
         end
       end
 
-      INFINITY = 1/0.0
+      INFINITY = 1 / 0.0
     end
 
     # Deals with the slightly different semantics of block arguments.
@@ -202,10 +199,10 @@ module RSpec
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
-          args.pop.keys
-        else
-          []
-        end
+                    args.pop.keys
+                  else
+                    []
+                  end
 
         [args, kw_args]
       end

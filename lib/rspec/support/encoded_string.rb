@@ -2,10 +2,9 @@ module RSpec
   module Support
     # @private
     class EncodedString
-
       MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
 
-      def initialize(string, encoding = nil)
+      def initialize(string, encoding=nil)
         @encoding = encoding
         @source_encoding = detect_source_encoding(string)
         @string = matching_encoding(string)
@@ -30,9 +29,10 @@ module RSpec
       end
       alias :to_str :to_s
 
-    private
-
       if String.method_defined?(:encoding)
+
+        private
+
         def matching_encoding(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
@@ -53,11 +53,14 @@ module RSpec
           string.encoding
         end
       else
+
+        private
+
         def matching_encoding(string)
           string
         end
 
-        def detect_source_encoding(string)
+        def detect_source_encoding(_string)
           'US-ASCII'
         end
       end

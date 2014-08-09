@@ -26,18 +26,18 @@ module RSpec
 
       def raise_too_low_error
         raise LibraryVersionTooLowError,
-          "You are using #{@library_name} #{@library_version}. " +
-          "RSpec requires version #{version_requirement}."
+              "You are using #{@library_name} #{@library_version}. " \
+              "RSpec requires version #{version_requirement}."
       end
 
       def compare_version
         case
-          when @major < @min_major then :too_low
-          when @major > @min_major then :ok
-          when @minor < @min_minor then :too_low
-          when @minor > @min_minor then :ok
-          when @patch < @min_patch then :too_low
-          else :ok
+        when @major < @min_major then :too_low
+        when @major > @min_major then :ok
+        when @minor < @min_minor then :too_low
+        when @minor > @min_minor then :ok
+        when @patch < @min_patch then :too_low
+        else :ok
         end
       end
 

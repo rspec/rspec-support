@@ -1,5 +1,4 @@
 module RSpecHelpers
-
   def expect_no_deprecation
     expect(RSpec.configuration.reporter).not_to receive(:deprecation)
   end
@@ -41,14 +40,14 @@ module RSpecHelpers
     expect(RSpec.configuration.reporter).not_to receive(:deprecation)
   end
 
-  def expect_warning_without_call_site(expected = //)
+  def expect_warning_without_call_site(expected=//)
     expect(::Kernel).to receive(:warn) do |message|
       expect(message).to match expected
       expect(message).to_not match(/Called from/)
     end
   end
 
-  def expect_warning_with_call_site(file, line, expected = //)
+  def expect_warning_with_call_site(file, line, expected=//)
     expect(::Kernel).to receive(:warn) do |message|
       expect(message).to match expected
       expect(message).to match(/Called from #{file}:#{line}/)

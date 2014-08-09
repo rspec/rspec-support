@@ -25,10 +25,10 @@ module RSpec
       # To work around JRuby error:
       # TypeError: $stderr must have write method, RSpec::StdErrSplitter given
       def write(line)
-        if line !~ %r{^\S+/gems/\S+:\d+: warning:} # http://rubular.com/r/kqeUIZOfPG
-          @orig_stderr.write(line)
-          @output_tracker.write(line)
-        end
+        return if line =~ %r{^\S+/gems/\S+:\d+: warning:} # http://rubular.com/r/kqeUIZOfPG
+
+        @orig_stderr.write(line)
+        @output_tracker.write(line)
       end
 
       def has_output?
@@ -40,14 +40,13 @@ module RSpec
       end
 
       def verify_example!(example)
-        example.send(:fail,"Warnings were generated: #{output}") if has_output?
+        example.send(:fail, "Warnings were generated: #{output}") if has_output?
         reset!
       end
 
       def output
         @output_tracker.string
       end
-
     end
   end
 end
