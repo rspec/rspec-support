@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 require 'ostruct'
+require 'timeout'
 require 'rspec/support/differ'
 
 module RSpec
@@ -133,6 +134,26 @@ EOD
 
           diff = differ.diff(expected,actual)
           expect(diff).to eq expected_diff
+        end
+
+        it 'outputs a unified diff message for an array which flatten recurses' do
+          klass = Class.new do
+            def to_ary; [self]; end
+            def inspect; "<BrokenObject>"; end
+          end
+          obj = klass.new
+
+          diff = ''
+          Timeout::timeout(1) do
+            diff = differ.diff [obj], []
+          end
+
+          expect(diff).to eq <<-EOD
+
+@@ -1,2 +1,2 @@
+-[]
++[<BrokenObject>]
+EOD
         end
 
         it "outputs unified diff message of two hashes" do

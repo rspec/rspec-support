@@ -69,19 +69,19 @@ module RSpec
     private
 
       def no_procs?(*args)
-        args.flatten.none? { |a| Proc === a }
+        safely_flatten(args).none? { |a| Proc === a }
       end
 
       def all_strings?(*args)
-        args.flatten.all? { |a| String === a }
+        safely_flatten(args).all? { |a| String === a }
       end
 
       def any_multiline_strings?(*args)
-        all_strings?(*args) && args.flatten.any? { |a| multiline?(a) }
+        all_strings?(*args) && safely_flatten(args).any? { |a| multiline?(a) }
       end
 
       def no_numbers?(*args)
-        args.flatten.none? { |a| Numeric === a }
+        safely_flatten(args).none? { |a| Numeric === a }
       end
 
       def coerce_to_string(string_or_array)
@@ -124,6 +124,11 @@ module RSpec
 
       def add_old_hunk_to_hunk(hunk, oldhunk)
         hunk.merge(oldhunk)
+      end
+
+      def safely_flatten(array)
+        array = array.flatten(1) until (array == array.flatten(1))
+        array
       end
 
       def format_type
