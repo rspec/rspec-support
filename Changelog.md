@@ -5,6 +5,8 @@ Bug Fixes:
 
 * Fix `FuzzyMatcher` so that it does not wrongly match a struct against
   an array. (Myron Marston, #97)
+* Prevent infinitely recursing `#flatten` methods from causing the differ
+  to hang. (Jon Rowe, #101)
 
 ### 3.0.4 / 2014-08-14
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.3...v3.0.4)
