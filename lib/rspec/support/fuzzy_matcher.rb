@@ -46,8 +46,14 @@ module RSpec
 
       def self.map_to_consumers(expected_list)
         expected_list.map do |expected_value|
-          if !RSpec::Mocks::Double === expected_value &&
-            expected_value.respond_to?(:expectation_consumer)
+          expected_value_is_null_object_double = [
+            RSpec::Mocks::Double === expected_value,
+            expected_value.respond_to?(:i_respond_to_everything)
+          ].all?
+
+          expected_value_can_consume = expected_value.respond_to?(:expectation_consumer)
+
+          if !(expected_value_is_null_object_double) && expected_value_can_consume
             expected_value.expectation_consumer(expected_value)
           else
             MatchExpectationConsumer.new(expected_value)
