@@ -34,21 +34,20 @@ module RSpec
         until consumers.empty?
           consumer = consumers.delete_at(0)
           while consumer.can_consume_more_args?
-            if actual_list.empty?
-              return orig_consumers.all?(&:accepting?)
-            end
+            return orig_consumers.all?(&:accepting?) if actual_list.empty?
             arg = actual_list.delete_at(0)
 
             consumer.consume(arg)
           end
         end
 
-        return orig_consumers.all?(&:accepting?) && actual_list.empty?
+        orig_consumers.all?(&:accepting?) && actual_list.empty?
       end
 
       def self.map_to_consumers(expected_list)
         expected_list.map do |expected_value|
-          if !RSpec::Mocks::Double === expected_value && expected_value.respond_to?(:expectation_consumer)
+          if !RSpec::Mocks::Double === expected_value &&
+            expected_value.respond_to?(:expectation_consumer)
             expected_value.expectation_consumer(expected_value)
           else
             MatchExpectationConsumer.new(expected_value)

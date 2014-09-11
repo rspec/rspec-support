@@ -13,17 +13,11 @@ module RSpec
 
       def consume(arg)
         @can_consume_more_args = false
-        @accepting = (RSpec::Support::FuzzyMatcher.values_match?(expected, arg))
+        @accepting = (RSpec::Support::FuzzyMatcher.values_match?(@expected, arg))
       end
 
       def accepting?
         @accepting
-      end
-
-      private
-
-      def expected
-        @expected
       end
     end
   end
