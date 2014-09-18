@@ -17,13 +17,13 @@ module RSpec
 
       describe '#recursive_const_defined?' do
         it 'finds constants' do
-          const, _name = recursive_const_defined?('::RSpec::Support::Foo::Bar::VAL')
+          const, _ = recursive_const_defined?('::RSpec::Support::Foo::Bar::VAL')
 
           expect(const).to eq(10)
         end
 
         it 'returns the fully qualified name of the constant' do
-          _const, name = recursive_const_defined?('::RSpec::Support::Foo::Bar::VAL')
+          _, name = recursive_const_defined?('::RSpec::Support::Foo::Bar::VAL')
 
           expect(name).to eq('RSpec::Support::Foo::Bar::VAL')
         end
