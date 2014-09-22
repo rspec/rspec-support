@@ -13,7 +13,7 @@ module RSpec
       def self.mkdir_p(path)
         stack = generate_stack(path)
         path.split(File::SEPARATOR).each do |part|
-          stack = File.join(stack, part)
+          stack = generate_path(stack, part)
           begin
             Dir.mkdir(stack) unless directory_exists?(stack)
           rescue Errno::ENOTDIR => e
@@ -24,11 +24,29 @@ module RSpec
 
       if OS.windows_file_path?
         def self.generate_stack(path)
-          (path.start_with?(File::SEPARATOR) || path[1] == ':') ? '' : '.'
+          if path.start_with?(File::SEPARATOR)
+            File::SEPARATOR
+          elsif path[1] == ':'
+            ''
+          else
+            '.'
+          end
+        end
+        def self.generate_path(stack, part)
+          if stack == ''
+            part
+          elsif stack == File::SEPARATOR
+            File.join('', part)
+          else
+            File.join(stack, part)
+          end
         end
       else
         def self.generate_stack(path)
           path.start_with?(File::SEPARATOR) ? File::SEPARATOR : "."
+        end
+        def self.generate_path(stack, part)
+          File.join(stack, part)
         end
       end
 
@@ -37,6 +55,7 @@ module RSpec
       end
       private_class_method :directory_exists?
       private_class_method :generate_stack
+      private_class_method :generate_path
     end
   end
 end
