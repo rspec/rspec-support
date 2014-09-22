@@ -1,3 +1,5 @@
+RSpec::Support.require_rspec_support 'os'
+
 module RSpec
   module Support
     # @api private
@@ -19,7 +21,8 @@ module RSpec
           end
         end
       end
-      if RUBY_PLATFORM =~ /mswin|mingw|java/
+
+      if OS.windows_file_path?
         def self.generate_stack(path)
           if path.start_with?(File::SEPARATOR)
             File::SEPARATOR
@@ -46,6 +49,7 @@ module RSpec
           File.join(stack, part)
         end
       end
+
       def self.directory_exists?(dirname)
         File.exist?(dirname) && File.directory?(dirname)
       end
