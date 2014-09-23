@@ -10,7 +10,7 @@ module RSpec
       module_function :windows?
 
       def windows_file_path?
-        ::File::ALT_SEPARATOR == ":"
+        ::File::ALT_SEPARATOR == '\\'
       end
       module_function :windows_file_path?
     end
