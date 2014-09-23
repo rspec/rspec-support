@@ -22,7 +22,7 @@ module RSpec
 
       describe ".windows_file_path?" do
         it "returns true when the file alt seperator is a colon" do
-          stub_const("File::ALT_SEPARATOR", ":") unless OS.windows?
+          stub_const("File::ALT_SEPARATOR", "\\") unless OS.windows?
           expect(OS).to be_windows_file_path
         end
 
