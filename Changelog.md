@@ -3,7 +3,9 @@
 
 Bug Fixes:
 
-* Support Windows style paths with `DirectoryMaker`. (Scott Archer, #107, 109)
+* Fix `RSpec::Support::DirectoryMaker` (used by `rspec --init` and                                                    │
+  `rails generate rspec:install`) so that it detects absolute paths                                                   │    use correct alt seperator
+   on Windows properly. (Scott Archer, #107, #108, #109) (Jon Rowe, #110)
 
 ### 3.1.0 / 2014-09-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.0.4...v3.1.0)
