@@ -1,10 +1,10 @@
-### 3.1.1 Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.0...3-1-maintenance)
+### 3.1.1 / 2014-09-26
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.0...v3.1.1)
 
 Bug Fixes:
 
-* Fix `RSpec::Support::DirectoryMaker` (used by `rspec --init` and                                                    │
-  `rails generate rspec:install`) so that it detects absolute paths                                                   │    use correct alt seperator
+* Fix `RSpec::Support::DirectoryMaker` (used by `rspec --init` and
+  `rails generate rspec:install`) so that it detects absolute paths
    on Windows properly. (Scott Archer, #107, #108, #109) (Jon Rowe, #110)
 
 ### 3.1.0 / 2014-09-04
