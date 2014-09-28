@@ -1,3 +1,5 @@
+require 'rbconfig'
+
 module RSpec
   module Support
     # @api private
