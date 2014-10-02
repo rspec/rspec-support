@@ -53,6 +53,14 @@ module RSpec
           it 'mentions only the arity in the description' do
             expect(signature_description).to eq("arity of 2")
           end
+
+          it 'indicates it has no optional kw args' do
+            expect(signature.optional_kw_args).to eq([])
+          end
+
+          it 'indicates it has no required kw args' do
+            expect(signature.required_kw_args).to eq([])
+          end
         end
 
         describe 'a method with splat arguments' do
@@ -144,6 +152,14 @@ module RSpec
             it 'mentions the arity and optional kw args in the description', :pending => RUBY_ENGINE == 'jruby' do
               expect(signature_description).to eq("arity of 1 and optional keyword args (:y, :z)")
             end
+
+            it "indicates the optional keyword args" do
+              expect(signature.optional_kw_args).to contain_exactly(:y, :z)
+            end
+
+            it "indicates it has no required keyword args" do
+              expect(signature.required_kw_args).to eq([])
+            end
           end
         end
 
@@ -175,6 +191,14 @@ module RSpec
             it 'mentions the arity, optional kw args and required kw args in the description' do
               expect(signature_description).to \
                 eq("arity of 1 and optional keyword args (:a) and required keyword args (:y, :z)")
+            end
+
+            it "indicates the optional keyword args" do
+              expect(signature.optional_kw_args).to contain_exactly(:a)
+            end
+
+            it "indicates the required keyword args" do
+              expect(signature.required_kw_args).to contain_exactly(:y, :z)
             end
           end
 
