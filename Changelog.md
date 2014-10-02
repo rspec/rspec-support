@@ -1,6 +1,14 @@
 ### 3.2.0 Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...master)
 
+### 3.1.2 Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...v3.1.2)
+
+Bug Fixes:
+
+* Fix method signature to not blow up with a `NoMethodError` on 1.8.7 when
+  verifying against an RSpec matcher. (Myron Marston, #116)
+
 ### 3.1.1 / 2014-09-26
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.0...v3.1.1)
 
