@@ -114,6 +114,10 @@ module RSpec
           false
         end
 
+        def could_contain_kw_args?(*)
+          false
+        end
+
         def classify_parameters
           arity = @method.arity
           if arity < 0
