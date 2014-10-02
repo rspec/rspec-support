@@ -38,6 +38,10 @@ module RSpec
             expect(valid_non_kw_args?(3)).to eq(false)
           end
 
+          it "allows matchers to be passed as arguments" do
+            expect(valid?(anything, anything)).to eq(true)
+          end
+
           it 'does not treat a last-arg hash as kw args' do
             expect(valid?(1, {})).to eq(true)
           end
