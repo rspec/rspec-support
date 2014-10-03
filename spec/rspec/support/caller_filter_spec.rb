@@ -45,7 +45,9 @@ module RSpec
       end
 
       it 'does not match rubygems lines from `require` statements' do
-        require 'rubygems' # ensure rubygems is laoded
+        with_isolated_stderr do
+          require 'rubygems' # ensure rubygems is laoded
+        end
 
         in_rspec_support_lib("test_dir") do |dir|
           File.open("#{dir}/file.rb", "w") do |file|
