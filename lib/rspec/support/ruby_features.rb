@@ -2,6 +2,16 @@ module RSpec
   module Support
     # @api private
     #
+    # Provides query methods for different rubies
+    module Ruby
+      def jruby?
+        RUBY_PLATFORM == 'java'
+      end
+      module_function :jruby?
+    end
+
+    # @api private
+    #
     # Provides query methods for ruby features that differ among
     # implementations.
     module RubyFeatures

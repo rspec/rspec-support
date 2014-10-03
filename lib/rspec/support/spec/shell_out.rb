@@ -18,7 +18,8 @@ module RSpec
 
       if Open3.respond_to?(:capture3) # 1.9+
         def shell_out(*command)
-          Open3.capture3(*command)
+          stdout, stderr, status = Open3.capture3(*command)
+          return stdout, filter(stderr), status
         end
       else # 1.8.7
         def shell_out(*command)
@@ -31,7 +32,7 @@ module RSpec
 
           # popen3 doesn't provide the exit status so we fake it out.
           status = instance_double(Process::Status, :exitstatus => 0)
-          return stdout, stderr, status
+          return stdout, filter(stderr), status
         end
       end
 
@@ -47,6 +48,20 @@ module RSpec
         with_env 'RUBY_GC_HEAP_FREE_SLOTS' => nil, 'RUBY_GC_MALLOC_LIMIT' => nil,
                  'RUBY_FREE_MIN' => nil do
           shell_out(*command)
+        end
+      end
+
+    private
+
+      if Ruby.jruby?
+        def filter(output)
+          output.each_line.reject do |line|
+            line.include?("lib/ruby/shared/rubygems/defaults/jruby")
+          end.join($/)
+        end
+      else
+        def filter(output)
+          output
         end
       end
     end
