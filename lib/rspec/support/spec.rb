@@ -4,6 +4,7 @@ RSpec::Support.require_rspec_support "spec/with_isolated_stderr"
 RSpec::Support.require_rspec_support "spec/stderr_splitter"
 RSpec::Support.require_rspec_support "spec/formatting_support"
 RSpec::Support.require_rspec_support "spec/with_isolated_directory"
+RSpec::Support.require_rspec_support "ruby_features"
 
 warning_preventer = $stderr = RSpec::Support::StdErrSplitter.new($stderr)
 
