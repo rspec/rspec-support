@@ -1,7 +1,7 @@
 ### 3.2.0 Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...master)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.2...master)
 
-### 3.1.2 Development
+### 3.1.2 / 2014-10-08
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...v3.1.2)
 
 Bug Fixes:
