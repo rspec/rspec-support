@@ -10,7 +10,7 @@ module RSpec
 
       respond_to_name = (::RUBY_VERSION.to_f < 1.9) ? :respond_to? : :respond_to_missing?
       define_method respond_to_name do |*args|
-        @orig_stderr.respond_to?(*args) || super
+        @orig_stderr.respond_to?(*args) || super(*args)
       end
 
       def method_missing(name, *args, &block)
