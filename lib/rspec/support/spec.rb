@@ -30,6 +30,10 @@ RSpec.configure do |c|
 
   c.filter_run :focus
   c.run_all_when_everything_filtered = true
+
+  c.define_derived_metadata :failing_on_appveyor do |meta|
+    meta[:pending] ||= "This spec fails on AppVeyor and needs someone to fix it."
+  end if ENV['APPVEYOR']
 end
 
 module RSpec
