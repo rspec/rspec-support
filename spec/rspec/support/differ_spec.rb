@@ -62,7 +62,7 @@ EOD
             expect(differ.diff(actual, expected)).to eql "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
           end
 
-          it 'uses the default external encoding when the two strings have incompatible encodings' do
+          it 'uses the default external encoding when the two strings have incompatible encodings', :failing_on_appveyor do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
             expect(differ.diff(actual, expected)).to eq("\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
@@ -175,7 +175,7 @@ EOD
           expect(diff).to eq expected_diff
         end
 
-        it 'outputs unified diff message of two hashes with differing encoding' do
+        it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
 -"a" => "a",
@@ -186,7 +186,7 @@ EOD
           expect(diff).to eq expected_diff
         end
 
-        it 'outputs unified diff message of two hashes with encoding different to key encoding' do
+        it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
 -:a => "a",
