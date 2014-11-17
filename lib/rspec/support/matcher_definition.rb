@@ -27,5 +27,16 @@ module RSpec
     def self.is_a_matcher?(object)
       matcher_definitions.any? { |md| md.call(object) }
     end
+
+    # @api private
+    #
+    # gives a string representation of an object for use in RSpec descriptions
+    def self.rspec_description_for_object(object)
+      if RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
+        object.description
+      else
+        object
+      end
+    end
   end
 end
