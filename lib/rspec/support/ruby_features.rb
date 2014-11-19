@@ -24,6 +24,18 @@ module RSpec
       def jruby?
         RUBY_PLATFORM == 'java'
       end
+
+      def rbx?
+        defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
+      end
+
+      def non_mri?
+        !mri?
+      end
+
+      def mri?
+        !defined?(RUBY_ENGINE) || RUBY_ENGINE == 'ruby'
+      end
     end
 
     # @api private
@@ -38,11 +50,11 @@ module RSpec
       end
 
       def kw_args_supported?
-        RUBY_VERSION >= '2.0.0' && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
+        RUBY_VERSION >= '2.0.0' && Ruby.mri?
       end
 
       def required_kw_args_supported?
-        RUBY_VERSION >= '2.1.0' && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
+        RUBY_VERSION >= '2.1.0' && Ruby.mri?
       end
 
       def module_prepends_supported?
@@ -51,7 +63,7 @@ module RSpec
 
       def supports_rebinding_module_methods?
         # RBX and JRuby don't yet support this.
-        RUBY_VERSION.to_i >= 2 && RUBY_ENGINE != 'rbx' && RUBY_ENGINE != 'jruby'
+        RUBY_VERSION.to_i >= 2 && Ruby.mri?
       end
     end
   end
