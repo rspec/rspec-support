@@ -57,5 +57,19 @@ module RSpec
         expect(Ruby).to_not be_mri
       end
     end
+
+    describe RubyFeatures do
+      specify "#kw_args_supported? exists" do
+        RubyFeatures.kw_args_supported?
+      end
+
+      specify "#required_kw_args_supported? exists" do
+        RubyFeatures.required_kw_args_supported?
+      end
+
+      specify "#supports_rebinding_module_methods? exists" do
+        RubyFeatures.supports_rebinding_module_methods?
+      end
+    end
   end
 end

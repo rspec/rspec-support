@@ -49,21 +49,63 @@ module RSpec
         Method.method_defined?(:parameters)
       end
 
-      def kw_args_supported?
-        RUBY_VERSION >= '2.0.0' && Ruby.mri?
-      end
+      if Ruby.mri?
+        def kw_args_supported?
+          RUBY_VERSION >= '2.0.0'
+        end
 
-      def required_kw_args_supported?
-        RUBY_VERSION >= '2.1.0' && Ruby.mri?
+        def required_kw_args_supported?
+          RUBY_VERSION >= '2.1.0'
+        end
+
+        def supports_rebinding_module_methods?
+          RUBY_VERSION.to_i >= 2
+        end
+      else
+        # RBX / JRuby et al support is unknown for keyword arguments
+        # rubocop:disable Lint/Eval
+        begin
+          eval("o = Object.new; def o.m(a: 1); end;"\
+               " raise SyntaxError unless o.method(:m).parameters.include?([:key, :a])")
+
+          def kw_args_supported?
+            true
+          end
+        rescue SyntaxError
+          def kw_args_supported?
+            false
+          end
+        end
+
+        begin
+          eval("o = Object.new; def o.m(a: ); end;"\
+               "raise SyntaxError unless o.method(:m).parameters.include?([:keyreq, :a])")
+
+          def required_kw_args_supported?
+            true
+          end
+        rescue SyntaxError
+          def required_kw_args_supported?
+            false
+          end
+        end
+
+        begin
+          Module.new { def foo; end }.instance_method(:foo).bind(Object.new)
+
+          def supports_rebinding_module_methods?
+            true
+          end
+        rescue TypeError
+          def supports_rebinding_module_methods?
+            false
+          end
+        end
+        # rubocop:enable Lint/Eval
       end
 
       def module_prepends_supported?
         Module.method_defined?(:prepend) || Module.private_method_defined?(:prepend)
-      end
-
-      def supports_rebinding_module_methods?
-        # RBX and JRuby don't yet support this.
-        RUBY_VERSION.to_i >= 2 && Ruby.mri?
       end
     end
   end
