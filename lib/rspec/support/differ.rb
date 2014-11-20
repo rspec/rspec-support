@@ -190,6 +190,7 @@ module RSpec
       end
 
       if String.method_defined?(:encoding)
+        # see https://github.com/ruby/ruby/blob/ca24e581ba/encoding.c#L1191
         def pick_encoding(source_a, source_b)
           Encoding.compatible?(source_a, source_b) || Encoding.default_external
         end

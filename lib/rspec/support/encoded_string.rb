@@ -2,7 +2,10 @@ module RSpec
   module Support
     # @private
     class EncodedString
+      # Ruby's default replacement string for is U+FFFD ("\xEF\xBF\xBD") for Unicode encoding forms
+      #   else is '?' ("\x3F")
       MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
+      REPLACE = "\x3F"
 
       def initialize(string, encoding=nil)
         @encoding = encoding
@@ -33,6 +36,20 @@ module RSpec
 
         private
 
+        # Raised by Encoding and String methods:
+        #   Encoding::UndefinedConversionError:
+        #     when a transcoding operation fails
+        #     e.g. "\x80".encode('utf-8','ASCII-8BIT')
+        #   Encoding::InvalidByteSequenceError:
+        #     when the string being transcoded contains a byte invalid for the either
+        #     the source or target encoding
+        #     e.g. "\x80".encode('utf-8','US-ASCII')
+        # Raised by transcoding methods:
+        #   Encoding::ConverterNotFoundError:
+        #     when a named encoding does not correspond with a known converter
+        #     e.g. 'abc'.force_encoding('utf-8').encode('foo')
+        # Encoding::CompatibilityError
+        #
         def matching_encoding(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
@@ -43,7 +60,7 @@ module RSpec
 
         def normalize_missing(string)
           if @encoding.to_s == "UTF-8"
-            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER.force_encoding(@encoding), "?")
+            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER.force_encoding(@encoding), REPLACE)
           else
             string
           end
