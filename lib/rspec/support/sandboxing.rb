@@ -10,6 +10,7 @@ module RSpec
         new_config = generate_config
         new_world  = RSpec::Core::World.new(new_config)
 
+        set_writers
         RSpec.configuration = new_config
         RSpec.world = new_world
         temporary_scope_mock(block)
@@ -27,6 +28,14 @@ module RSpec
         new_config.expose_dsl_globally = false
         new_config.expecting_with_rspec = true
         new_config
+      end
+
+      def self.set_writers
+        unless RSpec.methods.include?(:configuration=) && RSpec.methods.include?(:world=)
+          class << RSpec
+            attr_writer :configuration, :world
+          end
+        end
       end
 
       def self.temporary_scope_mock(block)
