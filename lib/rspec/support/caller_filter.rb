@@ -38,19 +38,17 @@ module RSpec
         # performance on the common case of creating a double.
         increment = 5
         i         = 1
-        line      = nil
 
-        until line
-          stack = caller(i, increment)
+        loop do
+          stack = caller_locations(i, increment)
           raise "No non-lib lines in stack" unless stack
 
-          line = stack.find { |l| l !~ IGNORE_REGEX }
+          line = stack.find { |l| l.path !~ IGNORE_REGEX }
+          return line.to_s if line
 
           i         += increment
           increment *= 2 # The choice of two here is arbitrary.
         end
-
-        line
       end
     else
       # Earlier rubies do not support the two argument form of `caller`. This
