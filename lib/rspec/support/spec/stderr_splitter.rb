@@ -14,12 +14,23 @@ module RSpec
       end
 
       def method_missing(name, *args, &block)
-        @output_tracker.__send__(name, *args, &block)
+        @output_tracker.__send__(name, *args, &block) if @output_tracker.respond_to?(name)
         @orig_stderr.__send__(name, *args, &block)
       end
 
       def ==(other)
         @orig_stderr == other
+      end
+
+      def reopen(*args)
+        reset!
+        @orig_stderr.reopen(*args)
+      end
+
+      # To work around JRuby error:
+      # can't convert RSpec::Support::StdErrSplitter into String
+      def to_io
+        @orig_stderr.to_io
       end
 
       # To work around JRuby error:
