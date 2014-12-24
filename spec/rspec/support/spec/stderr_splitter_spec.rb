@@ -1,4 +1,5 @@
 require 'rspec/support/spec/stderr_splitter'
+require 'tempfile'
 
 describe 'RSpec::Support::StdErrSplitter' do
 
@@ -31,6 +32,15 @@ describe 'RSpec::Support::StdErrSplitter' do
     expect(splitter).to respond_to :==, :write, :has_output?, :reset!, :verify_example!, :output
   end
 
+  it 'supports methods that stderr supports but StringIO does not' do
+    expect(StringIO.new).not_to respond_to(:stat)
+    expect(splitter.stat).to be_a(File::Stat)
+  end
+
+  it 'supports #to_io' do
+    expect(splitter.to_io).to be(stderr.to_io)
+  end
+
   it 'behaves like stderr' do
     splitter.write 'a warning'
     expect(stderr).to have_received(:write)
@@ -38,6 +48,16 @@ describe 'RSpec::Support::StdErrSplitter' do
 
   it 'pretends to be stderr' do
     expect(splitter).to eq stderr
+  end
+
+  it 'resets when reopened' do
+    warn 'a warning'
+    stderr.unstub(:write)
+
+    Tempfile.open('stderr') do |file|
+      splitter.reopen(file)
+      splitter.verify_example! self
+    end
   end
 
   it 'tracks when output to' do
