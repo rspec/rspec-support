@@ -51,8 +51,6 @@ module RSpec
         finalize_output(output, hunks.last.diff(format_type).to_s) if hunks.last
 
         color_diff output
-      rescue Encoding::CompatibilityError
-        handle_encoding_errors
       end
       # rubocop:enable MethodLength
 
@@ -200,17 +198,6 @@ module RSpec
         end
       else
         def pick_encoding(_source_a, _source_b)
-        end
-      end
-
-      def handle_encoding_errors
-        if @actual.source_encoding != @expected.source_encoding
-          "Could not produce a diff because the encoding of the actual string " \
-          "(#{@actual.source_encoding}) differs from the encoding of the expected " \
-          "string (#{@expected.source_encoding})"
-        else
-          "Could not produce a diff because of the encoding of the string " \
-          "(#{@expected.source_encoding})"
         end
       end
     end
