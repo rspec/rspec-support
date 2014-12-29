@@ -55,7 +55,7 @@ describe 'RSpec::Support::StdErrSplitter' do
 
   it 'resets when reopened' do
     warn 'a warning'
-    stderr.unstub(:write)
+    allow(stderr).to receive(:write).and_call_original
 
     Tempfile.open('stderr') do |file|
       splitter.reopen(file)
