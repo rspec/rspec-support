@@ -10,8 +10,11 @@ module RSpec
 
           pid = Process.fork do
             exception = nil
+            warning_preventer = $stderr = RSpec::Support::StdErrSplitter.new($stderr)
+
             begin
               yield
+              warning_preventer.verify_example!(self)
             rescue Exception => e
               exception = e
             end
