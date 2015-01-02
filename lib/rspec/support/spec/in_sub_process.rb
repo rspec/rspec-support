@@ -5,7 +5,7 @@ module RSpec
         # Useful as a way to isolate a global change to a subprocess.
 
         # rubocop:disable MethodLength
-        def in_sub_process
+        def in_sub_process(prevent_warnings=true)
           readme, writeme = IO.pipe
 
           pid = Process.fork do
@@ -14,7 +14,7 @@ module RSpec
 
             begin
               yield
-              warning_preventer.verify_example!(self)
+              warning_preventer.verify_example!(self) if prevent_warnings
             rescue Exception => e
               exception = e
             end
