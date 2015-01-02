@@ -1,4 +1,5 @@
 require 'rspec/support/spec/in_sub_process'
+require 'tempfile'
 
 describe 'isolating code to a sub process' do
   include RSpec::Support::InSubProcess
@@ -24,6 +25,17 @@ describe 'isolating code to a sub process' do
       expect {
         in_sub_process { expect(true).to be false }
       }.to raise_error(/expected false/)
+    end
+
+    it 'fails if the sub process generates warnings' do
+      expect {
+        in_sub_process do
+          # Redirect stderr so we don't get "boom" in our test suite output
+          $stderr.reopen(Tempfile.new("stderr"))
+
+          warn "boom"
+        end
+      }.to raise_error(RuntimeError, a_string_including("Warnings", "boom"))
     end
 
   else
