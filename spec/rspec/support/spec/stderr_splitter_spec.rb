@@ -1,7 +1,9 @@
 require 'rspec/support/spec/stderr_splitter'
 require 'tempfile'
+require 'rspec/support/spec/in_sub_process'
 
 describe 'RSpec::Support::StdErrSplitter' do
+  include RSpec::Support::InSubProcess
 
   let(:splitter) { RSpec::Support::StdErrSplitter.new stderr }
   let(:stderr)   { STDERR }
@@ -54,12 +56,14 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'resets when reopened' do
-    warn 'a warning'
-    stderr.unstub(:write)
+    in_sub_process do
+      warn 'a warning'
+      allow(stderr).to receive(:write).and_call_original
 
-    Tempfile.open('stderr') do |file|
-      splitter.reopen(file)
-      splitter.verify_example! self
+      Tempfile.open('stderr') do |file|
+        splitter.reopen(file)
+        splitter.verify_example! self
+      end
     end
   end
 
