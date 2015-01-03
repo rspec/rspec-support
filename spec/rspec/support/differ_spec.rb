@@ -7,35 +7,6 @@ require 'rspec/support/differ'
 module RSpec
   module Support
     describe Differ do
-      def safe_chr
-        @safe_chr ||= Hash.new { |h, x| h[x] = x.chr rescue ("U+%.4X" % [x]) }
-      end
-
-      def safe_codepoints(str)
-        str.each_codepoint.map {|codepoint| safe_chr[codepoint] }
-      rescue ArgumentError
-        str.each_byte.map {|byte| safe_chr[byte] }
-      end
-
-      def expect_identical_string(str1, str2, expected_encoding = str1.encoding)
-        expect(str1.encoding).to eq(expected_encoding)
-        str1_bytes = safe_codepoints(str1)
-        str2_bytes = safe_codepoints(str2)
-        return unless str1_bytes != str2_bytes
-        str1_differences = []
-        str2_differences = []
-        str2_bytes.each_with_index do |str2_byte, index|
-          str1_byte = str1_bytes.fetch(index) do
-            str2_differences.concat str2_bytes[index..-1]
-            return
-          end
-          if str1_byte != str2_byte
-            str1_differences << str1_byte
-            str2_differences << str2_byte
-          end
-        end
-        expect(str1_differences.join).to eq(str2_differences.join)
-      end
 
       describe '#pick_encoding' do
         let(:differ) { RSpec::Support::Differ.new }

@@ -81,7 +81,6 @@ module RSpec
         end
         # End: Needed for 1.9.2
 
-
         def detect_source_encoding(string)
           string.encoding
         end
