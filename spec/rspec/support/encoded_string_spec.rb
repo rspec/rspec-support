@@ -32,7 +32,7 @@ module RSpec::Support
           it 'replaces invalid byte sequences with the REPLACE string' do
             resulting_string = build_encoded_string(string, target_encoding).to_s
             expected_string = "I have a bad byt\x3F\x3F\x3F"
-            expect(resulting_string).to eq(expected_string)
+            expect_identical_string(resulting_string, expected_string)
           end
 
           it 'normally raises an EncodedString::InvalidByteSequenceError' do
@@ -61,7 +61,7 @@ module RSpec::Support
             pending 'cannot reproduce' unless RUBY_VERSION == '1.9.2' && Ruby.mri?
             resulting_string = build_encoded_string(string, no_converter_encoding).to_s
             expected_string  = "I am not going to changé\xEF".force_encoding(no_converter_encoding)
-            expect(resulting_string).to eq(expected_string)
+            expect_identical_string(resulting_string, expected_string)
           end
         end
 
@@ -82,7 +82,7 @@ module RSpec::Support
           it 'replaces all undefines conversions with the REPLACE string' do
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
             expected_string = "? hi I am not going to work"
-            expect(resulting_string).to eq(expected_string)
+            expect_identical_string(resulting_string, expected_string)
           end
         end
       end
@@ -98,7 +98,7 @@ module RSpec::Support
 
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
             expected_string = "#{utf_8_euro_symbol}abcd??".force_encoding('UTF-8')
-            expect(resulting_string).to eq(expected_string)
+            expect_identical_string(resulting_string, expected_string)
           end
 
           it 'copes with encoded strings' do
@@ -110,7 +110,7 @@ module RSpec::Support
 Tu avec carte {count} item has
 Tu avec cart\u00E9 {count} it\u00E9m has
             EOS
-            expect(resulting_string).to eq(expected_string)
+            expect_identical_string(resulting_string, expected_string)
           end
         end
 
@@ -128,7 +128,7 @@ Tu avec cart\u00E9 {count} it\u00E9m has
             it 'replaces unconvertable characters with a string representation of their hex value' do
               resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << ascii_string
               expected_string = "#{utf_8_euro_symbol}?"
-              expect(resulting_string).to eq(expected_string)
+              expect_identical_string(resulting_string, expected_string)
             end
           end
         end
@@ -156,8 +156,9 @@ Tu avec cart\u00E9 {count} it\u00E9m has
 
           it 'replaces invalid bytes with the REPLACE string' do
             resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
-            expected_array = ["? ? ? I have bad bytes"]
-            expect(resulting_array).to eq(expected_array)
+            expect(resulting_array.size).to eq(1) # sanity check
+            expected_string = "? ? ? I have bad bytes"
+            expect_identical_string(resulting_array.first, expected_string)
           end
 
         end
@@ -192,9 +193,9 @@ Tu avec cart\u00E9 {count} it\u00E9m has
 
           it 'falls back to the Encoding.default_external' do
             resulting_array = build_encoded_string(non_ascii_compatible_string, utf8_encoding).split("\n")
-            expected_array = ["This is a pile of poo: \u{1F4A9}"]
-            expect(resulting_array).to eq(expected_array)
-            expect(resulting_array.first.encoding.to_s).to eq(Encoding.default_external.to_s)
+            expect(resulting_array.size).to eq(1) # sanity check
+            expected_string = "This is a pile of poo: \u{1F4A9}"
+            expect_identical_string(resulting_array.first, expected_string, Encoding.default_external)
           end
         end
       end
