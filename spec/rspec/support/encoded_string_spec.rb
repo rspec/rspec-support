@@ -56,13 +56,10 @@ module RSpec::Support
         end
 
         context 'when no converter is known for an encoding' do
-          let(:source_encoding) { Encoding.find('UTF-16LE') }
-          if RUBY_VERSION == '1.9.2' && Ruby.mri?
-            let(:no_converter_encoding) { Encoding.find('IBM737') }
-          else
-            let(:no_converter_encoding) { 'not_a_known_encoding' }
-          end
-          let(:string) { "I am not going to changé\xEF".force_encoding(source_encoding) }
+          # see https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/string/shared/encode.rb#L12
+          let(:source_encoding) { Encoding.find('ASCII-8BIT') }
+          let(:no_converter_encoding) { Encoding::Emacs_Mule }
+          let(:string) { "\x80".force_encoding(source_encoding) }
 
           it 'normally raises an Encoding::ConverterNotFoundError' do
             expect {
@@ -70,11 +67,10 @@ module RSpec::Support
             }.to raise_error(Encoding::ConverterNotFoundError)
           end
 
-          it 'forces the new encoding' do
-            pending 'cannot reproduce' unless RUBY_VERSION == '1.9.2' && Ruby.mri?
+          it 'forces the encoding to Encoding.default_external' do
             resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-            expected_string  = "I am not going to changé\xEF".force_encoding(no_converter_encoding)
-            expect_identical_string(resulting_string, expected_string)
+            expected_string  = "I am not going to changé\xEF".force_encoding(Encoding.default_external)
+            expect_identical_string(resulting_string, expected_string, Encoding.default_external)
           end
         end
 
@@ -94,7 +90,12 @@ module RSpec::Support
 
           it 'replaces all undefines conversions with the REPLACE string' do
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
-            expected_string = "\xA0 hi I am not going to work"
+            if OS.windows?
+              replacement = "\xFF"
+            else
+              replacement = "\xA0"
+            end
+            expected_string = "#{replacement} hi I am not going to work"
             expect_identical_string(resulting_string, expected_string)
           end
         end
@@ -110,7 +111,12 @@ module RSpec::Support
           it 'encodes and appends the string' do
 
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
-            expected_string = "#{utf_8_euro_symbol}abcd??".force_encoding('UTF-8')
+            if OS.windows?
+              replacement = "\x82\x82"
+            else
+              replacement = "\xE9\xE9"
+            end
+            expected_string = "#{utf_8_euro_symbol}abcd#{replacement}".force_encoding('UTF-8')
             expect_identical_string(resulting_string, expected_string)
           end
 
@@ -119,9 +125,14 @@ module RSpec::Support
             accentless = build_encoded_string("Tu avec carte {count} item has\n", source_encoding)
             accented   = "Tu avec carté {count} itém has\n".encode(source_encoding)
             resulting_string = accentless << accented
+            if OS.windows?
+              replacement = "\x82\x82"
+            else
+              replacement = "\u00E9"
+            end
             expected_string = <<-EOS.encode('UTF-16LE')
 Tu avec carte {count} item has
-Tu avec cart\u00E9 {count} it\u00E9m has
+Tu avec cart#{replacement} {count} it#{replacement}m has
             EOS
             expect_identical_string(resulting_string, expected_string)
           end
@@ -152,7 +163,8 @@ Tu avec cart\u00E9 {count} it\u00E9m has
             other_ascii_string = '123'.force_encoding("ASCII-8BIT")
 
             resulting_string = build_encoded_string(ascii_string, utf8_encoding) << other_ascii_string
-            expect(resulting_string.encoding.to_s).to eq('UTF-8')
+            expected_string = 'abc123'.force_encoding('ASCII-8BIT')
+            expect_identical_string(resulting_string, expected_string)
           end
         end
       end
@@ -181,7 +193,7 @@ Tu avec cart\u00E9 {count} it\u00E9m has
 
           it 'normally raises an Encoding::UndefinedConversionError' do
             expect {
-              wrapped_string.encode(utf8_encoding).split(utf_8_euro_symbol)
+              wrapped_string.encode(utf8_encoding)
             }.to raise_error(Encoding::UndefinedConversionError)
           end
 
@@ -195,8 +207,9 @@ Tu avec cart\u00E9 {count} it\u00E9m has
         # see https://github.com/rspec/rspec-expectations/blob/f8a1232/spec/rspec/expectations/fail_with_spec.rb#L50
         #     https://github.com/rspec/rspec-expectations/issues/201
         #     https://github.com/rspec/rspec-expectations/pull/220
-        context 'when splitting a string that is not US-ASCII compatible' do
-          let(:non_ascii_compatible_string) { "This is a pile of poo: 💩".encode("UTF-16LE") }
+        context 'with a string that cannot be converted to the target encoding' do
+          let(:binary_poop) {'💩' } # [128169] "\u{1F4A9}"
+          let(:non_ascii_compatible_string) { "This is a pile of poo: #{binary_poop}, yuck".encode("UTF-16LE") }
 
           it 'normally raises an Encoding::CompatibilityError' do
             expect {
@@ -204,16 +217,21 @@ Tu avec cart\u00E9 {count} it\u00E9m has
             }.to raise_error(Encoding::CompatibilityError)
           end
 
-          it 'falls back to the Encoding.default_external' do
-            resulting_array = build_encoded_string(non_ascii_compatible_string, utf8_encoding).split("\n")
+          it 'corrects for the encoding if possible, else replaces the incompatible character' do
+            resulting_array = build_encoded_string(non_ascii_compatible_string).split("\n")
             expect(resulting_array.size).to eq(1) # sanity check
-            expected_string = "This is a pile of poo: \u{1F4A9}"
-            expect_identical_string(resulting_array.first, expected_string, Encoding.default_external)
+            if OS.windows?
+              replacement = EncodedString::REPLACE
+            else
+              replacement = binary_poop
+            end
+            expected_string = "This is a pile of poo: #{replacement}, yuck"
+            expect_identical_string(resulting_array.first, expected_string)
           end
         end
       end
 
-      def build_encoded_string(string, target_encoding)
+      def build_encoded_string(string, target_encoding = string.encoding)
         EncodedString.new(string, target_encoding)
       end
     else

@@ -214,11 +214,11 @@ EOD
           expect_identical_string(diff, expected_diff)
         end
 
-        it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
-          replacement = if RUBY_VERSION > '1.9.3'
-                          %{+"ö" => "ö"}
-                        else
+        it 'outputs unified diff message of two hashes with differing encoding' do
+          replacement = if OS.windows? || RUBY_VERSION < '1.9.3'
                           '+"\303\266" => "\303\266"'
+                        else
+                          %{+"ö" => "ö"}
                         end
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
@@ -230,13 +230,13 @@ EOD
           expect_identical_string(diff, expected_diff)
         end
 
-        it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
+        it 'outputs unified diff message of two hashes with encoding different to key encoding' do
           actual = { "한글" => "한글2"}
           expected = { :a => "a"}
-          replacement = if RUBY_VERSION > '1.9.3'
-                          %{+\"한글\" => \"한글2\"}
-                        else
+          replacement = if OS.windows? || RUBY_VERSION < '1.9.3'
                           '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"'
+                        else
+                          %{+\"한글\" => \"한글2\"}
                         end
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
