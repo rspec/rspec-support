@@ -78,16 +78,17 @@ module RSpec
         # Encoding::CompatibilityError
         #
         def matching_encoding(string)
+          encoding = EncodedString.pick_encoding(source_encoding, @encoding)
           # Converting it to a higher character set (UTF-16) and then back (to UTF-8)
           # ensures that we strip away invalid or undefined byte sequences
           # => no need to rescue Encoding::InvalidByteSequenceError, ArgumentError
           string.encode(::Encoding::UTF_16LE, ENCODING_STRATEGY[:bad_bytes]).
-            encode(@encoding)
+            encode(encoding)
         rescue Encoding::UndefinedConversionError, Encoding::CompatibilityError
-          string.encode(@encoding, ENCODING_STRATEGY[:cannot_convert])
+          string.encode(encoding, ENCODING_STRATEGY[:cannot_convert])
         # Begin: Needed for 1.9.2
         rescue Encoding::ConverterNotFoundError
-          string.force_encoding(@encoding).encode(ENCODING_STRATEGY[:no_converter])
+          string.force_encoding(encoding).encode(ENCODING_STRATEGY[:no_converter])
         end
         # End: Needed for 1.9.2
 

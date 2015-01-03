@@ -94,7 +94,7 @@ module RSpec::Support
 
           it 'replaces all undefines conversions with the REPLACE string' do
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
-            expected_string = "? hi I am not going to work"
+            expected_string = "\xA0 hi I am not going to work"
             expect_identical_string(resulting_string, expected_string)
           end
         end
