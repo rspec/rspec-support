@@ -105,9 +105,9 @@ module RSpec::Support
 
       describe '#<<' do
         context 'with strings that can be converted to the target encoding' do
+          let(:valid_ascii_string) { "abcdé".force_encoding("ASCII-8BIT") }
+          let(:valid_unicode_string) { utf_8_euro_symbol.force_encoding('UTF-8') }
           it 'encodes and appends the string' do
-            valid_ascii_string = "abcdé".force_encoding("ASCII-8BIT")
-            valid_unicode_string = utf_8_euro_symbol.force_encoding('UTF-8')
 
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
             expected_string = "#{utf_8_euro_symbol}abcd??".force_encoding('UTF-8')
