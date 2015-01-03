@@ -8,19 +8,6 @@ module RSpec
   module Support
     describe Differ do
 
-      describe '#pick_encoding' do
-        let(:differ) { RSpec::Support::Differ.new }
-        if String.method_defined?(:encoding)
-          it "picks and encoding" do
-
-            str1 = "\xa1".force_encoding("iso-8859-1")
-            str2 = "\xa1\xa1".force_encoding("euc-jp")
-            expect(Encoding.compatible?(str1, str2)).to be_nil
-            expect(differ.send(:pick_encoding, str1, str2)).to eq(Encoding.default_external)
-          end
-        end
-      end
-
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
 

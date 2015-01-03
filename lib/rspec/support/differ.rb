@@ -31,7 +31,7 @@ module RSpec
 
       # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
-        @encoding = pick_encoding actual, expected
+        @encoding = EncodedString.pick_encoding(actual, expected)
         @actual   = EncodedString.new(actual, @encoding)
         @expected = EncodedString.new(expected, @encoding)
         output    = EncodedString.new("\n", @encoding)
@@ -188,16 +188,6 @@ module RSpec
           object =~ /\n/ ? object : object.inspect
         else
           PP.pp(object, "")
-        end
-      end
-
-      if String.method_defined?(:encoding)
-        # see https://github.com/ruby/ruby/blob/ca24e581ba/encoding.c#L1191
-        def pick_encoding(source_a, source_b)
-          Encoding.compatible?(source_a, source_b) || Encoding.default_external
-        end
-      else
-        def pick_encoding(_source_a, _source_b)
         end
       end
     end

@@ -3,6 +3,9 @@ module RSpec
     module EncodingHelpers
       module_function
 
+      # For undefined conversions, replace as "U+<codepoint>"
+      # e.g. '\xa0' becomes 'U+00A0'
+      # see https://github.com/ruby/ruby/blob/34fbf57aaa/test/ruby/test_transcode.rb#L2050
       def safe_chr
         # rubocop:disable Style/RescueModifier
         @safe_chr ||= Hash.new { |h, x| h[x] = x.chr rescue ("U+%.4X" % [x]) }

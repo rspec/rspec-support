@@ -2,6 +2,16 @@ module RSpec
   module Support
     # @private
     class EncodedString
+      if String.method_defined?(:encoding)
+        # see https://github.com/ruby/ruby/blob/ca24e581ba/encoding.c#L1191
+        def self.pick_encoding(source_a, source_b)
+          Encoding.compatible?(source_a, source_b) || Encoding.default_external
+        end
+      else
+        def self.pick_encoding(_source_a, _source_b)
+        end
+      end
+
       # Ruby's default replacement string for is U+FFFD ("\xEF\xBF\xBD") for Unicode encoding forms
       #   else is '?' ("\x3F")
       REPLACE = "\x3F"

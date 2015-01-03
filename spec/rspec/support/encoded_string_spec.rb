@@ -15,6 +15,19 @@ module RSpec::Support
     end
 
     if String.method_defined?(:encoding)
+
+      describe '#pick_encoding' do
+        if String.method_defined?(:encoding)
+          it "picks a compatible encoding, falling back to default_external" do
+            str1 = "\xa1".force_encoding("iso-8859-1")
+            str2 = "\xa1\xa1".force_encoding("euc-jp")
+            expect(Encoding.compatible?(str1, str2)).to be_nil
+
+            expect(EncodedString.pick_encoding(str1, str2)).to eq(Encoding.default_external)
+          end
+        end
+      end
+
       describe '#source_encoding' do
         it 'knows the original encoding of the string' do
           str = EncodedString.new("abc".encode('ASCII-8BIT'), "UTF-8")
