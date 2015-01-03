@@ -155,7 +155,6 @@ Tu avec cart\u00E9 {count} it\u00E9m has
           end
 
           it 'replaces invalid bytes with the REPLACE string' do
-            pending 'but is currently failing'
             resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
             expected_array = ["? ? ? I have bad bytes"]
             expect(resulting_array).to eq(expected_array)

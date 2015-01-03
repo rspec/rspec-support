@@ -4,7 +4,6 @@ module RSpec
     class EncodedString
       # Ruby's default replacement string for is U+FFFD ("\xEF\xBF\xBD") for Unicode encoding forms
       #   else is '?' ("\x3F")
-      MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
       REPLACE = "\x3F"
 
       def initialize(string, encoding=nil)
@@ -36,6 +35,24 @@ module RSpec
 
         private
 
+        ENCODING_STRATEGY = {
+          :bad_bytes => {
+            :invalid => :replace,
+            # :undef   => :nil,
+            :replace => REPLACE
+          },
+          :cannot_convert => {
+            # :invalid => :nil,
+            :undef   => :replace,
+            :replace => REPLACE
+          },
+          :no_converter => {
+            :invalid => :replace,
+            # :undef   => :nil,
+            :replace => REPLACE
+          }
+        }
+
         # Raised by Encoding and String methods:
         #   Encoding::UndefinedConversionError:
         #     when a transcoding operation fails
@@ -51,20 +68,19 @@ module RSpec
         # Encoding::CompatibilityError
         #
         def matching_encoding(string)
-          string.encode(@encoding)
-        rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          normalize_missing(string.encode(@encoding, :invalid => :replace, :undef => :replace))
+          # Converting it to a higher character set (UTF-16) and then back (to UTF-8)
+          # ensures that we strip away invalid or undefined byte sequences
+          # => no need to rescue Encoding::InvalidByteSequenceError, ArgumentError
+          string.encode(::Encoding::UTF_16LE, ENCODING_STRATEGY[:bad_bytes]).
+            encode(@encoding)
+        rescue Encoding::UndefinedConversionError, Encoding::CompatibilityError
+          string.encode(@encoding, ENCODING_STRATEGY[:cannot_convert])
+        # Begin: Needed for 1.9.2
         rescue Encoding::ConverterNotFoundError
-          normalize_missing(string.force_encoding(@encoding).encode(:invalid => :replace))
+          string.force_encoding(@encoding).encode(ENCODING_STRATEGY[:no_converter])
         end
+        # End: Needed for 1.9.2
 
-        def normalize_missing(string)
-          if @encoding.to_s == "UTF-8"
-            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER.force_encoding(@encoding), REPLACE)
-          else
-            string
-          end
-        end
 
         def detect_source_encoding(string)
           string.encoding
