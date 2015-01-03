@@ -7,8 +7,14 @@ module RSpec
   module Support
     # rubocop:disable ClassLength
     class Differ
+      if String.method_defined?(:encoding)
+        EMPTY_DIFF = EncodedString.new("", Encoding.default_external)
+      else
+        EMPTY_DIFF = EncodedString.new("")
+      end
+
       def diff(actual, expected)
-        diff = ""
+        diff = EMPTY_DIFF.dup
 
         if actual && expected
           if all_strings?(actual, expected)
@@ -26,11 +32,9 @@ module RSpec
       # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
         @encoding = pick_encoding actual, expected
-
         @actual   = EncodedString.new(actual, @encoding)
         @expected = EncodedString.new(expected, @encoding)
-
-        output = EncodedString.new("\n", @encoding)
+        output    = EncodedString.new("\n", @encoding)
 
         hunks.each_cons(2) do |prev_hunk, current_hunk|
           begin

@@ -7,6 +7,49 @@ require 'rspec/support/differ'
 module RSpec
   module Support
     describe Differ do
+      def safe_chr
+        @safe_chr ||= Hash.new { |h, x| h[x] = x.chr rescue ("U+%.4X" % [x]) }
+      end
+
+      def safe_codepoints(str)
+        str.each_codepoint.map {|codepoint| safe_chr[codepoint] }
+      rescue ArgumentError
+        str.each_byte.map {|byte| safe_chr[byte] }
+      end
+
+      def expect_identical_string(str1, str2, expected_encoding = str1.encoding)
+        expect(str1.encoding).to eq(expected_encoding)
+        str1_bytes = safe_codepoints(str1)
+        str2_bytes = safe_codepoints(str2)
+        return unless str1_bytes != str2_bytes
+        str1_differences = []
+        str2_differences = []
+        str2_bytes.each_with_index do |str2_byte, index|
+          str1_byte = str1_bytes.fetch(index) do
+            str2_differences.concat str2_bytes[index..-1]
+            return
+          end
+          if str1_byte != str2_byte
+            str1_differences << str1_byte
+            str2_differences << str2_byte
+          end
+        end
+        expect(str1_differences.join).to eq(str2_differences.join)
+      end
+
+      describe '#pick_encoding' do
+        let(:differ) { RSpec::Support::Differ.new }
+        if String.method_defined?(:encoding)
+          it "picks and encoding" do
+
+            str1 = "\xa1".force_encoding("iso-8859-1")
+            str2 = "\xa1\xa1".force_encoding("euc-jp")
+            expect(Encoding.compatible?(str1, str2)).to be_nil
+            expect(differ.send(:pick_encoding, str1, str2)).to eq(Encoding.default_external)
+          end
+        end
+      end
+
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
 
@@ -34,50 +77,87 @@ module RSpec
 EOD
 
           diff = differ.diff(actual, expected)
-          expect(diff).to eql(expected_diff)
+          expect_identical_string(diff, expected_diff)
         end
 
         if String.method_defined?(:encoding)
           it "returns an empty string if strings are not multiline" do
-            expected = "Tu avec carte {count} item has".encode('UTF-16LE')
-            actual   = "Tu avec carté {count} itém has".encode('UTF-16LE')
+            expected = "It has trouble when {string} has an e".encode('UTF-16LE')
+            actual   = "It has trouble when {string} has an é".encode('UTF-16LE')
 
             expect(differ.diff(actual, expected)).to be_empty
           end
 
           it 'copes with encoded strings' do
-            expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
-            actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eql(<<-EOD.encode('UTF-16LE'))
+            expected = "It has trouble when {string} has an e".encode('UTF-16LE')
+            actual   = "It has trouble when {string} has an é".encode('UTF-16LE')
+
+            diff = differ.diff(actual, expected)
+            expected_diff = <<-EOD.encode('UTF-16LE')
 
 @@ -1,2 +1,2 @@
--Tu avec carte {count} item has
-+Tu avec carté {count} itém has
-EOD
+-It has trouble when {string} has an e
++It has trouble when {string} has an é
+          EOD
+          expect_identical_string(diff, expected_diff)
           end
 
           it 'handles differently encoded strings that are compatible' do
             expected = "abc\n".encode('us-ascii')
             actual   = "강인철\n".encode('UTF-8')
-            expect(differ.diff(actual, expected)).to eql "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
-          end
 
-          it 'uses the default external encoding when the two strings have incompatible encodings', :failing_on_appveyor do
-            expected = "Tu avec carte {count} item has\n"
-            actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eq("\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
-            expect(differ.diff(actual, expected).encoding).to eq(Encoding.default_external)
-          end
-
-          it 'handles any encoding error that occurs with a helpful error message' do
-            expect(RSpec::Support::HunkGenerator).to receive(:new).
-              and_raise(Encoding::CompatibilityError)
-            expected = "Tu avec carte {count} item has\n".encode('us-ascii')
-            actual   = "Tu avec carté {count} itém has\n"
             diff = differ.diff(actual, expected)
-            expect(diff).to match(/Could not produce a diff/)
-            expect(diff).to match(/actual string \(UTF-8\)/)
-            expect(diff).to match(/expected string \(US-ASCII\)/)
+            expected_diff = "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
+            expect_identical_string(diff, expected_diff)
+          end
+
+          it 'uses the default external encoding when the two strings have incompatible encodings' do
+            source_encoding = Encoding.find('iso-8859-1')
+            target_encoding = Encoding.find('euc-jp')
+            expected = "This is #{source_encoding.name}".force_encoding(source_encoding)
+            actual   = "This is #{target_encoding.name}".force_encoding(target_encoding)
+            expected_diff = <<-EOD
+
+@@ -1,2 +1,2 @@
+-This is iso-8859-1
++This is euc-jp
+            EOD
+            diff = differ.diff(actual, expected)
+            expect(Encoding.compatible?(actual.encoding, expected.encoding)).to be_nil
+            expect(diff.encoding).to eq(Encoding.default_external)
+            expect_identical_string(diff, expected_diff)
+          end
+
+          it 'handles an Encoding::ConverterNotFoundError' do
+            expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
+            actual   = "Tu avec carté {count} itém has\n".force_encoding('IBM737')
+            if RUBY_VERSION === '1.9.2' && Ruby.mri?
+              e = '\xC3\xA9\xC3\xA9'
+            else
+              e = "é".force_encoding('IBM737').encode('UTF-16LE').unpack('C*').pack('c*')
+            end
+            diff = differ.diff(actual, expected)
+            expected_diff = <<-EOD
+
+@@ -1,2 +1,2 @@
+-Tu avec carte {count} item has
++Tu avec cart#{e} {count} it#{e}m has
+            EOD
+            expect_identical_string(diff, expected_diff)
+          end
+
+          it 'handles an Encoding::CompatibilityError' do
+            expected = "\xAETu avec carte {count} item has\n".force_encoding("ASCII-8BIT")
+            actual = "\xE2\x82\xACTu avec carte {count} item has\n".force_encoding('UTF-8')
+
+            diff = differ.diff(actual, expected)
+            expected_diff = <<-EOD
+
+@@ -1,2 +1,2 @@
+-?Tu avec carte {count} item has
++\xE2\x82\xACTu avec carte {count} item has
+            EOD
+            expect_identical_string(diff, expected_diff)
           end
         end
 
@@ -111,7 +191,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it "outputs unified diff message of two arrays" do
@@ -133,7 +213,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it 'outputs a unified diff message for an array which flatten recurses' do
@@ -148,12 +228,13 @@ EOD
             diff = differ.diff [obj], []
           end
 
-          expect(diff).to eq <<-EOD
+          expected_diff = <<-EOD
 
 @@ -1,2 +1,2 @@
 -[]
 +[<BrokenObject>]
-EOD
+          EOD
+          expect_identical_string(diff, expected_diff)
         end
 
         it "outputs unified diff message of two hashes" do
@@ -172,29 +253,41 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
+          replacement = if RUBY_VERSION > '1.9.3'
+                          %{+"ö" => "ö"}
+                        else
+                          '+"\303\266" => "\303\266"'
+                        end
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
 -"a" => "a",
-#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+"ö" => "ö"} : '+"\303\266" => "\303\266"' },
+#{ replacement },
 }
 
           diff = differ.diff({'ö' => 'ö'}, {'a' => 'a'})
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
+          actual = { "한글" => "한글2"}
+          expected = { :a => "a"}
+          replacement = if RUBY_VERSION > '1.9.3'
+                          %{+\"한글\" => \"한글2\"}
+                        else
+                          '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"'
+                        end
           expected_diff = %Q{
 @@ -1,2 +1,2 @@
 -:a => "a",
-#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+\"한글\" => \"한글2\"} : '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"' },
+#{ replacement },
 }
 
-          diff = differ.diff({ "한글" => "한글2"}, { :a => "a"})
-          expect(diff).to eq expected_diff
+          diff = differ.diff(actual, expected)
+          expect_identical_string(diff, expected_diff)
         end
 
         it "outputs unified diff message of two hashes with object keys" do
@@ -205,7 +298,7 @@ EOD
 }
 
           diff = differ.diff({ ['d','c'] => 'b'}, { ['a','c'] => 'b' })
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it "outputs unified diff of multi line strings" do
@@ -221,7 +314,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it "splits items with newlines" do
@@ -233,7 +326,7 @@ EOD
 EOD
 
           diff = differ.diff [], ["a\nb", "c\nd"]
-          expect(diff).to eql expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it "shows inner arrays on a single line" do
@@ -245,7 +338,7 @@ EOD
 EOD
 
           diff = differ.diff [], ["a\nb", ["c\nd"]]
-          expect(diff).to eql expected_diff
+          expect_identical_string(diff, expected_diff)
         end
 
         it "returns an empty string if no expected or actual" do
@@ -300,7 +393,7 @@ EOD
             EOS
 
             diff = differ.diff(expected, actual)
-            expect(diff).to eq expected_diff
+            expect_identical_string(diff, expected_diff)
           end
         end
 
@@ -313,7 +406,7 @@ EOD
             expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,2 +1,2 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
 
             diff = differ.diff(expected,actual)
-            expect(diff).to eq expected_diff
+            expect_identical_string(diff, expected_diff)
           end
         end
       end
