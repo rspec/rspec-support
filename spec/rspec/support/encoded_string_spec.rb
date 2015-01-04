@@ -16,6 +16,40 @@ module RSpec::Support
 
     if String.method_defined?(:encoding)
 
+      # see https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/encoding/find_spec.rb#L57
+      describe 'Ensure tests are running with utf-8 encoding' do
+
+        it 'default_internal' do
+          if Encoding.default_external == Encoding.find('locale')
+            expected_encoding = ''
+          else
+            expected_encoding = utf8_encoding
+          end
+          expect(Encoding.default_internal.to_s).to eq(expected_encoding)
+        end
+
+        it 'default_external' do
+          expect(Encoding.default_external.to_s).to eq(utf8_encoding)
+        end
+
+        it 'locale' do
+          skip "Not sure how to determine locale (#{Encoding.find('locale')})"\
+            "from LC_ALL or on windows"
+        end
+
+        it 'filesystem' do
+          encoding = Encoding.find('filesystem').to_s
+          if OS.windows?
+            skip "Not sure how to tell filesystem encoding is #{encoding}"
+            expect(encoding).to eq(utf8_encoding)
+          end
+        end
+
+        it 'current script (file)' do
+          expect(__ENCODING__.to_s).to eq(utf8_encoding)
+        end
+      end
+
       describe '#pick_encoding' do
         if String.method_defined?(:encoding)
           it "picks a compatible encoding, falling back to default_external" do

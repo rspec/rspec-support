@@ -26,7 +26,7 @@ function run_specs_and_record_done {
   fi;
 
   echo "${PWD}/bin/rspec"
-  $rspec_bin spec --backtrace --format progress --profile --format progress --out $SPECS_HAVE_RUN_FILE
+  ruby -E UTF-8:UTF-8 -S $rspec_bin spec --backtrace --format progress --profile --format progress --out $SPECS_HAVE_RUN_FILE
 }
 
 function run_cukes {
@@ -50,7 +50,7 @@ function run_cukes {
       # and PATH for those that are using `rspec` or `rake`.
       RUBYOPT="-I${PWD}/../bundle -rbundler/setup" \
          PATH="${PWD}/bin:$PATH" \
-         bin/cucumber --strict
+         ruby -E UTF-8:UTF-8 -S bin/cucumber --strict
     fi
   fi
 }
@@ -59,7 +59,7 @@ function run_specs_one_by_one {
   echo "Running each spec file, one-by-one..."
 
   for file in `find spec -iname '*_spec.rb'`; do
-    bin/rspec $file -b --format progress
+    ruby -E UTF-8:UTF-8 -S bin/rspec $file -b --format progress
   done
 }
 
@@ -112,7 +112,7 @@ function check_documentation_coverage {
 }
 
 function check_style_and_lint {
-  echo "bin/rubucop lib"
+  echo "bin/rubocop lib"
   bin/rubocop lib
 }
 
