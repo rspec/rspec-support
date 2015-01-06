@@ -2,7 +2,19 @@ module RSpec
   module Support
     # @private
     class EncodedString
-      MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
+      if String.method_defined?(:encoding)
+        # see https://github.com/ruby/ruby/blob/ca24e581ba/encoding.c#L1191
+        def self.pick_encoding(source_a, source_b)
+          Encoding.compatible?(source_a, source_b) || Encoding.default_external
+        end
+      else
+        def self.pick_encoding(_source_a, _source_b)
+        end
+      end
+
+      # Ruby's default replacement string for is U+FFFD ("\xEF\xBF\xBD") for Unicode encoding forms
+      #   else is '?' ("\x3F")
+      REPLACE = "\x3F"
 
       def initialize(string, encoding=nil)
         @encoding = encoding
@@ -33,21 +45,52 @@ module RSpec
 
         private
 
-        def matching_encoding(string)
-          string.encode(@encoding)
-        rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          normalize_missing(string.encode(@encoding, :invalid => :replace, :undef => :replace))
-        rescue Encoding::ConverterNotFoundError
-          normalize_missing(string.force_encoding(@encoding).encode(:invalid => :replace))
-        end
+        ENCODING_STRATEGY = {
+          :bad_bytes => {
+            :invalid => :replace,
+            # :undef   => :nil,
+            :replace => REPLACE
+          },
+          :cannot_convert => {
+            # :invalid => :nil,
+            :undef   => :replace,
+            :replace => REPLACE
+          },
+          :no_converter => {
+            :invalid => :replace,
+            # :undef   => :nil,
+            :replace => REPLACE
+          }
+        }
 
-        def normalize_missing(string)
-          if @encoding.to_s == "UTF-8"
-            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER.force_encoding(@encoding), "?")
-          else
-            string
-          end
+        # Raised by Encoding and String methods:
+        #   Encoding::UndefinedConversionError:
+        #     when a transcoding operation fails
+        #     e.g. "\x80".encode('utf-8','ASCII-8BIT')
+        #   Encoding::InvalidByteSequenceError:
+        #     when the string being transcoded contains a byte invalid for the either
+        #     the source or target encoding
+        #     e.g. "\x80".encode('utf-8','US-ASCII')
+        # Raised by transcoding methods:
+        #   Encoding::ConverterNotFoundError:
+        #     when a named encoding does not correspond with a known converter
+        #     e.g. 'abc'.force_encoding('utf-8').encode('foo')
+        # Encoding::CompatibilityError
+        #
+        def matching_encoding(string)
+          encoding = EncodedString.pick_encoding(source_encoding, @encoding)
+          # Converting it to a higher character set (UTF-16) and then back (to UTF-8)
+          # ensures that we strip away invalid or undefined byte sequences
+          # => no need to rescue Encoding::InvalidByteSequenceError, ArgumentError
+          string.encode(::Encoding::UTF_16LE, ENCODING_STRATEGY[:bad_bytes]).
+            encode(encoding)
+        rescue Encoding::UndefinedConversionError, Encoding::CompatibilityError
+          string.encode(encoding, ENCODING_STRATEGY[:cannot_convert])
+        # Begin: Needed for 1.9.2
+        rescue Encoding::ConverterNotFoundError
+          string.force_encoding(encoding).encode(ENCODING_STRATEGY[:no_converter])
         end
+        # End: Needed for 1.9.2
 
         def detect_source_encoding(string)
           string.encoding

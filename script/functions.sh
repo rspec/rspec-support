@@ -7,6 +7,10 @@ source $SCRIPT_DIR/predicate_functions.sh
 
 # idea taken from: http://blog.headius.com/2010/03/jruby-startup-time-tips.html
 export JRUBY_OPTS="${JRUBY_OPTS} -X-C" # disable JIT since these processes are so short lived
+# Set the external encoding to UTF-8 in a 1.8.7-compatible way
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 SPECS_HAVE_RUN_FILE=specs.out
 MAINTENANCE_BRANCH=`cat maintenance-branch`
 
@@ -112,7 +116,7 @@ function check_documentation_coverage {
 }
 
 function check_style_and_lint {
-  echo "bin/rubucop lib"
+  echo "bin/rubocop lib"
   bin/rubocop lib
 }
 

@@ -1,7 +1,7 @@
 module RSpec
   module Support
     module InSubProcess
-      if Process.respond_to?(:fork) && !(RUBY_PLATFORM == 'java' && RUBY_VERSION == '1.8.7')
+      if Process.respond_to?(:fork) && !(Ruby.jruby? && RUBY_VERSION == '1.8.7')
         # Useful as a way to isolate a global change to a subprocess.
 
         # rubocop:disable MethodLength
@@ -35,7 +35,7 @@ module RSpec
           raise exception if exception
         end
       else
-        def in_sub_process
+        def in_sub_process(*)
           skip "This spec requires forking to work properly, " \
                "and your platform does not support forking"
         end

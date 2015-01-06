@@ -7,8 +7,14 @@ module RSpec
   module Support
     # rubocop:disable ClassLength
     class Differ
+      if String.method_defined?(:encoding)
+        EMPTY_DIFF = EncodedString.new("", Encoding.default_external)
+      else
+        EMPTY_DIFF = EncodedString.new("")
+      end
+
       def diff(actual, expected)
-        diff = ""
+        diff = EMPTY_DIFF.dup
 
         if actual && expected
           if all_strings?(actual, expected)
@@ -25,12 +31,10 @@ module RSpec
 
       # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
-        @encoding = pick_encoding actual, expected
-
+        @encoding = EncodedString.pick_encoding(actual, expected)
         @actual   = EncodedString.new(actual, @encoding)
         @expected = EncodedString.new(expected, @encoding)
-
-        output = EncodedString.new("\n", @encoding)
+        output    = EncodedString.new("\n", @encoding)
 
         hunks.each_cons(2) do |prev_hunk, current_hunk|
           begin
@@ -47,8 +51,6 @@ module RSpec
         finalize_output(output, hunks.last.diff(format_type).to_s) if hunks.last
 
         color_diff output
-      rescue Encoding::CompatibilityError
-        handle_encoding_errors
       end
       # rubocop:enable MethodLength
 
@@ -186,26 +188,6 @@ module RSpec
           object =~ /\n/ ? object : object.inspect
         else
           PP.pp(object, "")
-        end
-      end
-
-      if String.method_defined?(:encoding)
-        def pick_encoding(source_a, source_b)
-          Encoding.compatible?(source_a, source_b) || Encoding.default_external
-        end
-      else
-        def pick_encoding(_source_a, _source_b)
-        end
-      end
-
-      def handle_encoding_errors
-        if @actual.source_encoding != @expected.source_encoding
-          "Could not produce a diff because the encoding of the actual string " \
-          "(#{@actual.source_encoding}) differs from the encoding of the expected " \
-          "string (#{@expected.source_encoding})"
-        else
-          "Could not produce a diff because of the encoding of the string " \
-          "(#{@expected.source_encoding})"
         end
       end
     end
