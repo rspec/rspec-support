@@ -7,6 +7,10 @@ source $SCRIPT_DIR/predicate_functions.sh
 
 # idea taken from: http://blog.headius.com/2010/03/jruby-startup-time-tips.html
 export JRUBY_OPTS="${JRUBY_OPTS} -X-C" # disable JIT since these processes are so short lived
+# Set the external encoding to UTF-8 in a 1.8.7-compatible way
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 SPECS_HAVE_RUN_FILE=specs.out
 MAINTENANCE_BRANCH=`cat maintenance-branch`
 
@@ -26,7 +30,7 @@ function run_specs_and_record_done {
   fi;
 
   echo "${PWD}/bin/rspec"
-  ruby -E UTF-8:UTF-8 -S $rspec_bin spec --backtrace --format progress --profile --format progress --out $SPECS_HAVE_RUN_FILE
+  $rspec_bin spec --backtrace --format progress --profile --format progress --out $SPECS_HAVE_RUN_FILE
 }
 
 function run_cukes {
@@ -50,7 +54,7 @@ function run_cukes {
       # and PATH for those that are using `rspec` or `rake`.
       RUBYOPT="-I${PWD}/../bundle -rbundler/setup" \
          PATH="${PWD}/bin:$PATH" \
-         ruby -E UTF-8:UTF-8 -S bin/cucumber --strict
+         bin/cucumber --strict
     fi
   fi
 }
@@ -59,7 +63,7 @@ function run_specs_one_by_one {
   echo "Running each spec file, one-by-one..."
 
   for file in `find spec -iname '*_spec.rb'`; do
-    ruby -E UTF-8:UTF-8 -S bin/rspec $file -b --format progress
+    bin/rspec $file -b --format progress
   done
 }
 
