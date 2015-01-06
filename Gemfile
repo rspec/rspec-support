@@ -14,7 +14,8 @@ branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
 end
 
 ### dep for ci/coverage
-gem 'simplecov', '~> 0.8'
+gem 'simplecov', '~> 0.9'
+gem 'simplecov-html', :github => 'colszowka/simplecov-html'
 
 gem 'rubocop', "~> 0.23.0", :platform => [:ruby_19, :ruby_20, :ruby_21]
 
