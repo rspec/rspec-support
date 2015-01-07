@@ -40,7 +40,7 @@ module RSpec::Support
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
             expected_string = "I have a bad byt#{replacement}"
-            expect_identical_string(resulting_string, expected_string)
+            expect(resulting_string).to be_identical_string(expected_string)
           end
         end
 
@@ -60,13 +60,13 @@ module RSpec::Support
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
               expected_string  = "\x80"
-              expect_identical_string(resulting_string, expected_string, no_converter_encoding)
+              expect(resulting_string).to be_identical_string(expected_string, no_converter_encoding)
             end
           else
             it 'forces the encoding and replaces invalid characters with the REPLACE string' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
               expected_string  = EncodedString::REPLACE
-              expect_identical_string(resulting_string, expected_string, no_converter_encoding)
+              expect(resulting_string).to be_identical_string(expected_string, no_converter_encoding)
             end
           end
         end
@@ -89,7 +89,7 @@ module RSpec::Support
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
             replacement = EncodedString::REPLACE
             expected_string = "#{replacement} hi I am not going to work"
-            expect_identical_string(resulting_string, expected_string)
+            expect(resulting_string).to be_identical_string(expected_string)
           end
         end
       end
@@ -106,7 +106,7 @@ module RSpec::Support
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
             replacement = EncodedString::REPLACE * 2
             expected_string = "#{utf_8_euro_symbol}abcd#{replacement}".force_encoding('UTF-8')
-            expect_identical_string(resulting_string, expected_string)
+            expect(resulting_string).to be_identical_string(expected_string)
           end
 
           it 'copes with encoded strings' do
@@ -123,7 +123,7 @@ module RSpec::Support
 Tu avec carte {count} item has
 Tu avec cart#{replacement} {count} it#{replacement}m has
             EOS
-            expect_identical_string(resulting_string, expected_string)
+            expect(resulting_string).to be_identical_string(expected_string)
           end
         end
 
@@ -141,7 +141,7 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
             it 'replaces unconvertable characters with a string representation of their hex value' do
               resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << ascii_string
               expected_string = "#{utf_8_euro_symbol}?"
-              expect_identical_string(resulting_string, expected_string)
+              expect(resulting_string).to be_identical_string(expected_string)
             end
           end
         end
@@ -153,7 +153,7 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
 
             resulting_string = build_encoded_string(ascii_string, utf8_encoding) << other_ascii_string
             expected_string = 'abc123'.force_encoding('ASCII-8BIT')
-            expect_identical_string(resulting_string, expected_string)
+            expect(resulting_string).to be_identical_string(expected_string)
           end
         end
       end
