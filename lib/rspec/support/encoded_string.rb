@@ -2,9 +2,7 @@ module RSpec
   module Support
     # @private
     class EncodedString
-      # EncodedString is a hotspot in RSpec as every expectation creates
-      # one. Reduce allocations by storing constants.
-      #
+      # Reduce allocations by storing constants.
       UTF_8 = "UTF-8"
       US_ASCII = 'US-ASCII'
       # Ruby's default replacement string is:
