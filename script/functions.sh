@@ -112,7 +112,7 @@ function check_documentation_coverage {
 }
 
 function check_style_and_lint {
-  echo "bin/rubucop lib"
+  echo "bin/rubocop lib"
   bin/rubocop lib
 }
 
