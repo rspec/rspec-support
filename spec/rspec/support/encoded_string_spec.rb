@@ -2,6 +2,30 @@
 require 'spec_helper'
 require 'rspec/support/encoded_string'
 
+# Special matcher for comparing encoded strings so that
+# we don't run any expectation failures through the Differ,
+# which also relies on EncodedString. Instead, confirm the
+# strings have the same encoding and same bytes.
+RSpec::Matchers.define :be_identical_string do |expected|
+
+  if String.method_defined?(:encoding)
+    match do
+      actual.encoding == expected.encoding &&
+        actual.bytes.to_a == expected.bytes.to_a
+    end
+
+    failure_message do
+      "expected #{actual.inspect} (#{actual.encoding.name}) to be identical to "\
+        "#{expected.inspect} (#{expected.encoding.name})"
+    end
+  else
+    match do |actual|
+      actual.split(//) == expected.split(//)
+    end
+  end
+end
+RSpec::Matchers.alias_matcher :a_string_identical_to, :be_identical_string
+
 module RSpec::Support
   describe EncodedString do
     let(:utf8_encoding) { 'UTF-8' }
@@ -39,7 +63,7 @@ module RSpec::Support
           it 'replaces invalid byte sequences with the REPLACE string' do
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
-            expected_string = "I have a bad byt#{replacement}"
+            expected_string = "I have a bad byt#{replacement}".force_encoding(target_encoding)
             expect(resulting_string).to be_identical_string(expected_string)
           end
         end
@@ -59,14 +83,14 @@ module RSpec::Support
           if RUBY_VERSION < '2.1'
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-              expected_string  = "\x80"
-              expect(resulting_string).to be_identical_string(expected_string, no_converter_encoding)
+              expected_string  = "\x80".force_encoding(no_converter_encoding)
+              expect(resulting_string).to be_identical_string(expected_string)
             end
           else
             it 'forces the encoding and replaces invalid characters with the REPLACE string' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-              expected_string  = EncodedString::REPLACE
-              expect(resulting_string).to be_identical_string(expected_string, no_converter_encoding)
+              expected_string  = EncodedString::REPLACE.force_encoding(no_converter_encoding)
+              expect(resulting_string).to be_identical_string(expected_string)
             end
           end
         end
@@ -88,7 +112,7 @@ module RSpec::Support
           it 'replaces all undefines conversions with the REPLACE string' do
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
             replacement = EncodedString::REPLACE
-            expected_string = "#{replacement} hi I am not going to work"
+            expected_string = "#{replacement} hi I am not going to work".force_encoding('EUC-JP')
             expect(resulting_string).to be_identical_string(expected_string)
           end
         end
@@ -152,7 +176,7 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
             other_ascii_string = '123'.force_encoding("ASCII-8BIT")
 
             resulting_string = build_encoded_string(ascii_string, utf8_encoding) << other_ascii_string
-            expected_string = 'abc123'.force_encoding('ASCII-8BIT')
+            expected_string = 'abc123'.force_encoding(utf8_encoding)
             expect(resulting_string).to be_identical_string(expected_string)
           end
         end
@@ -171,11 +195,10 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
           it 'replaces invalid bytes with the REPLACE string' do
             skip 'test is raising an ArgumentError on split'
             resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
-            expect(resulting_array.size).to eq(1) # sanity check
-            expected_string = "? ? ? I have bad bytes"
-            expect_identical_string(resulting_array.first, expected_string)
+            expect(resulting_array).to match [
+              a_string_identical_to("? ? ? I have bad bytes")
+            ]
           end
-
         end
 
         context 'when there is an undefined conversion to the target encoding' do
@@ -209,9 +232,9 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
 
           it 'makes no changes to the resulting string' do
             resulting_array = build_encoded_string(non_ascii_compatible_string).split("\n")
-            expect(resulting_array.size).to eq(1) # sanity check
-            expected_string = non_ascii_compatible_string
-            expect_identical_string(resulting_array.first, expected_string, Encoding.find('UTF-16LE'))
+            expect(resulting_array).to match [
+              a_string_identical_to(non_ascii_compatible_string)
+            ]
           end
         end
       end

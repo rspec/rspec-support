@@ -1,6 +1,5 @@
 require 'rspec/support'
 RSpec::Support.require_rspec_support "spec/deprecation_helpers"
-RSpec::Support.require_rspec_support "spec/encoding_helpers"
 RSpec::Support.require_rspec_support "spec/with_isolated_stderr"
 RSpec::Support.require_rspec_support "spec/stderr_splitter"
 RSpec::Support.require_rspec_support "spec/formatting_support"
@@ -13,7 +12,6 @@ RSpec.configure do |c|
   c.include RSpecHelpers
   c.include RSpec::Support::WithIsolatedStdErr
   c.include RSpec::Support::FormattingSupport
-  c.include RSpec::Support::EncodingHelpers
 
   unless defined?(Debugger) # debugger causes warnings when used
     c.before do
