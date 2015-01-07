@@ -54,7 +54,7 @@ module RSpec
         #     when a transcoding operation fails
         #     if the String contains characters invalid for the target encoding
         #     e.g. "\x80".encode('UTF-8','ASCII-8BIT')
-        #     and "\x80".encode('UTF-8','ASCII-8BIT', undef: :replace, replace: '<undef>')
+        #     vs "\x80".encode('UTF-8','ASCII-8BIT', undef: :replace, replace: '<undef>')
         #     # => '<undef>'
         #   Encoding::CompatibilityError
         #    when Enconding.compatbile?(str1, str2) is false
@@ -64,7 +64,7 @@ module RSpec
         #     when the string being transcoded contains a byte invalid for
         #     either the source or target encoding
         #     e.g. "\x80".encode('UTF-8','US-ASCII')
-        #     and "\x80".encode('UTF-8','US-ASCII', invalid: :replace, replace: '<byte>')
+        #     vs "\x80".encode('UTF-8','US-ASCII', invalid: :replace, replace: '<byte>')
         #     # => '<byte>'
         #   ArgumentError
         #    when operating on a string with invalid bytes
