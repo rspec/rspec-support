@@ -2,6 +2,44 @@
 require 'spec_helper'
 require 'rspec/support/encoded_string'
 
+# Special matcher for comparing encoded strings so that
+# we don't run any expectation failures through the Differ,
+# which also relies on EncodedString. Instead, confirm the
+# strings have the same encoding and same bytes.
+RSpec::Matchers.define :be_identical_string do |expected|
+  if String.method_defined?(:encoding)
+    match do
+      # TODO: shouldn't this also check that they have the same encoding?
+      # But this makes a couple specs fail...
+      # actual.encoding == expected.encoding &&
+      actual.encoding == expected_encoding &&
+      actual.bytes.to_a == expected.bytes.to_a
+    end
+
+    failure_message do
+      msg = "expected #{actual.inspect} (#{actual.encoding.name}) to be identical to #{expected.inspect} (#{expected.encoding.name})"
+      msg << ", with encoding: #{expected_encoding}" if expected_encoding != expected.encoding
+      msg
+    end
+  else
+    match do |actual|
+      actual.split(//) == expected.split(//)
+    end
+  end
+
+  chain :with_encoding do |enc|
+    @expected_encoding = enc
+  end
+
+  def expected_encoding
+    # TODO: shouldn't this be `expected.encoding`? Based on the logic I
+    # translated this from, this was being derived from `actual.encoding`
+    # Changing it to `expected.encoding` makes a few specs fail.
+    @expected_encoding ||= actual.encoding
+  end
+end
+RSpec::Matchers.alias_matcher :a_string_identical_to, :be_identical_string
+
 module RSpec::Support
   describe EncodedString do
     let(:utf8_encoding) { 'UTF-8' }
@@ -171,11 +209,10 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
           it 'replaces invalid bytes with the REPLACE string' do
             skip 'test is raising an ArgumentError on split'
             resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
-            expect(resulting_array.size).to eq(1) # sanity check
-            expected_string = "? ? ? I have bad bytes"
-            expect_identical_string(resulting_array.first, expected_string)
+            expect(resulting_array).to match [
+              a_string_identical_to("? ? ? I have bad bytes")
+            ]
           end
-
         end
 
         context 'when there is an undefined conversion to the target encoding' do
@@ -209,9 +246,9 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
 
           it 'makes no changes to the resulting string' do
             resulting_array = build_encoded_string(non_ascii_compatible_string).split("\n")
-            expect(resulting_array.size).to eq(1) # sanity check
-            expected_string = non_ascii_compatible_string
-            expect_identical_string(resulting_array.first, expected_string, Encoding.find('UTF-16LE'))
+            expect(resulting_array).to match [
+              a_string_identical_to(non_ascii_compatible_string).with_encoding(Encoding.find("UTF-16LE"))
+            ]
           end
         end
       end
