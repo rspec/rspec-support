@@ -183,24 +183,6 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
       end
 
       describe '#split' do
-        context 'when the string has an invalid byte sequence' do
-          let(:message_with_invalid_byte_sequence) { "\xEF \255 \xAD I have bad bytes".force_encoding(utf8_encoding) }
-
-          it 'normally raises an ArgumentError' do
-            expect {
-              message_with_invalid_byte_sequence.split("\n")
-            }.to raise_error(ArgumentError)
-          end
-
-          it 'replaces invalid bytes with the REPLACE string' do
-            skip 'test is raising an ArgumentError on split'
-            resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
-            expect(resulting_array).to match [
-              a_string_identical_to("? ? ? I have bad bytes")
-            ]
-          end
-        end
-
         context 'when there is an undefined conversion to the target encoding' do
           let(:wrapped_string) { "aaaaaaaaaaa#{ascii_arrow_symbol}aaaaa".force_encoding("ASCII-8BIT") }
 
