@@ -26,7 +26,23 @@ module RSpec
     IGNORE_REGEX = Regexp.union(LIB_REGEX, "rubygems/core_ext/kernel_require.rb")
 
     if RUBY_VERSION >= '2.0.0'
-      def self.first_non_rspec_line
+      # This supports args because it's more efficient when the caller specifies
+      # these. It allows us to skip frames the caller knows are part of RSpec,
+      # and to decrease the increment size if the caller is confident the line will
+      # be found in a small number of stack frames from `skip_frames`.
+      #
+      # Note that there is a risk to passing a `skip_frames` value that is too high:
+      # If it skippped the first non-rspec line, then this method would return the
+      # 2nd or 3rd (or whatever) non-rspec line. Thus, you generally shouldn't pass
+      # values for these parameters, particularly since most places that use this are
+      # not hot spots (generally it gets used for deprecation warnings). However,
+      # if you do have a hot spot that calls this, passing `skip_frames` can make
+      # a significant difference. Just make sure that that particular use is tested
+      # so that if the provided `skip_frames` changes to no longer be accurate in
+      # such a way that would return the wrong stack frame, a test will fail to tell you.
+      #
+      # See benchmarks/skip_frames_for_caller_filter.rb for measurements.
+      def self.first_non_rspec_line(skip_frames=1, increment=5)
         # `caller` is an expensive method that scales linearly with the size of
         # the stack. The performance hit for fetching it in chunks is small,
         # and since the target line is probably near the top of the stack, the
@@ -34,26 +50,24 @@ module RSpec
         #
         # See benchmarks/caller.rb for measurements.
 
-        # Initial value here is mostly arbitrary, but is chosen to give good
-        # performance on the common case of creating a double.
-        increment = 5
-        i         = 1
+        # The default increment of 5 for this method are mostly arbitrary, but
+        # is chosen to give good performance on the common case of creating a double.
 
         loop do
-          stack = caller_locations(i, increment)
+          stack = caller_locations(skip_frames, increment)
           raise "No non-lib lines in stack" unless stack
 
           line = stack.find { |l| l.path !~ IGNORE_REGEX }
           return line.to_s if line
 
-          i         += increment
-          increment *= 2 # The choice of two here is arbitrary.
+          skip_frames += increment
+          increment   *= 2 # The choice of two here is arbitrary.
         end
       end
     else
       # Earlier rubies do not support the two argument form of `caller`. This
       # fallback is logically the same, but slower.
-      def self.first_non_rspec_line
+      def self.first_non_rspec_line(*)
         caller.find { |line| line !~ IGNORE_REGEX }
       end
     end
