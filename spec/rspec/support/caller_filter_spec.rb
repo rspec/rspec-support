@@ -61,6 +61,10 @@ module RSpec
           }.to change { $_caller_filter }.to(include "#{__FILE__}:#{__LINE__ - 1}")
         end
       end
+
+      it 'can receive skip_frames and increment arguments' do
+        expect(RSpec::CallerFilter.first_non_rspec_line(1, 5)).to include("#{__FILE__}:#{__LINE__}")
+      end
     end
   end
 end
