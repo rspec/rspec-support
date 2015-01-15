@@ -174,7 +174,8 @@ module RSpec::Support
 
       describe '#split' do
         context 'when there is an undefined conversion to the target encoding' do
-          let(:wrapped_string) { "aaaaaaaaaaa#{ascii_arrow_symbol}aaaaa".force_encoding("ASCII-8BIT") }
+          let(:wrapped_string_template) { "abaaaaaaaaaa%saaaaa" }
+          let(:wrapped_string) { sprintf(wrapped_string_template, ascii_arrow_symbol).force_encoding("ASCII-8BIT") }
 
           it 'normally raises an Encoding::UndefinedConversionError' do
             expect {
@@ -183,9 +184,14 @@ module RSpec::Support
           end
 
           it 'splits the string based on the delimiter accounting for encoding' do
-            expect {
-              build_encoded_string(wrapped_string, utf8_encoding).split(utf_8_euro_symbol.force_encoding("UTF-8"))
-            }.not_to raise_error
+            delimiter = "b".force_encoding(utf8_encoding)
+            resulting_string = build_encoded_string(wrapped_string, utf8_encoding).
+              split(delimiter)
+            exp1, exp2 = sprintf(wrapped_string_template, EncodedString::REPLACE).force_encoding(utf8_encoding).split(delimiter)
+            expect(resulting_string).to match [
+              a_string_identical_to(exp1),
+              a_string_identical_to(exp2)
+            ]
           end
         end
 
