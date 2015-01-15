@@ -80,6 +80,14 @@ module RSpec::Support
             }.to raise_error(Encoding::ConverterNotFoundError)
           end
 
+          # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
+          # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
+          # https://www.ruby-forum.com/topic/6861247
+          # https://twitter.com/nalsh/status/553413844685438976
+          # For example, given:
+          #  "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
+          # On MRI 2.1 or above: 63 # '?'
+          # else               : 128 # "\x80"
           if RUBY_VERSION < '2.1'
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
