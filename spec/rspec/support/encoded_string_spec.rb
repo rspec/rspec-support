@@ -131,30 +131,12 @@ module RSpec::Support
 
       describe '#<<' do
         context 'with strings that can be converted to the target encoding' do
-          let(:valid_ascii_string) { "abcdé".force_encoding("ASCII-8BIT") }
+          let(:valid_ascii_string) { "abcde".force_encoding("ASCII-8BIT") }
           let(:valid_unicode_string) { utf_8_euro_symbol.force_encoding('UTF-8') }
+
           it 'encodes and appends the string' do
-
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
-            replacement = EncodedString::REPLACE * 2
-            expected_string = "#{utf_8_euro_symbol}abcd#{replacement}".force_encoding('UTF-8')
-            expect(resulting_string).to be_identical_string(expected_string)
-          end
-
-          it 'copes with encoded strings' do
-            source_encoding = Encoding.find('UTF-16LE')
-            accentless = build_encoded_string("Tu avec carte {count} item has\n", source_encoding)
-            accented   = "Tu avec carté {count} itém has\n".encode(source_encoding)
-            resulting_string = accentless << accented
-            if OS.windows?
-              replacement = "\x82\x82"
-            else
-              replacement = "\u00E9"
-            end
-            expected_string = <<-EOS.encode('UTF-16LE')
-Tu avec carte {count} item has
-Tu avec cart#{replacement} {count} it#{replacement}m has
-            EOS
+            expected_string = "#{utf_8_euro_symbol}abcde".force_encoding('UTF-8')
             expect(resulting_string).to be_identical_string(expected_string)
           end
         end
@@ -170,9 +152,9 @@ Tu avec cart#{replacement} {count} it#{replacement}m has
               }.to raise_error(Encoding::CompatibilityError)
             end
 
-            it 'replaces unconvertable characters with a string representation of their hex value' do
+            it 'replaces unconvertable characters with the REPLACE string' do
               resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << ascii_string
-              expected_string = "#{utf_8_euro_symbol}?"
+              expected_string = "#{utf_8_euro_symbol}#{EncodedString::REPLACE}"
               expect(resulting_string).to be_identical_string(expected_string)
             end
           end
