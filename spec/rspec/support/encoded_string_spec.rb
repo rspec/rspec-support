@@ -185,8 +185,7 @@ module RSpec::Support
 
           it 'splits the string based on the delimiter accounting for encoding' do
             delimiter = "b".force_encoding(utf8_encoding)
-            resulting_string = build_encoded_string(wrapped_string, utf8_encoding).
-              split(delimiter)
+            resulting_string = build_encoded_string(wrapped_string, utf8_encoding).split(delimiter)
             exp1, exp2 = sprintf(wrapped_string_template, EncodedString::REPLACE).force_encoding(utf8_encoding).split(delimiter)
             expect(resulting_string).to match [
               a_string_identical_to(exp1),
