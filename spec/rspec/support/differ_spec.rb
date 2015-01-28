@@ -7,6 +7,33 @@ require 'rspec/support/differ'
 module RSpec
   module Support
     describe Differ do
+      describe '#pick_encoding' do
+        let(:differ) { RSpec::Support::Differ.new }
+
+        if String.method_defined?(:encoding)
+          it "picks the default external encoding for incompatible encodings" do
+
+            str1 = "\xa1".force_encoding("iso-8859-1")
+            str2 = "\xa1\xa1".force_encoding("euc-jp")
+            expect(Encoding.compatible?(str1, str2)).to be_nil
+            expect(differ.send(:pick_encoding, str1, str2)).to eq(Encoding.default_external)
+          end
+
+          # https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/encoding/compatible_spec.rb#L31
+          it "picks a compatible encoding" do
+            str1 = "abc".force_encoding Encoding::US_ASCII
+            str2 = "\u3042".encode("utf-8")
+            expect(differ.send(:pick_encoding, str1, str2)).to eq(Encoding::UTF_8)
+          end
+        else
+          it "returns nil" do
+            str1 = "\xa1"
+            str2 = "\xa1\xa1"
+            expect(differ.send(:pick_encoding, str1, str2)).to be_nil
+          end
+        end
+      end
+
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
 
