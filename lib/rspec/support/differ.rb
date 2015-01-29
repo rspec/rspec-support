@@ -25,12 +25,13 @@ module RSpec
 
       # rubocop:disable MethodLength
       def diff_as_string(actual, expected)
-        @encoding = pick_encoding actual, expected
+        encoding = pick_encoding(actual, expected)
 
-        @actual   = EncodedString.new(actual, @encoding)
-        @expected = EncodedString.new(expected, @encoding)
+        actual   = EncodedString.new(actual, encoding)
+        expected = EncodedString.new(expected, encoding)
 
-        output = EncodedString.new("\n", @encoding)
+        output = EncodedString.new("\n", encoding)
+        hunks = build_hunks(actual, expected)
 
         hunks.each_cons(2) do |prev_hunk, current_hunk|
           begin
@@ -48,7 +49,7 @@ module RSpec
 
         color_diff output
       rescue Encoding::CompatibilityError
-        handle_encoding_errors
+        handle_encoding_errors(actual, expected)
       end
       # rubocop:enable MethodLength
 
@@ -109,8 +110,8 @@ module RSpec
         end
       end
 
-      def hunks
-        @hunks ||= HunkGenerator.new(@actual, @expected).hunks
+      def build_hunks(actual, expected)
+        HunkGenerator.new(actual, expected).hunks
       end
 
       def finalize_output(output, final_line)
@@ -198,14 +199,14 @@ module RSpec
         end
       end
 
-      def handle_encoding_errors
-        if @actual.source_encoding != @expected.source_encoding
+      def handle_encoding_errors(actual, expected)
+        if actual.source_encoding != expected.source_encoding
           "Could not produce a diff because the encoding of the actual string " \
-          "(#{@actual.source_encoding}) differs from the encoding of the expected " \
-          "string (#{@expected.source_encoding})"
+          "(#{actual.source_encoding}) differs from the encoding of the expected " \
+          "string (#{expected.source_encoding})"
         else
           "Could not produce a diff because of the encoding of the string " \
-          "(#{@expected.source_encoding})"
+          "(#{expected.source_encoding})"
         end
       end
     end
