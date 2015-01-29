@@ -68,6 +68,19 @@ EOD
           expect(diff).to eql(expected_diff)
         end
 
+        it 'does not mutate any instance variables when diffing, so we can reason about it being reused' do
+          expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
+          actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
+
+          expect { differ.diff(actual, expected) }.not_to change { differ_ivars }
+        end
+
+        def differ_ivars
+          Hash[ differ.instance_variables.map do |ivar|
+            [ivar, differ.instance_variable_get(ivar)]
+          end ]
+        end
+
         if String.method_defined?(:encoding)
           it "returns an empty string if strings are not multiline" do
             expected = "Tu avec carte {count} item has".encode('UTF-16LE')

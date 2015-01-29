@@ -4,6 +4,7 @@
 Enhancements:
 
 * Add extra Ruby type detection. (Jon Rowe, #133)
+* Make differ instance re-usable. (Alexey Fedorov, #160)
 
 ### 3.1.2 / 2014-10-08
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.1...v3.1.2)
