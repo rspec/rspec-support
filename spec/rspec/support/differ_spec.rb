@@ -37,6 +37,37 @@ EOD
           expect(diff).to eql(expected_diff)
         end
 
+        it "outputs unified diff of two strings when used multiple times" do
+          expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
+          actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
+
+          expected_diff = dedent(<<-'EOS')
+            |
+            |
+            |@@ -1,6 +1,6 @@
+            | foo
+            |-zap
+            | bar
+            |+zap
+            | this
+            | is
+            | soo
+            |@@ -9,6 +9,5 @@
+            | equal
+            | insert
+            | a
+            |-another
+            | line
+            |
+          EOS
+
+          diff = differ.diff(actual, expected)
+          expect(diff).to eql(expected_diff)
+
+          diff = differ.diff(actual, expected)
+          expect(diff).to eql(expected_diff)
+        end
+
         if String.method_defined?(:encoding)
           it "returns an empty string if strings are not multiline" do
             expected = "Tu avec carte {count} item has".encode('UTF-16LE')
