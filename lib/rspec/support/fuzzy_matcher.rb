@@ -6,13 +6,13 @@ module RSpec
     module FuzzyMatcher
       # @api private
       def self.values_match?(expected, actual)
-        if Array === expected && Enumerable === actual && !(Struct === actual)
+        if Hash === actual
+          return hashes_match?(expected, actual) if Hash === expected
+        elsif Array === expected && Enumerable === actual && !(Struct === actual)
           return arrays_match?(expected, actual.to_a)
-        elsif Hash === expected && Hash === actual
-          return hashes_match?(expected, actual)
-        elsif actual == expected
-          return true
         end
+
+        return true if actual == expected
 
         begin
           expected === actual

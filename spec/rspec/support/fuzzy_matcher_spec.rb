@@ -127,6 +127,11 @@ module RSpec
         expect([String, Fixnum]).not_to match_against(my_enum)
       end
 
+      it 'does not match an empty hash against an empty array or vice-versa' do
+        expect({}).not_to match_against([])
+        expect([]).not_to match_against({})
+      end
+
       context 'when given two hashes' do
         it 'returns true when their keys and values are equal' do
           expect(:a => 5, :b => 2.0).to match_against(:a => 5.0, :b => 2)
