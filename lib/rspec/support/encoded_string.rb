@@ -87,7 +87,7 @@ module RSpec
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
           normalize_missing(string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES))
         rescue Encoding::ConverterNotFoundError
-          normalize_missing(string.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER))
+          normalize_missing(string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER))
         end
 
         # Ruby's default replacement string is:
