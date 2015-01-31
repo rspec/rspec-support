@@ -97,7 +97,7 @@ module RSpec::Support
           else
             it 'forces the encoding and replaces invalid characters with the REPLACE string' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-              expected_string  = EncodedString::REPLACE.force_encoding(no_converter_encoding)
+              expected_string  = EncodedString::REPLACE.dup.force_encoding(no_converter_encoding)
               expect(resulting_string).to be_identical_string(expected_string)
             end
           end
