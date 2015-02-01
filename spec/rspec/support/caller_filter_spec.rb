@@ -4,17 +4,25 @@ require 'rspec/support/caller_filter'
 
 module RSpec
   describe CallerFilter do
-    def ruby_files_in_lib(lib)
-      # http://rubular.com/r/HYpUMftlG2
-      path = $LOAD_PATH.find { |p| p.match(/\/rspec-#{lib}(-[a-f0-9]+)?\/lib/) }
+    it 'can receive skip_frames and increment arguments' do
+      expect(RSpec::CallerFilter.first_non_rspec_line(1, 5)).to include("#{__FILE__}:#{__LINE__}")
+    end
 
-      Dir["#{path}/**/*.rb"].sort.tap do |files|
-        # Just a sanity check...
-        expect(files.count).to be > 5
-      end
+    it 'returns the immediate caller when called from a spec' do
+      expect(RSpec::CallerFilter.first_non_rspec_line).to include("#{__FILE__}:#{__LINE__}")
     end
 
     describe "the filtering regex" do
+      def ruby_files_in_lib(lib)
+        # http://rubular.com/r/HYpUMftlG2
+        path = $LOAD_PATH.find { |p| p.match(/\/rspec-#{lib}(-[a-f0-9]+)?\/lib/) }
+
+        Dir["#{path}/**/*.rb"].sort.tap do |files|
+          # Just a sanity check...
+          expect(files.count).to be > 5
+        end
+      end
+
       def unmatched_from(files)
         files.reject { |file| file.match(CallerFilter::IGNORE_REGEX) }
       end
@@ -60,10 +68,6 @@ module RSpec
             require "rspec/support/test_dir/file"
           }.to change { $_caller_filter }.to(include "#{__FILE__}:#{__LINE__ - 1}")
         end
-      end
-
-      it 'can receive skip_frames and increment arguments' do
-        expect(RSpec::CallerFilter.first_non_rspec_line(1, 5)).to include("#{__FILE__}:#{__LINE__}")
       end
     end
   end

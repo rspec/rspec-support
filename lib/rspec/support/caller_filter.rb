@@ -42,7 +42,13 @@ module RSpec
       # such a way that would return the wrong stack frame, a test will fail to tell you.
       #
       # See benchmarks/skip_frames_for_caller_filter.rb for measurements.
-      def self.first_non_rspec_line(skip_frames=1, increment=5)
+      def self.first_non_rspec_line(skip_frames=3, increment=5)
+        # Why a default `skip_frames` of 3?
+        # By the time `caller_locations` is called below, the first 3 frames are:
+        #   lib/rspec/support/caller_filter.rb:63:in `block in first_non_rspec_line'
+        #   lib/rspec/support/caller_filter.rb:62:in `loop'
+        #   lib/rspec/support/caller_filter.rb:62:in `first_non_rspec_line'
+
         # `caller` is an expensive method that scales linearly with the size of
         # the stack. The performance hit for fetching it in chunks is small,
         # and since the target line is probably near the top of the stack, the
