@@ -5,9 +5,6 @@ module RSpec
       # Reduce allocations by storing constants.
       UTF_8 = "UTF-8"
       US_ASCII = 'US-ASCII'
-      # Ruby's default replacement string is:
-      # for Unicode encoding forms: U+FFFD ("\xEF\xBF\xBD")
-      MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD"
       #  else: '?' 63.chr ("\x3F")
       REPLACE = "?"
       ENCODE_UNCONVERTABLE_BYTES =  {
@@ -90,12 +87,16 @@ module RSpec
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
           normalize_missing(string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES))
         rescue Encoding::ConverterNotFoundError
-          normalize_missing(string.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER))
+          normalize_missing(string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER))
         end
+
+        # Ruby's default replacement string is:
+        # for Unicode encoding forms: U+FFFD ("\xEF\xBF\xBD")
+        MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD".force_encoding(UTF_8)
 
         def normalize_missing(string)
           if @encoding.to_s == UTF_8
-            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER.force_encoding(@encoding), REPLACE)
+            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER, REPLACE)
           else
             string
           end

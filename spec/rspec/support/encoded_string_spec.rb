@@ -100,6 +100,12 @@ module RSpec::Support
               expected_string  = EncodedString::REPLACE.dup.force_encoding(no_converter_encoding)
               expect(resulting_string).to be_identical_string(expected_string)
             end
+
+            it 'does not mutate the input string' do
+              expect {
+                build_encoded_string(string, no_converter_encoding)
+              }.not_to change { [string, string.encoding] }
+            end
           end
         end
 
