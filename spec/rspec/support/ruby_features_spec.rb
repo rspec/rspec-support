@@ -70,6 +70,13 @@ module RSpec
       specify "#supports_rebinding_module_methods? exists" do
         RubyFeatures.supports_rebinding_module_methods?
       end
+
+      specify "#caller_locations_supported? exists" do
+        RubyFeatures.caller_locations_supported?
+        if Ruby.mri?
+          expect(RubyFeatures.caller_locations_supported?).to eq(RUBY_VERSION >= '2.0.0')
+        end
+      end
     end
   end
 end
