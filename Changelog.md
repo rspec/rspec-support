@@ -1,3 +1,11 @@
+### 3.2.1 / 2015-02-04
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.2.0...v3.2.1)
+
+Bug Fixes:
+
+* Fix `RSpec::CallerFilter` to work on Rubinius 2.2.
+  (Myron Marston, #169)
+
 ### 3.2.0 / 2015-02-03
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.1.2...v3.2.0)
 
