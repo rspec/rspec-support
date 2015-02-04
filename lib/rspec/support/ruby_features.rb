@@ -49,6 +49,10 @@ module RSpec
         Method.method_defined?(:parameters)
       end
 
+      def caller_locations_supported?
+        respond_to?(:caller_locations, true)
+      end
+
       if Ruby.mri?
         def kw_args_supported?
           RUBY_VERSION >= '2.0.0'
