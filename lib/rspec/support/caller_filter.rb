@@ -1,3 +1,5 @@
+RSpec::Support.require_rspec_support "ruby_features"
+
 module RSpec
   # Consistent implementation for "cleaning" the caller method to strip out
   # non-rspec lines. This enables errors to be reported at the call site in
@@ -25,7 +27,7 @@ module RSpec
     # with this complexity in our `RSpec.deprecate` calls, so we ignore it here.
     IGNORE_REGEX = Regexp.union(LIB_REGEX, "rubygems/core_ext/kernel_require.rb")
 
-    if RUBY_VERSION >= '2.0.0'
+    if RSpec::Support::RubyFeatures.caller_locations_supported?
       # This supports args because it's more efficient when the caller specifies
       # these. It allows us to skip frames the caller knows are part of RSpec,
       # and to decrease the increment size if the caller is confident the line will
