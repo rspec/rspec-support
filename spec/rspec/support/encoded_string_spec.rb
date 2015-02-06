@@ -15,8 +15,11 @@ RSpec::Matchers.define :be_identical_string do |expected|
     end
 
     failure_message do
-      "expected #{actual.inspect} (#{actual.encoding.name}) to be identical to "\
-        "#{expected.inspect} (#{expected.encoding.name})"
+      "expected\n#{actual.inspect} (#{actual.encoding.name}) to be identical to\n"\
+        "#{expected.inspect} (#{expected.encoding.name})\n"\
+        "The exact bytes are printed below for more detail:\n"\
+        "#{actual.bytes.to_a}\n"\
+        "#{expected.bytes.to_a}\n"\
     end
   else
     match do |actual|
@@ -85,7 +88,8 @@ module RSpec::Support
             }.to raise_error(Encoding::InvalidByteSequenceError)
           end
 
-          it 'replaces invalid byte sequences with the REPLACE string' do
+          # See JRuby issue https://github.com/jruby/jruby/issues/2580
+          it 'replaces invalid byte sequences with the REPLACE string', :pending => RSpec::Support::Ruby.jruby? do
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
             expected_string = "I have a bad byt#{replacement}".force_encoding(target_encoding)
@@ -105,14 +109,8 @@ module RSpec::Support
             }.to raise_error(Encoding::ConverterNotFoundError)
           end
 
-          # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
-          # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
-          # https://www.ruby-forum.com/topic/6861247
-          # https://twitter.com/nalsh/status/553413844685438976
-          # For example, given:
-          #  "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
-          # On MRI 2.1 or above: 63 # '?'
-          # else               : 128 # "\x80"
+          # See comment above ENCODE_UNCONVERTABLE_BYTES in encoded_string.rb
+          # for why the behavior differs by (MRI) Ruby version.
           if RUBY_VERSION < '2.1'
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
@@ -242,6 +240,25 @@ module RSpec::Support
             resulting_array = build_encoded_string(non_ascii_compatible_string).split("\n")
             expect(resulting_array).to match [
               a_string_identical_to(non_ascii_compatible_string)
+            ]
+          end
+        end
+
+        context 'when the string has an invalid byte sequence' do
+          let(:message_with_invalid_byte_sequence) { "\xEF \255 \xAD I have bad bytes".force_encoding(utf8_encoding) }
+
+          it 'normally raises an ArgumentError' do
+            expect(message_with_invalid_byte_sequence).not_to be_valid_encoding
+            expect {
+              message_with_invalid_byte_sequence.split("\n")
+            }.to raise_error(ArgumentError)
+          end
+
+          it 'replaces invalid bytes with the REPLACE string' do
+            resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
+            expected_string = "? ? ? I have bad bytes"
+            expect(resulting_array).to match [
+              a_string_identical_to(expected_string)
             ]
           end
         end
