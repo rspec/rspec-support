@@ -1,33 +1,7 @@
 # encoding: utf-8
 require 'spec_helper'
 require 'rspec/support/encoded_string'
-
-# Special matcher for comparing encoded strings so that
-# we don't run any expectation failures through the Differ,
-# which also relies on EncodedString. Instead, confirm the
-# strings have the same encoding and same bytes.
-RSpec::Matchers.define :be_identical_string do |expected|
-
-  if String.method_defined?(:encoding)
-    match do
-      actual.encoding == expected.encoding &&
-        actual.bytes.to_a == expected.bytes.to_a
-    end
-
-    failure_message do
-      "expected\n#{actual.inspect} (#{actual.encoding.name}) to be identical to\n"\
-        "#{expected.inspect} (#{expected.encoding.name})\n"\
-        "The exact bytes are printed below for more detail:\n"\
-        "#{actual.bytes.to_a}\n"\
-        "#{expected.bytes.to_a}\n"\
-    end
-  else
-    match do |actual|
-      actual.split(//) == expected.split(//)
-    end
-  end
-end
-RSpec::Matchers.alias_matcher :a_string_identical_to, :be_identical_string
+require 'rspec/support/spec/string_matcher'
 
 module RSpec::Support
   describe EncodedString do
@@ -93,7 +67,7 @@ module RSpec::Support
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
             expected_string = "I have a bad byt#{replacement}".force_encoding(target_encoding)
-            expect(resulting_string).to be_identical_string(expected_string)
+            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
 
@@ -115,13 +89,13 @@ module RSpec::Support
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
               expected_string  = "\x80".force_encoding(no_converter_encoding)
-              expect(resulting_string).to be_identical_string(expected_string)
+              expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
             end
           else
             it 'forces the encoding and replaces invalid characters with the REPLACE string' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
               expected_string  = EncodedString::REPLACE.dup.force_encoding(no_converter_encoding)
-              expect(resulting_string).to be_identical_string(expected_string)
+              expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
             end
 
             it 'does not mutate the input string' do
@@ -150,7 +124,7 @@ module RSpec::Support
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
             replacement = EncodedString::REPLACE
             expected_string = "#{replacement} hi I am not going to work".force_encoding('EUC-JP')
-            expect(resulting_string).to be_identical_string(expected_string)
+            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
       end
@@ -166,7 +140,7 @@ module RSpec::Support
           it 'encodes and appends the string' do
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
             expected_string = "#{utf_8_euro_symbol}abcde".force_encoding('UTF-8')
-            expect(resulting_string).to be_identical_string(expected_string)
+            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
 
@@ -184,7 +158,7 @@ module RSpec::Support
             it 'replaces unconvertable characters with the REPLACE string' do
               resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << ascii_string
               expected_string = "#{utf_8_euro_symbol}#{EncodedString::REPLACE}"
-              expect(resulting_string).to be_identical_string(expected_string)
+              expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
             end
           end
         end
@@ -196,7 +170,7 @@ module RSpec::Support
 
             resulting_string = build_encoded_string(ascii_string, utf8_encoding) << other_ascii_string
             expected_string = 'abc123'.force_encoding(utf8_encoding)
-            expect(resulting_string).to be_identical_string(expected_string)
+            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
       end
@@ -217,8 +191,8 @@ module RSpec::Support
             resulting_string = build_encoded_string(wrapped_string, utf8_encoding).split(delimiter)
             exp1, exp2 = sprintf(wrapped_string_template, EncodedString::REPLACE).force_encoding(utf8_encoding).split(delimiter)
             expect(resulting_string).to match [
-              a_string_identical_to(exp1),
-              a_string_identical_to(exp2)
+              a_string_identical_to(exp1).with_same_encoding,
+              a_string_identical_to(exp2).with_same_encoding
             ]
           end
         end
@@ -239,7 +213,7 @@ module RSpec::Support
           it 'makes no changes to the resulting string' do
             resulting_array = build_encoded_string(non_ascii_compatible_string).split("\n")
             expect(resulting_array).to match [
-              a_string_identical_to(non_ascii_compatible_string)
+              a_string_identical_to(non_ascii_compatible_string).with_same_encoding
             ]
           end
         end
@@ -258,7 +232,7 @@ module RSpec::Support
             resulting_array = build_encoded_string(message_with_invalid_byte_sequence, utf8_encoding).split("\n")
             expected_string = "? ? ? I have bad bytes"
             expect(resulting_array).to match [
-              a_string_identical_to(expected_string)
+              a_string_identical_to(expected_string).with_same_encoding
             ]
           end
         end

@@ -3,33 +3,8 @@ require 'spec_helper'
 require 'ostruct'
 require 'timeout'
 require 'rspec/support/differ'
+require 'rspec/support/spec/string_matcher'
 
-# Special matcher for comparing strings so that
-# we don't run any expectation failures through the Differ.
-# Instead, confirm the strings have the same bytes.
-RSpec::Matchers.define :be_diffed_as do |expected|
-
-  if String.method_defined?(:encoding)
-    match do
-      actual.bytes.to_a == expected.bytes.to_a
-    end
-
-    failure_message do
-      "expected\n#{actual.inspect} to be identical to\n#{expected.inspect}\n"\
-        "The exact bytes are printed below for more detail:\n"\
-        "#{actual.bytes.to_a}\n"\
-        "#{expected.bytes.to_a}\n"\
-    end
-  else
-    match do
-      actual.split(//) == expected.split(//)
-    end
-
-    failure_message do
-      "expected\n#{actual.inspect} to be identical to\n#{expected.inspect}\n"
-    end
-  end
-end
 module RSpec
   module Support
     describe Differ do
