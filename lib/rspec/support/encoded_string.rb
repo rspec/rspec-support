@@ -105,7 +105,14 @@ module RSpec
         def detect_source_encoding(string)
           string.encoding
         end
+
+        def self.pick_encoding(source_a, source_b)
+          Encoding.compatible?(source_a, source_b) || Encoding.default_external
+        end
       else
+
+        def self.pick_encoding(_source_a, _source_b)
+        end
 
         private
 
