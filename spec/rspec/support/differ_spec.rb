@@ -112,17 +112,6 @@ EOD
             expect(differ.diff(actual, expected)).to eq("\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
             expect(differ.diff(actual, expected).encoding).to eq(Encoding.default_external)
           end
-
-          it 'handles any encoding error that occurs with a helpful error message' do
-            expect(RSpec::Support::HunkGenerator).to receive(:new).
-              and_raise(Encoding::CompatibilityError)
-            expected = "Tu avec carte {count} item has\n".encode('us-ascii')
-            actual   = "Tu avec carté {count} itém has\n"
-            diff = differ.diff(actual, expected)
-            expect(diff).to match(/Could not produce a diff/)
-            expect(diff).to match(/actual string \(UTF-8\)/)
-            expect(diff).to match(/expected string \(US-ASCII\)/)
-          end
         end
 
         it "outputs unified diff message of two objects" do
