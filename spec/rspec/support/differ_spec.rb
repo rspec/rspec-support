@@ -4,6 +4,32 @@ require 'ostruct'
 require 'timeout'
 require 'rspec/support/differ'
 
+# Special matcher for comparing strings so that
+# we don't run any expectation failures through the Differ.
+# Instead, confirm the strings have the same bytes.
+RSpec::Matchers.define :be_diffed_as do |expected|
+
+  if String.method_defined?(:encoding)
+    match do
+      actual.bytes.to_a == expected.bytes.to_a
+    end
+
+    failure_message do
+      "expected\n#{actual.inspect} to be identical to\n#{expected.inspect}\n"\
+        "The exact bytes are printed below for more detail:\n"\
+        "#{actual.bytes.to_a}\n"\
+        "#{expected.bytes.to_a}\n"\
+    end
+  else
+    match do
+      actual.split(//) == expected.split(//)
+    end
+
+    failure_message do
+      "expected\n#{actual.inspect} to be identical to\n#{expected.inspect}\n"
+    end
+  end
+end
 module RSpec
   module Support
     describe Differ do
@@ -34,7 +60,7 @@ module RSpec
 EOD
 
           diff = differ.diff(actual, expected)
-          expect(diff).to eql(expected_diff)
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff of two strings when used multiple times" do
@@ -62,10 +88,7 @@ EOD
           EOS
 
           diff = differ.diff(actual, expected)
-          expect(diff).to eql(expected_diff)
-
-          diff = differ.diff(actual, expected)
-          expect(diff).to eql(expected_diff)
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'does not mutate any instance variables when diffing, so we can reason about it being reused' do
@@ -82,35 +105,46 @@ EOD
         end
 
         if String.method_defined?(:encoding)
+
           it "returns an empty string if strings are not multiline" do
             expected = "Tu avec carte {count} item has".encode('UTF-16LE')
             actual   = "Tu avec carté {count} itém has".encode('UTF-16LE')
 
-            expect(differ.diff(actual, expected)).to be_empty
+
+            diff = differ.diff(actual, expected)
+            expect(diff).to be_empty
           end
 
           it 'copes with encoded strings' do
             expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eql(<<-EOD.encode('UTF-16LE'))
+            expected_diff = <<-EOD.encode('UTF-16LE')
 
 @@ -1,2 +1,2 @@
 -Tu avec carte {count} item has
 +Tu avec carté {count} itém has
 EOD
+
+            diff = differ.diff(actual, expected)
+            expect(diff).to be_diffed_as(expected_diff)
           end
 
           it 'handles differently encoded strings that are compatible' do
             expected = "abc\n".encode('us-ascii')
             actual   = "강인철\n".encode('UTF-8')
-            expect(differ.diff(actual, expected)).to eql "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
+            expected_diff = "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
+            diff = differ.diff(actual, expected)
+            expect(diff).to be_diffed_as(expected_diff)
           end
 
           it 'uses the default external encoding when the two strings have incompatible encodings', :failing_on_appveyor do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expect(differ.diff(actual, expected)).to eq("\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n")
-            expect(differ.diff(actual, expected).encoding).to eq(Encoding.default_external)
+            expected_diff = "\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
+
+            diff = differ.diff(actual, expected)
+            expect(diff).to be_diffed_as(expected_diff)
+            expect(diff.encoding).to eq(Encoding.default_external)
           end
 
           it 'handles any encoding error that occurs with a helpful error message' do
@@ -155,7 +189,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two arrays" do
@@ -177,7 +211,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs a unified diff message for an array which flatten recurses' do
@@ -192,12 +226,13 @@ EOD
             diff = differ.diff [obj], []
           end
 
-          expect(diff).to eq <<-EOD
+          expected_diff = <<-EOD
 
 @@ -1,2 +1,2 @@
 -[]
 +[<BrokenObject>]
 EOD
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two hashes" do
@@ -216,7 +251,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
@@ -227,7 +262,7 @@ EOD
 }
 
           diff = differ.diff({'ö' => 'ö'}, {'a' => 'a'})
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
@@ -238,7 +273,7 @@ EOD
 }
 
           diff = differ.diff({ "한글" => "한글2"}, { :a => "a"})
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two hashes with object keys" do
@@ -249,7 +284,7 @@ EOD
 }
 
           diff = differ.diff({ ['d','c'] => 'b'}, { ['a','c'] => 'b' })
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff of multi line strings" do
@@ -265,7 +300,7 @@ EOD
 EOD
 
           diff = differ.diff(expected,actual)
-          expect(diff).to eq expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "splits items with newlines" do
@@ -277,7 +312,7 @@ EOD
 EOD
 
           diff = differ.diff [], ["a\nb", "c\nd"]
-          expect(diff).to eql expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "shows inner arrays on a single line" do
@@ -289,7 +324,7 @@ EOD
 EOD
 
           diff = differ.diff [], ["a\nb", ["c\nd"]]
-          expect(diff).to eql expected_diff
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "returns an empty string if no expected or actual" do
@@ -344,7 +379,7 @@ EOD
             EOS
 
             diff = differ.diff(expected, actual)
-            expect(diff).to eq expected_diff
+            expect(diff).to be_diffed_as(expected_diff)
           end
         end
 
@@ -357,7 +392,7 @@ EOD
             expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,2 +1,2 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
 
             diff = differ.diff(expected,actual)
-            expect(diff).to eq expected_diff
+            expect(diff).to be_diffed_as(expected_diff)
           end
         end
       end
