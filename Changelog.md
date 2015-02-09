@@ -1,3 +1,10 @@
+### Development
+
+Bug Fixes:
+
+* Fix an encoding issue with `EncodedString#split` when encountering an
+  invalid byte string. (Benjamin Fleischer, #1760)
+
 ### 3.2.1 / 2015-02-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.2.0...v3.2.1)
 
