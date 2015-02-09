@@ -3,16 +3,32 @@ module RSpec
     # @private
     class EncodedString
       # Reduce allocations by storing constants.
-      UTF_8 = "UTF-8"
-      US_ASCII = 'US-ASCII'
-      #  else: '?' 63.chr ("\x3F")
+      UTF_8    = "UTF-8"
+      US_ASCII = "US-ASCII"
+      #
+      # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
+      # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
+      # https://www.ruby-forum.com/topic/6861247
+      # https://twitter.com/nalsh/status/553413844685438976
+      #
+      # For example, given:
+      #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
+      #
+      # On MRI 2.1 or above: 63  # '?'
+      # else               : 128 # "\x80"
+      #
+      # Ruby's default replacement string is:
+      #   U+FFFD ("\xEF\xBF\xBD"), for Unicode encoding forms, else
+      #   ?      ("\x3F")
       REPLACE = "?"
       ENCODE_UNCONVERTABLE_BYTES =  {
         :invalid => :replace,
-        :undef   => :replace
+        :undef   => :replace,
+        :replace => REPLACE
       }
       ENCODE_NO_CONVERTER = {
         :invalid => :replace,
+        :replace => REPLACE
       }
 
       def initialize(string, encoding=nil)
@@ -54,7 +70,7 @@ module RSpec
         #     vs "\x80".encode('UTF-8','ASCII-8BIT', undef: :replace, replace: '<undef>')
         #     # => '<undef>'
         #   Encoding::CompatibilityError
-        #    when Enconding.compatbile?(str1, str2) is false
+        #     when Encoding.compatibile?(str1, str2) is nil
         #     e.g. utf_16le_emoji_string.split("\n")
         #     e.g. valid_unicode_string.encode(utf8_encoding) << ascii_string
         #   Encoding::InvalidByteSequenceError:
@@ -64,13 +80,13 @@ module RSpec
         #     vs "\x80".encode('UTF-8','US-ASCII', invalid: :replace, replace: '<byte>')
         #     # => '<byte>'
         #   ArgumentError
-        #    when operating on a string with invalid bytes
-        #     e.g."\xEF".split("\n")
+        #     when operating on a string with invalid bytes
+        #     e.g."\x80".split("\n")
         #   TypeError
-        #    when a symbol is passed as an encoding
-        #    Encoding.find(:"utf-8")
-        #    when calling force_encoding on an object
-        #    that doesn't respond to #to_str
+        #     when a symbol is passed as an encoding
+        #     Encoding.find(:"UTF-8")
+        #     when calling force_encoding on an object
+        #     that doesn't respond to #to_str
         #
         # Raised by transcoding methods:
         #   Encoding::ConverterNotFoundError:
@@ -80,25 +96,35 @@ module RSpec
         #     e.g. "\x80".force_encoding('ASCII-8BIT').encode('Emacs-Mule')
         #
         # Raised by byte <-> char conversions
-        #  RangeError: out of char range
-        #   e.g. the UTF-16LE emoji: 128169.chr
+        #   RangeError: out of char range
+        #     e.g. the UTF-16LE emoji: 128169.chr
         def matching_encoding(string)
+          string = remove_invalid_bytes(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          normalize_missing(string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES))
+          string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES)
         rescue Encoding::ConverterNotFoundError
-          normalize_missing(string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER))
+          string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER)
         end
 
-        # Ruby's default replacement string is:
-        # for Unicode encoding forms: U+FFFD ("\xEF\xBF\xBD")
-        MRI_UNICODE_UNKOWN_CHARACTER = "\xEF\xBF\xBD".force_encoding(UTF_8)
-
-        def normalize_missing(string)
-          if @encoding.to_s == UTF_8
-            string.gsub(MRI_UNICODE_UNKOWN_CHARACTER, REPLACE)
-          else
-            string
+        # Prevents raising ArgumentError
+        if String.method_defined?(:scrub)
+          # https://github.com/ruby/ruby/blob/eeb05e8c11/doc/NEWS-2.1.0#L120-L123
+          # https://github.com/ruby/ruby/blob/v2_1_0/string.c#L8242
+          # https://github.com/hsbt/string-scrub
+          # https://github.com/rubinius/rubinius/blob/v2.5.2/kernel/common/string.rb#L1913-L1972
+          def remove_invalid_bytes(string)
+            string.scrub(REPLACE)
+          end
+        else
+          # http://stackoverflow.com/a/8711118/879854
+          # Loop over chars in a string replacing chars
+          # with invalid encoding, which is a pretty good proxy
+          # for the invalid byte sequence that causes an ArgumentError
+          def remove_invalid_bytes(string)
+            string.chars.map do |char|
+              char.valid_encoding? ? char : REPLACE
+            end.join
           end
         end
 
