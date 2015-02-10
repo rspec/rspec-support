@@ -35,13 +35,18 @@ module RSpec
 
           raise exception if exception
         end
+        # rubocop:enable MethodLength
+        alias :in_sub_process_if_possible :in_sub_process
       else
         def in_sub_process(*)
           skip "This spec requires forking to work properly, " \
                "and your platform does not support forking"
         end
+
+        def in_sub_process_if_possible(*)
+          yield
+        end
       end
-      # rubocop:enable MethodLength
     end
   end
 end
