@@ -22,6 +22,9 @@ module RSpec
           return stdout, filter(stderr), status
         end
       else # 1.8.7
+        # popen3 doesn't provide the exit status so we fake it out.
+        FakeProcessStatus = Struct.new(:exitstatus)
+
         def shell_out(*command)
           stdout = stderr = nil
 
@@ -30,8 +33,7 @@ module RSpec
             stderr = err.read
           end
 
-          # popen3 doesn't provide the exit status so we fake it out.
-          status = instance_double(Process::Status, :exitstatus => 0)
+          status = FakeProcessStatus.new(0)
           return stdout, filter(stderr), status
         end
       end

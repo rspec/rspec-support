@@ -1,14 +1,16 @@
 require 'rspec/support'
-require 'rspec/support/spec/prevent_load_time_warnings'
+require 'rspec/support/spec/library_wide_checks'
 
 module RSpec
   describe Support do
     extend Support::RubyFeatures
 
-    it_behaves_like "a library that issues no warnings when loaded", "rspec-support",
-      # Define methods that some of our rspec/support/spec files use at load time.
-      "module RSpec; def self.configure; end; def self.shared_context(*); end; def self.shared_examples_for(*); end; end",
-      'require "rspec/support"'
+    it_behaves_like "library wide checks", "rspec-support",
+      :consider_a_test_env_file => %r{rspec/support/spec},
+      :allowed_loaded_feature_regexps => [
+        # These are all loaded by the differ.
+        /prettyprint.rb/, /pp.rb/, /diff\/lcs/
+      ]
 
     describe '.method_handle_for(object, method_name)' do
       untampered_class = Class.new do

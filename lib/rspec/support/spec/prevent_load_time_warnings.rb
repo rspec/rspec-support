@@ -1,3 +1,6 @@
+# This file is deprecated, and is being replaced by library_wide_checks.rb.
+# For now we have to keep it until core/expectations/mocks have been updated.
+
 require 'rspec/support/spec/shell_out'
 
 module RSpec
