@@ -117,4 +117,46 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
 
     expect(loaded_features).to eq([])
   end
+
+  # This malformed whitespace detection logic has been borrowed from bundler:
+  # https://github.com/bundler/bundler/blob/v1.8.0/spec/quality_spec.rb
+  def check_for_tab_characters(filename)
+    failing_lines = []
+    File.readlines(filename).each_with_index do |line, number|
+      failing_lines << number + 1 if line =~ /\t/
+    end
+
+    return if failing_lines.empty?
+    "#{filename} has tab characters on lines #{failing_lines.join(', ')}"
+  end
+
+  def check_for_extra_spaces(filename)
+    failing_lines = []
+    File.readlines(filename).each_with_index do |line, number|
+      next if line =~ /^\s+#.*\s+\n$/
+      failing_lines << number + 1 if line =~ /\s+\n$/
+    end
+
+    return if failing_lines.empty?
+    "#{filename} has spaces on the EOL on lines #{failing_lines.join(', ')}"
+  end
+
+  RSpec::Matchers.define :be_well_formed do
+    match do |actual|
+      actual.empty?
+    end
+
+    failure_message do |actual|
+      actual.join("\n")
+    end
+  end
+
+  it "has no malformed whitespace" do
+    error_messages = []
+    `git ls-files -z`.split("\x0").each do |filename|
+      error_messages << check_for_tab_characters(filename)
+      error_messages << check_for_extra_spaces(filename)
+    end
+    expect(error_messages.compact).to be_well_formed
+  end
 end
