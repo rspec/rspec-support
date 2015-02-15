@@ -5,6 +5,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
   allowed_loaded_feature_regexps = options.fetch(:allowed_loaded_feature_regexps, [])
   preamble_for_lib = options[:preamble_for_lib]
   preamble_for_spec = "require 'rspec/core'; require 'spec_helper'"
+  skip_spec_files = options.fetch(:skip_spec_files, /MATCHES NOTHING/)
 
   include RSpec::Support::ShellOut
 
@@ -55,6 +56,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
 
   define_method :load_all_spec_files do
     files = files_to_require_for("spec") + lib_test_env_files
+    files = files.reject { |f| f =~ skip_spec_files }
     load_all_files(files, preamble_for_spec)
   end
 
