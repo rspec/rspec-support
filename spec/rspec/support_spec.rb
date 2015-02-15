@@ -8,8 +8,8 @@ module RSpec
     it_behaves_like "library wide checks", "rspec-support",
       :consider_a_test_env_file => %r{rspec/support/spec},
       :allowed_loaded_feature_regexps => [
-        # These are all loaded by the differ.
-        /prettyprint.rb/, /pp.rb/, /diff\/lcs/
+        /rbconfig/, # Used by RubyFeatures
+        /prettyprint.rb/, /pp.rb/, /diff\/lcs/ # These are all loaded by the differ.
       ]
 
     describe '.method_handle_for(object, method_name)' do
