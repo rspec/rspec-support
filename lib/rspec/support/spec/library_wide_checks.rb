@@ -95,7 +95,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
     eq ["", "", 0]
   end
 
-  it "issues no warnings when loaded", :slow do
+  it "issues no warnings when loaded", :slow, :failing_on_appveyor do
     expect(lib_file_results).to have_successful_no_warnings_output
   end
 
@@ -104,7 +104,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
   end
 
   it 'only loads a known set of stdlibs so gem authors are forced ' \
-     'to load libs they use to have passing specs', :slow do
+     'to load libs they use to have passing specs', :slow, :failing_on_appveyor do
     loaded_features = File.read(loaded_features_outfile).split("\n")
     if RUBY_VERSION == '1.8.7'
       # On 1.8.7, $" returns the relative require path if that was used
