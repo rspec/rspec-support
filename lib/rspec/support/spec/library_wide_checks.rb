@@ -46,12 +46,10 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
   define_method :load_all_lib_files do
     files = all_lib_files - lib_test_env_files
     preamble  = ['orig_loaded_features = $".dup', preamble_for_lib]
-    postamble = [
-      'loaded_features = ($" - orig_loaded_features).join("\n")',
-      "File.open('#{loaded_features_outfile}', 'w') { |f| f.write(loaded_features) }"
-    ]
+    postamble = ['puts(($" - orig_loaded_features).join("\n"))']
 
-    load_all_files(files, preamble, postamble)
+    @loaded_feature_lines, stderr, exitstatus = load_all_files(files, preamble, postamble)
+    ["", stderr, exitstatus]
   end
 
   define_method :load_all_spec_files do
@@ -60,11 +58,10 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
     load_all_files(files, preamble_for_spec)
   end
 
-  attr_reader :loaded_features_outfile, :all_lib_files, :lib_test_env_files,
+  attr_reader :all_lib_files, :lib_test_env_files,
               :lib_file_results, :spec_file_results
 
   before(:context) do
-    @loaded_features_outfile = File.join(".", "loaded_features.txt")
     @all_lib_files           = files_to_require_for("lib")
     @lib_test_env_files      = all_lib_files.grep(consider_a_test_env_file)
 
@@ -75,13 +72,11 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
     ].map(&:join).map(&:value)
   end
 
-  after(:context) { File.delete(loaded_features_outfile) }
-
   def have_successful_no_warnings_output
     eq ["", "", 0]
   end
 
-  it "issues no warnings when loaded", :slow, :failing_on_appveyor do
+  it "issues no warnings when loaded", :slow do
     expect(lib_file_results).to have_successful_no_warnings_output
   end
 
@@ -90,8 +85,8 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
   end
 
   it 'only loads a known set of stdlibs so gem authors are forced ' \
-     'to load libs they use to have passing specs', :slow, :failing_on_appveyor do
-    loaded_features = File.read(loaded_features_outfile).split("\n")
+     'to load libs they use to have passing specs', :slow do
+    loaded_features = @loaded_feature_lines.split("\n")
     if RUBY_VERSION == '1.8.7'
       # On 1.8.7, $" returns the relative require path if that was used
       # to require the file. LIB_REGEX will not match the relative version
