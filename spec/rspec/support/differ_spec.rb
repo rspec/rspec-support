@@ -2,7 +2,6 @@
 require 'spec_helper'
 require 'ostruct'
 require 'timeout'
-require 'rspec/support/differ'
 require 'rspec/support/spec/string_matcher'
 
 module RSpec
