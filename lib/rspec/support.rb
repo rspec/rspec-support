@@ -72,5 +72,12 @@ module RSpec
         end
       end
     end
+
+    # The Differ is only needed when a a spec fails with a diffable failure.
+    # In the more common case of all specs passing or the only failures being
+    # non-diffable, we can avoid the extra cost of loading the differ, diff-lcs,
+    # pp, etc by avoiding an unnecessary require. Instead, autoload will take
+    # care of loading the differ on first use.
+    autoload :Differ, "rspec/support/differ"
   end
 end
