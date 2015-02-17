@@ -64,25 +64,9 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
               :lib_file_results, :spec_file_results
 
   before(:context) do
-    @loaded_features_outfile = if ENV['CI']
-                                 # On AppVeyor we get exit status 5 ("Access is Denied",
-                                 # from what I've read) when trying to write to a tempfile.
-                                 #
-                                 # On Travis, we occasionally get Errno::ENOENT (No such file
-                                 # or directory) when reading from a tempfile.
-                                 #
-                                 # In both cases if we leave a file behind in the current dir,
-                                 # it's not a big deal so we put it in the current dir.
-                                 File.join(".", "loaded_features.txt")
-                               else
-                                 # Locally it's nice not to pollute the current working directory
-                                 # so we use a tempfile instead.
-                                 require 'tempfile'
-                                 Tempfile.new("loaded_features.txt").path
-                               end
-
-    @all_lib_files            = files_to_require_for("lib")
-    @lib_test_env_files       = all_lib_files.grep(consider_a_test_env_file)
+    @loaded_features_outfile = File.join(".", "loaded_features.txt")
+    @all_lib_files           = files_to_require_for("lib")
+    @lib_test_env_files      = all_lib_files.grep(consider_a_test_env_file)
 
     @lib_file_results, @spec_file_results = [
       # Load them in parallel so it's faster...
@@ -90,6 +74,8 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
       Thread.new { load_all_spec_files }
     ].map(&:join).map(&:value)
   end
+
+  after(:context) { File.delete(loaded_features_outfile) }
 
   def have_successful_no_warnings_output
     eq ["", "", 0]
