@@ -1,5 +1,7 @@
 ### Development
 
+### 3.2.2 / 2015-02-23
+
 Bug Fixes:
 
 * Fix an encoding issue with `EncodedString#split` when encountering an
