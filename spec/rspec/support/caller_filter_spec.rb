@@ -66,7 +66,7 @@ module RSpec
 
           expect {
             require "rspec/support/test_dir/file"
-          }.to change { $_caller_filter }.to(include "#{__FILE__}:#{__LINE__ - 1}")
+          }.to change { $_caller_filter }.to(include __FILE__)
         end
       end
     end
