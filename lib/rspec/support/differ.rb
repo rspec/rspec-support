@@ -59,8 +59,9 @@ module RSpec
         diff_as_string(actual_as_string, expected_as_string)
       end
 
-      attr_reader :color
-      alias_method :color?, :color
+      def color?
+        @color
+      end
 
       def initialize(opts={})
         @color = opts.fetch(:color, false)
