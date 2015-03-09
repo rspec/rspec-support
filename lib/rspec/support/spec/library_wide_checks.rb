@@ -134,7 +134,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
     end
   end
 
-  it "has no malformed whitespace" do
+  it "has no malformed whitespace", :slow do
     error_messages = []
     `git ls-files -z`.split("\x0").each do |filename|
       error_messages << check_for_tab_characters(filename)
