@@ -1,9 +1,6 @@
-require 'rspec/support/spec/in_sub_process'
 require 'tempfile'
 
 describe 'isolating code to a sub process' do
-  include RSpec::Support::InSubProcess
-
   it 'isolates the block from the main process' do
     in_sub_process do
       module NotIsolated

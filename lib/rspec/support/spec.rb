@@ -1,4 +1,6 @@
 require 'rspec/support'
+require 'rspec/support/spec/in_sub_process'
+
 RSpec::Support.require_rspec_support "spec/deprecation_helpers"
 RSpec::Support.require_rspec_support "spec/with_isolated_stderr"
 RSpec::Support.require_rspec_support "spec/stderr_splitter"
@@ -12,6 +14,7 @@ RSpec.configure do |c|
   c.include RSpecHelpers
   c.include RSpec::Support::WithIsolatedStdErr
   c.include RSpec::Support::FormattingSupport
+  c.include RSpec::Support::InSubProcess
 
   unless defined?(Debugger) # debugger causes warnings when used
     c.before do
