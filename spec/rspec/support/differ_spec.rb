@@ -7,6 +7,8 @@ require 'rspec/support/spec/string_matcher'
 module RSpec
   module Support
     describe Differ do
+      include ::RSpec::Support::InSubProcess
+
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
 
@@ -259,6 +261,36 @@ EOD
 
           diff = differ.diff({ ['d','c'] => 'b'}, { ['a','c'] => 'b' })
           expect(diff).to be_diffed_as(expected_diff)
+        end
+
+        it "outputs unified diff message of two hashes with BigDecimal keys" do
+
+          in_sub_process_if_possible do
+            require 'bigdecimal'
+            expect {
+              diff = differ.diff({ BigDecimal('3') => 'b'}, { 3 => 'b' })
+              if expect(diff).to match(/3.0 \(#<BigDecimal/)
+                raise StandardError, 'Passed Test'
+              end
+            }.to raise_error(StandardError, 'Passed Test')
+          end
+        end
+
+        context 'with ActiveSupport' do
+          let(:date_time) { DateTime.new(2000, 1, 1, 1, 1, Rational(1, 10)) }
+
+          it "outputs unified diff message of two hashes with DateTime keys with the correct formatting" do
+            in_sub_process_if_possible do
+              require 'date'
+              stub_const("ActiveSupport", Module.new)
+              allow(date_time).to receive(:strftime).and_return("Timestamp")
+
+              expect {
+                diff = differ.diff({ date_time => 'b'}, { 3 => 'b' })
+                raise StandardError, 'Passed Test' if expect(diff).to match %r[Timestamp]
+              }.to raise_error(StandardError, 'Passed Test')
+            end
+          end
         end
 
         it "outputs unified diff of multi line strings" do
