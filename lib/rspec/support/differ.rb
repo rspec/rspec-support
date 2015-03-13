@@ -1,5 +1,6 @@
 RSpec::Support.require_rspec_support 'encoded_string'
 RSpec::Support.require_rspec_support 'hunk_generator'
+require 'rspec/matchers'
 
 require 'pp'
 
@@ -7,6 +8,9 @@ module RSpec
   module Support
     # rubocop:disable ClassLength
     class Differ
+      include RSpec::Matchers::BuiltIn::BaseMatcher::TimeFormatting
+      include RSpec::Matchers::BuiltIn::BaseMatcher::BigDecimalFormatting
+
       def diff(actual, expected)
         diff = ""
 
@@ -174,16 +178,38 @@ module RSpec
         end.join
       end
 
-      def object_to_string(object)
+      def format_objects_in_objects(object)
+        case
+        when Time === object
+          format_time(object)
+        when defined?(DateTime) && DateTime === object
+          format_date_time(object)
+        when defined?(BigDecimal) && BigDecimal === object
+          format_big_decimal(object)
+        when defined?(Hash) && Hash === object
+          "{#{object_to_string(object, true)}}"
+        else
+          object.inspect
+        end
+      end
+
+      def object_to_string(object, nested = false)
         object = @object_preparer.call(object)
         case object
         when Hash
-          object.keys.sort_by { |k| k.to_s }.map do |key|
-            pp_key   = PP.singleline_pp(key, "")
-            pp_value = PP.singleline_pp(object[key], "")
+          objects = object.keys.sort_by { |k| k.to_s }.map do |key|
+            pp_key   = format_objects_in_objects(key)
+            pp_value = format_objects_in_objects(object[key])
 
-            "#{pp_key} => #{pp_value},"
-          end.join("\n")
+            result = "#{pp_key} => #{pp_value}"
+            result = result + ',' unless nested
+            result
+          end
+          if nested
+            objects.join(', ')
+          else
+            objects.join("\n")
+          end
         when String
           object =~ /\n/ ? object : object.inspect
         else
