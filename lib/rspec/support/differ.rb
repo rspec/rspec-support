@@ -1,5 +1,6 @@
 RSpec::Support.require_rspec_support 'encoded_string'
 RSpec::Support.require_rspec_support 'hunk_generator'
+require 'rspec/matchers'
 
 require 'pp'
 
@@ -7,6 +8,9 @@ module RSpec
   module Support
     # rubocop:disable ClassLength
     class Differ
+      include RSpec::Matchers::BuiltIn::BaseMatcher::TimeFormatting
+      include RSpec::Matchers::BuiltIn::BaseMatcher::BigDecimalFormatting
+
       def diff(actual, expected)
         diff = ""
 
