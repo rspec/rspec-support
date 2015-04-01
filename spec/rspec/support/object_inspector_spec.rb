@@ -92,6 +92,35 @@ module RSpec
             matcher_without_a_description.inspect)
         end
       end
+
+      context "with arbitary types" do
+        class User
+          attr_accessor :name
+
+          def initialize(name)
+            @name = name
+          end
+        end
+
+        before(:context) do
+          ObjectInspector.register User do |user|
+            "User (#{user.name})"
+          end
+        end
+
+        it "works with custom class" do
+          user = User.new("FooBar")
+          expect(ObjectInspector.inspect(user)).to eq("User (FooBar)")
+        end
+
+        it "works with subclasses" do
+          class Admin < User
+          end
+
+          admin = Admin.new("FooBar")
+          expect(ObjectInspector.inspect(admin)).to eq("User (FooBar)")
+        end
+      end
     end
   end
 end
