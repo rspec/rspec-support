@@ -67,6 +67,28 @@ module RSpec
         end
       end
 
+      context 'with Hash Objects' do
+        let(:options) { { :nested => false, :joiner => ",\n", :braces => true } }
+        let(:formatted_hash) { ObjectInspector.inspect(hash, options) }
+
+        context 'with custom formatting' do
+          let(:hash) { { 'key1' => {'key2' => 2, 'key3' => 3}, 'key4' => 4 } }
+          let(:expected_formatting) { "{\"key1\" => {\"key2\" => 2, \"key3\" => 3},\n\"key4\" => 4}" }
+          it 'should apply the custom formatting correctly' do
+            expect(formatted_hash).to eq(expected_formatting)
+          end
+        end
+
+        describe 'inspecting objects inside hashes' do
+          let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+          let(:hash) { { 'key' => { 'inner_key' => time } } }
+          let(:expected_formatting) { /\"key\" => \{\"inner_key\" => 1969-12-31 19:01:40\.000101(000)? \+0000\}/ }
+          it 'recursively uses itself to inspect objects within it' do
+            expect(formatted_hash).to match(expected_formatting)
+          end
+        end
+      end
+
       context 'with objects that implement description' do
         RSpec::Matchers.define :matcher_with_description do
           match { true }

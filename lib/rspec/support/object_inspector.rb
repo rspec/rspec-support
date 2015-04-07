@@ -3,14 +3,21 @@ module RSpec
     # Provide additional output details beyond what `inspect` provides when
     # printing Time, DateTime, or BigDecimal
     module ObjectInspector
+      DEFAULT_OPTIONS = {
+        :nested => false,
+        :joiner => ',',
+        :braces => true,
+        :trailing_comma => false
+      }
       # @api private
       # rubocop:disable CyclomaticComplexity
       # rubocop:disable MethodLength
-
       def self.inspect(object, options=DEFAULT_OPTIONS)
         case object
         when Time
           format_time(object)
+        when Hash
+          format_hash(object, options)
         else
           if defined?(DateTime) && DateTime === object
             format_date_time(object)
@@ -29,6 +36,19 @@ module RSpec
       # rubocop:enable CyclomaticComplexity
       # rubocop:enable MethodLength
 
+      # @private
+      def self.format_hash(object, options)
+        nested_options = { :braces => true, :joiner => ', ' }
+
+        pairs = object.sort_by { |k, _| k.to_s }.map do |key, value|
+          "#{inspect(key, nested_options)} => #{inspect(value, nested_options)}"
+        end
+
+        results = pairs.join(options[:joiner])
+        results = "{#{results}}" if options[:braces]
+        results += ',' if options[:trailing_comma]
+        results
+      end
 
       TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
