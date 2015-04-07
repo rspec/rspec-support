@@ -83,6 +83,10 @@ module RSpec
         def inspect
           inspection
         end
+
+        def pretty_print(pp)
+          pp.text inspection
+        end
       end
     end
   end

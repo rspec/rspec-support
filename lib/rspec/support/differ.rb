@@ -1,5 +1,6 @@
 RSpec::Support.require_rspec_support 'encoded_string'
 RSpec::Support.require_rspec_support 'hunk_generator'
+RSpec::Support.require_rspec_support "object_formatter"
 
 require 'pp'
 
@@ -178,17 +179,24 @@ module RSpec
         object = @object_preparer.call(object)
         case object
         when Hash
-          object.keys.sort_by { |k| k.to_s }.map do |key|
-            pp_key   = PP.singleline_pp(key, "")
-            pp_value = PP.singleline_pp(object[key], "")
-
-            "#{pp_key} => #{pp_value},"
-          end.join("\n")
+          hash_to_string(object)
+        when Array
+          PP.pp(ObjectFormatter.prepare_for_inspection(object), "")
         when String
           object =~ /\n/ ? object : object.inspect
         else
           PP.pp(object, "")
         end
+      end
+
+      def hash_to_string(hash)
+        formatted_hash = ObjectFormatter.prepare_for_inspection(hash)
+        formatted_hash.keys.sort_by { |k| k.to_s }.map do |key|
+          pp_key   = PP.singleline_pp(key, "")
+          pp_value = PP.singleline_pp(formatted_hash[key], "")
+
+          "#{pp_key} => #{pp_value},"
+        end.join("\n")
       end
 
       def handle_encoding_errors(actual, expected)
