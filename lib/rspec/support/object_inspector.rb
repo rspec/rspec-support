@@ -4,23 +4,31 @@ module RSpec
     # printing Time, DateTime, or BigDecimal
     module ObjectInspector
       # @api private
-      def self.inspect(object)
-        if Time === object
-          format_time(object)
-        elsif defined?(DateTime) && DateTime === object
-          format_date_time(object)
-        elsif defined?(BigDecimal) && BigDecimal === object
-          "#{object.to_s 'F'} (#{object.inspect})"
-        elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
-          object.description
-        else
-          registered_klasses.each do |klass, inspector|
-            return inspector.call(object) if klass === object
-          end
+      # rubocop:disable CyclomaticComplexity
+      # rubocop:disable MethodLength
 
-          object.inspect
+      def self.inspect(object, options=DEFAULT_OPTIONS)
+        case object
+        when Time
+          format_time(object)
+        else
+          if defined?(DateTime) && DateTime === object
+            format_date_time(object)
+          elsif defined?(BigDecimal) && BigDecimal === object
+            "#{object.to_s 'F'} (#{object.inspect})"
+          elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
+            object.description
+          else
+            registered_klasses.each do |klass, inspector|
+              return inspector.call(object) if klass === object
+            end
+            object.inspect
+          end
         end
       end
+      # rubocop:enable CyclomaticComplexity
+      # rubocop:enable MethodLength
+
 
       TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
