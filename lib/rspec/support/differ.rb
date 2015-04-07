@@ -2,6 +2,7 @@ RSpec::Support.require_rspec_support 'encoded_string'
 RSpec::Support.require_rspec_support 'hunk_generator'
 
 require 'pp'
+require 'rspec/support/object_inspector'
 
 module RSpec
   module Support
@@ -174,16 +175,18 @@ module RSpec
         end.join
       end
 
+      OBJECT_INSPECTOR_OPTIONS = {
+        :nested => false,
+        :joiner => ",\n",
+        :braces => false,
+        :trailing_comma => true
+      }
+
       def object_to_string(object)
         object = @object_preparer.call(object)
         case object
         when Hash
-          object.keys.sort_by { |k| k.to_s }.map do |key|
-            pp_key   = PP.singleline_pp(key, "")
-            pp_value = PP.singleline_pp(object[key], "")
-
-            "#{pp_key} => #{pp_value},"
-          end.join("\n")
+          ObjectInspector.inspect(object, OBJECT_INSPECTOR_OPTIONS)
         when String
           object =~ /\n/ ? object : object.inspect
         else
