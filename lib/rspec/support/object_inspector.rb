@@ -46,7 +46,7 @@ module RSpec
 
         results = pairs.join(options[:joiner])
         results = "{#{results}}" if options[:braces]
-        results += ',' if options[:trailing_comma]
+        results << ',' if options[:trailing_comma]
         results
       end
 
