@@ -2,7 +2,7 @@ RSpec::Support.require_rspec_support 'encoded_string'
 RSpec::Support.require_rspec_support 'hunk_generator'
 
 require 'pp'
-require 'rspec/support/object_inspector'
+RSpec::Support.require_rspec_support "object_inspector"
 
 module RSpec
   module Support
