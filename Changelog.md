@@ -1,5 +1,14 @@
 ### Development
 
+Bug Fixes:
+
+* Fix `FuzzyMatcher` so that it checks `expected == actual` rather than
+  `actual == expected`, which avoids errors in situations where the
+  `actual` object's `==` is improperly implemented to assume that only
+  objects of the same type will be given. This allows rspec-mocks'
+  `anything` to match against objects with buggy `==` definitions.
+  (Myron Marston, #193)
+
 ### 3.2.2 / 2015-02-23
 
 Bug Fixes:
