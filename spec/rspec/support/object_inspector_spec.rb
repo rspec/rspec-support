@@ -80,6 +80,19 @@ module RSpec
         end
       end
 
+      context 'with Array Objects' do
+        let(:formatted_array) { ObjectInspector.inspect(array) }
+
+        describe 'inspecting objects inside array' do
+          let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+          let(:array) { [ 5, { 'inner_key' => time }] }
+          let(:expected_formatting) { /\[5, {\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\]/ }
+          it 'recursively uses itself to inspect objects within it' do
+            expect(formatted_array).to match(expected_formatting)
+          end
+        end
+      end
+
       context 'with objects that implement description' do
         RSpec::Matchers.define :matcher_with_description do
           match { true }
