@@ -56,6 +56,37 @@ module RSpec
         end
       end
 
+      context "when given an object whose implementation of `==` wrongly assumes it will only be called with objects of the same type" do
+        Color = Struct.new(:r, :g, :b) do
+          def ==(other)
+            other.r == r && other.g == g && other.b == b
+          end
+        end
+
+        before(:context) do
+          expect { Color.new(0, 0, 0) == Object.new }.to raise_error(NoMethodError, /undefined method `r'/)
+        end
+
+        it 'can match against an expected value that matches anything' do
+          anything = Object.new.tap do |o|
+            def o.===(*); true; end
+          end
+
+          expect(anything).to match_against(Color.new(0, 0, 0))
+        end
+
+        it 'surfaces the `NoMethodError` when used as the expected value' do
+          expect {
+            FuzzyMatcher.values_match?(Color.new(0, 0, 0), Object.new)
+          }.to raise_error(NoMethodError, /undefined method `r'/)
+        end
+
+        it 'can match against objects of the same type' do
+          expect(Color.new(0, 0, 0)).to match_against(Color.new(0, 0, 0))
+          expect(Color.new(0, 0, 0)).not_to match_against(Color.new(0, 1, 0))
+        end
+      end
+
       context "when given an object whose implementation of `==` raises an ArgumentError" do
         it 'surfaces the error' do
           klass = Class.new do
@@ -70,7 +101,7 @@ module RSpec
           def other.foo(arg); end
 
           expect { instance == other }.to raise_error(ArgumentError)
-          expect { FuzzyMatcher.values_match?(other, instance) }.to raise_error(ArgumentError)
+          expect { FuzzyMatcher.values_match?(instance, other) }.to raise_error(ArgumentError)
         end
       end
 
