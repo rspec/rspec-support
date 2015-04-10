@@ -73,7 +73,7 @@ module RSpec
         describe 'inspecting objects inside hashes' do
           let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
           let(:hash) { { 'key' => { 'inner_key' => time } } }
-          let(:expected_formatting) { /{\"key\"=>{\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}}/ }
+          let(:expected_formatting) { /\{\"key\"=>\{\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\}/ }
           it 'recursively uses itself to inspect objects within it' do
             expect(formatted_hash).to match(expected_formatting)
           end
@@ -86,7 +86,7 @@ module RSpec
         describe 'inspecting objects inside array' do
           let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
           let(:array) { [ 5, { 'inner_key' => time }] }
-          let(:expected_formatting) { /\[5, {\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\]/ }
+          let(:expected_formatting) { /\[5, \{\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\]/ }
           it 'recursively uses itself to inspect objects within it' do
             expect(formatted_array).to match(expected_formatting)
           end
