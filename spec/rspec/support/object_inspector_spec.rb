@@ -68,16 +68,7 @@ module RSpec
       end
 
       context 'with Hash Objects' do
-        let(:options) { { :nested => false, :joiner => ",\n", :braces => true } }
-        let(:formatted_hash) { ObjectInspector.inspect(hash, options) }
-
-        context 'with custom formatting' do
-          let(:hash) { { 'key1' => {'key2' => 2, 'key3' => 3}, 'key4' => 4 } }
-          let(:expected_formatting) { "{\"key1\" => {\"key2\" => 2, \"key3\" => 3},\n\"key4\" => 4}" }
-          it 'should apply the custom formatting correctly' do
-            expect(formatted_hash).to eq(expected_formatting)
-          end
-        end
+        let(:formatted_hash) { ObjectInspector.inspect(hash) }
 
         describe 'inspecting objects inside hashes' do
           let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
