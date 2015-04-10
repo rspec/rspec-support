@@ -33,7 +33,7 @@ module RSpec
 
         it 'does not require DateTime to be defined since you need to require `date` to make it available' do
           hide_const('DateTime')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectInspector.inspect('Test String')).to eq('Test String')
         end
 
         context 'when ActiveSupport is loaded' do
@@ -63,7 +63,7 @@ module RSpec
 
         it 'does not require BigDecimal to be defined since you need to require `bigdecimal` to make it available' do
           hide_const('BigDecimal')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectInspector.inspect('Test String')).to eq('Test String')
         end
       end
 
