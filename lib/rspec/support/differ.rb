@@ -175,18 +175,19 @@ module RSpec
         end.join
       end
 
-      OBJECT_INSPECTOR_OPTIONS = {
-        :nested => false,
-        :joiner => ",\n",
-        :braces => false,
-        :trailing_comma => true
-      }
-
       def object_to_string(object)
         object = @object_preparer.call(object)
         case object
         when Hash
-          ObjectInspector.inspect(object, OBJECT_INSPECTOR_OPTIONS)
+          formatted_hash = ObjectInspector.formatter(object)
+          formatted_hash.keys.sort_by { |k| k.to_s }.map do |key|
+            pp_key   = PP.singleline_pp(key, "")
+            pp_value = PP.singleline_pp(formatted_hash[key], "")
+
+            "#{pp_key} => #{pp_value},"
+          end.join("\n")
+        when Array
+          PP.pp(ObjectInspector.formatter(object), "")
         when String
           object =~ /\n/ ? object : object.inspect
         else
