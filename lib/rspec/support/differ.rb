@@ -179,13 +179,7 @@ module RSpec
         object = @object_preparer.call(object)
         case object
         when Hash
-          formatted_hash = ObjectInspector.formatter(object)
-          formatted_hash.keys.sort_by { |k| k.to_s }.map do |key|
-            pp_key   = PP.singleline_pp(key, "")
-            pp_value = PP.singleline_pp(formatted_hash[key], "")
-
-            "#{pp_key} => #{pp_value},"
-          end.join("\n")
+          hash_to_string(object)
         when Array
           PP.pp(ObjectInspector.formatter(object), "")
         when String
@@ -193,6 +187,16 @@ module RSpec
         else
           PP.pp(object, "")
         end
+      end
+
+      def hash_to_string(hash)
+        formatted_hash = ObjectInspector.formatter(hash)
+        formatted_hash.keys.sort_by { |k| k.to_s }.map do |key|
+          pp_key   = PP.singleline_pp(key, "")
+          pp_value = PP.singleline_pp(formatted_hash[key], "")
+
+          "#{pp_key} => #{pp_value},"
+        end.join("\n")
       end
 
       def handle_encoding_errors(actual, expected)
