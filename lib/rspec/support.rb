@@ -73,6 +73,31 @@ module RSpec
       end
     end
 
+    # A single thread local variable so we don't excessively pollute that namespace.
+    def self.thread_local_data
+      Thread.current[:__rspec] ||= {}
+    end
+
+    def self.failure_notifier=(callable)
+      thread_local_data[:failure_notifier] = callable
+    end
+
+    def self.failure_notifier
+      thread_local_data[:failure_notifier] ||= method(:raise)
+    end
+
+    def self.notify_failure(failure)
+      failure_notifier.call(failure)
+    end
+
+    def self.with_failure_notifier(callable)
+      orig_notifier = failure_notifier
+      self.failure_notifier = callable
+      yield
+    ensure
+      self.failure_notifier = orig_notifier
+    end
+
     # The Differ is only needed when a a spec fails with a diffable failure.
     # In the more common case of all specs passing or the only failures being
     # non-diffable, we can avoid the extra cost of loading the differ, diff-lcs,

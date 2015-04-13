@@ -117,5 +117,68 @@ module RSpec
         end
       end
     end
+
+    describe "failure notification" do
+      before { @failure_notifier = RSpec::Support.failure_notifier }
+      after  { RSpec::Support.failure_notifier = @failure_notifier }
+      let(:error) { NotImplementedError.new("some message") }
+      let(:failures) { [] }
+      let(:append_to_failures_array_notifier) { failures.method(:<<) }
+
+      def notify(failure)
+        RSpec::Support.notify_failure(failure)
+      end
+
+      def append_to_failures_array_instead_of_raising
+        avoid_raising_errors.and change { failures }.from([]).to([error])
+      end
+
+      def raise_instead_of_appending_to_failures_array
+        raise_error(error).and avoid_changing { failures }
+      end
+
+      it "defaults to raising the provided exception" do
+        expect { notify(error) }.to raise_error(error)
+      end
+
+      it "can be set to another callable" do
+        RSpec::Support.failure_notifier = append_to_failures_array_notifier
+
+        expect {
+          notify(error)
+        }.to append_to_failures_array_instead_of_raising
+      end
+
+      it "isolates notifier changes to the current thread" do
+        RSpec::Support.failure_notifier = append_to_failures_array_notifier
+
+        Thread.new do
+          expect { notify(error) }.to raise_instead_of_appending_to_failures_array
+        end.join
+      end
+
+      it "can be changed for the duration of a block" do
+        yielded = false
+
+        RSpec::Support.with_failure_notifier(append_to_failures_array_notifier) do
+          yielded = true
+          expect {
+            notify(error)
+          }.to append_to_failures_array_instead_of_raising
+        end
+
+        expect(yielded).to be true
+      end
+
+      it "resets the notifier back to what it originally was when the block completes, even if an error was raised" do
+        expect {
+          RSpec::Support.with_failure_notifier(append_to_failures_array_notifier) do
+            raise "boom"
+          end
+        }.to raise_error("boom")
+
+        expect { notify(error) }.to raise_instead_of_appending_to_failures_array
+      end
+    end
   end
 end
