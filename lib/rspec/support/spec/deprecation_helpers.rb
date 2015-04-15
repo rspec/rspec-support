@@ -54,6 +54,10 @@ module RSpecHelpers
     end
   end
 
+  def expect_no_warnings
+    expect(::Kernel).not_to receive(:warn)
+  end
+
   def allow_warning
     allow(::Kernel).to receive(:warn)
   end
