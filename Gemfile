@@ -42,4 +42,6 @@ if RUBY_VERSION >= '2.4' && RUBY_ENGINE == 'ruby'
   gem "rubocop", "~> 0.52.1"
 end
 
+gem 'nokogiri'
+
 eval File.read('Gemfile-custom') if File.exist?('Gemfile-custom')
