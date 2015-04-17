@@ -46,7 +46,8 @@ module RSpec
         # Simplecov emits some ruby warnings when loaded, so silence them.
         old_verbose, $VERBOSE = $VERBOSE, false
 
-        return if ENV['NO_COVERAGE'] || RUBY_VERSION < '1.9.3' || RUBY_ENGINE != 'ruby'
+        return if ENV['NO_COVERAGE'] || RUBY_VERSION < '1.9.3'
+        return if RUBY_ENGINE != 'ruby' || RSpec::Support::OS.windows?
 
         # Don't load it when we're running a single isolated
         # test file rather than the whole suite.
