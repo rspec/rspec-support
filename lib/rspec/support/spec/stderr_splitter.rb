@@ -50,8 +50,8 @@ module RSpec
         @output_tracker = ::StringIO.new
       end
 
-      def verify_example!(example)
-        example.send(:fail, "Warnings were generated: #{output}") if has_output?
+      def verify_no_warnings!
+        raise "Warnings were generated: #{output}" if has_output?
         reset!
       end
 

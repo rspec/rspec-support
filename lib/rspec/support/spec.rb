@@ -21,8 +21,8 @@ RSpec.configure do |c|
       warning_preventer.reset!
     end
 
-    c.after do |example|
-      warning_preventer.verify_example!(example)
+    c.after do
+      warning_preventer.verify_no_warnings!
     end
   end
 

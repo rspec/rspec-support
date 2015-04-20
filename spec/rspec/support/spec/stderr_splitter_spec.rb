@@ -34,7 +34,7 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'acknowledges its own interface' do
-    expect(splitter).to respond_to :==, :write, :has_output?, :reset!, :verify_example!, :output
+    expect(splitter).to respond_to :==, :write, :has_output?, :reset!, :verify_no_warnings!, :output
   end
 
   it 'supports methods that stderr supports but StringIO does not' do
@@ -62,7 +62,7 @@ describe 'RSpec::Support::StdErrSplitter' do
 
       Tempfile.open('stderr') do |file|
         splitter.reopen(file)
-        expect { splitter.verify_example! self }.not_to raise_error
+        expect { splitter.verify_no_warnings! }.not_to raise_error
       end
     end
   end
@@ -73,19 +73,19 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'will ignore examples without a warning' do
-    splitter.verify_example! self
+    splitter.verify_no_warnings!
   end
 
   it 'will ignore examples after a reset a warning' do
     warn 'a warning'
     splitter.reset!
-    splitter.verify_example! self
+    splitter.verify_no_warnings!
   end
 
   unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
     it 'will fail an example which generates a warning' do
       true unless @undefined
-      expect { splitter.verify_example! self }.to raise_error(/Warnings were generated:/)
+      expect { splitter.verify_no_warnings! }.to raise_error(/Warnings were generated:/)
     end
   end
 
