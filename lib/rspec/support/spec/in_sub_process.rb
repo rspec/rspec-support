@@ -15,7 +15,7 @@ module RSpec
 
             begin
               yield
-              warning_preventer.verify_example!(self) if prevent_warnings
+              warning_preventer.verify_no_warnings! if prevent_warnings
             rescue Exception => e
               exception = e
             end
