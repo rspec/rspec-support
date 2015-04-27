@@ -73,10 +73,24 @@ module RSpec
         end
       end
     else
+      CallerFinder = Class.new(StandardError)
+      class LazyBacktrace
+        def initialize(exception)
+          @exception = exception
+        end
+
+        def to_s
+          @exception.backtrace.find { |line| line !~ IGNORE_REGEX }
+        end
+      end
       # Earlier rubies do not support the two argument form of `caller`. This
       # fallback is logically the same, but slower.
       def self.first_non_rspec_line(*)
-        caller.find { |line| line !~ IGNORE_REGEX }
+        begin
+          raise CallerFinder
+        rescue CallerFinder => error
+          return LazyBacktrace.new(error)
+        end
       end
     end
   end
