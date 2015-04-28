@@ -5,11 +5,11 @@ require 'rspec/support/caller_filter'
 module RSpec
   describe CallerFilter do
     it 'can receive skip_frames and increment arguments' do
-      expect(RSpec::CallerFilter.first_non_rspec_line(1, 5)).to include("#{__FILE__}:#{__LINE__}")
+      expect(RSpec::CallerFilter.first_non_rspec_line(1, 5).to_s).to include("#{__FILE__}:#{__LINE__}")
     end
 
     it 'returns the immediate caller when called from a spec' do
-      expect(RSpec::CallerFilter.first_non_rspec_line).to include("#{__FILE__}:#{__LINE__}")
+      expect(RSpec::CallerFilter.first_non_rspec_line.to_s).to include("#{__FILE__}:#{__LINE__}")
     end
 
     describe "the filtering regex" do
@@ -59,7 +59,7 @@ module RSpec
 
         in_rspec_support_lib("test_dir") do |dir|
           File.open("#{dir}/file.rb", "w") do |file|
-            file.write("$_caller_filter = RSpec::CallerFilter.first_non_rspec_line")
+            file.write('$_caller_filter = "#{RSpec::CallerFilter.first_non_rspec_line}"')
           end
 
           $_caller_filter = nil

@@ -27,7 +27,10 @@ module RSpec
     # with this complexity in our `RSpec.deprecate` calls, so we ignore it here.
     IGNORE_REGEX = Regexp.union(LIB_REGEX, "rubygems/core_ext/kernel_require.rb")
 
-    if RSpec::Support::RubyFeatures.caller_locations_supported?
+    # @private
+    CallerFinder = Class.new(StandardError)
+
+    if false #RSpec::Support::RubyFeatures.caller_locations_supported?
       # This supports args because it's more efficient when the caller specifies
       # these. It allows us to skip frames the caller knows are part of RSpec,
       # and to decrease the increment size if the caller is confident the line will
@@ -73,10 +76,23 @@ module RSpec
         end
       end
     else
+      class LazyBacktrace
+        def initialize(exception)
+          @exception = exception
+        end
+
+        def to_s
+          @exception.backtrace.find { |line| line !~ IGNORE_REGEX }
+        end
+      end
       # Earlier rubies do not support the two argument form of `caller`. This
       # fallback is logically the same, but slower.
       def self.first_non_rspec_line(*)
-        caller.find { |line| line !~ IGNORE_REGEX }
+        begin
+          raise CallerFinder
+        rescue CallerFinder => error
+          return LazyBacktrace.new(error)
+        end
       end
     end
   end
