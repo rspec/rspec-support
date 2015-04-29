@@ -16,6 +16,8 @@ module RSpec
           stack = generate_path(stack, part)
           begin
             Dir.mkdir(stack) unless directory_exists?(stack)
+          rescue Errno::EEXIST => e
+            raise e unless directory_exists?(stack)
           rescue Errno::ENOTDIR => e
             raise Errno::EEXIST, e.message
           end
