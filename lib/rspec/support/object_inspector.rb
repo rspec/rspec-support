@@ -4,23 +4,42 @@ module RSpec
     # printing Time, DateTime, or BigDecimal
     module ObjectInspector
       # @api private
-      def self.inspect(object)
-        if Time === object
-          format_time(object)
-        elsif defined?(DateTime) && DateTime === object
-          format_date_time(object)
-        elsif defined?(BigDecimal) && BigDecimal === object
-          "#{object.to_s 'F'} (#{object.inspect})"
-        elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
-          object.description
+      def self.inspect(initial)
+        formatted = formatter(initial)
+        if String === formatted || Symbol === formatted
+          formatted
         else
-          registered_klasses.each do |klass, inspector|
-            return inspector.call(object) if klass === object
-          end
-
-          object.inspect
+          formatted.inspect
         end
       end
+
+      # rubocop:disable CyclomaticComplexity
+      # rubocop:disable MethodLength
+      def self.formatter(object)
+        case object
+        when Time
+          format_time(object)
+        when Array
+          ArrayInspector.inspect(object)
+        when Hash
+          HashInspector.inspect(object)
+        else
+          if defined?(DateTime) && DateTime === object
+            format_date_time(object)
+          elsif defined?(BigDecimal) && BigDecimal === object
+            "#{object.to_s 'F'} (#{object.inspect})"
+          elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
+            object.description
+          else
+            registered_klasses.each do |klass, inspector|
+              return inspector.call(object) if klass === object
+            end
+            object
+          end
+        end
+      end
+      # rubocop:enable CyclomaticComplexity
+      # rubocop:enable MethodLength
 
       TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -54,6 +73,25 @@ module RSpec
 
       def self.registered_klasses
         @registered_klasses ||= {}
+      end
+      class ArrayInspector
+        def self.inspect(array)
+          array.map do |element|
+            if Array === element
+              ArrayInspector.inspect(element)
+            elsif Hash === element
+              HashInspector.inspect(element)
+            else
+              ObjectInspector.formatter(element)
+            end
+          end
+        end
+      end
+
+      class HashInspector
+        def self.inspect(hash)
+          Hash[ArrayInspector.inspect(hash.to_a)]
+        end
       end
     end
   end

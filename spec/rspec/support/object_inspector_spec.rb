@@ -33,7 +33,7 @@ module RSpec
 
         it 'does not require DateTime to be defined since you need to require `date` to make it available' do
           hide_const('DateTime')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectInspector.inspect('Test String')).to eq('Test String')
         end
 
         context 'when ActiveSupport is loaded' do
@@ -63,7 +63,33 @@ module RSpec
 
         it 'does not require BigDecimal to be defined since you need to require `bigdecimal` to make it available' do
           hide_const('BigDecimal')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectInspector.inspect('Test String')).to eq('Test String')
+        end
+      end
+
+      context 'with Hash Objects' do
+        let(:formatted_hash) { ObjectInspector.inspect(hash) }
+
+        describe 'inspecting objects inside hashes' do
+          let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+          let(:hash) { { 'key' => { 'inner_key' => time } } }
+          let(:expected_formatting) { /\{\"key\"=>\{\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\}/ }
+          it 'recursively uses itself to inspect objects within it' do
+            expect(formatted_hash).to match(expected_formatting)
+          end
+        end
+      end
+
+      context 'with Array Objects' do
+        let(:formatted_array) { ObjectInspector.inspect(array) }
+
+        describe 'inspecting objects inside array' do
+          let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+          let(:array) { [ 5, { 'inner_key' => time }] }
+          let(:expected_formatting) { /\[5, \{\"inner_key\"=>"1969-12-31 19:01:40\.000101(000)? \+0000\"\}\]/ }
+          it 'recursively uses itself to inspect objects within it' do
+            expect(formatted_array).to match(expected_formatting)
+          end
         end
       end
 
