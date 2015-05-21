@@ -14,10 +14,6 @@ module RSpec
         elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
           object.description
         else
-          registered_klasses.each do |klass, inspector|
-            return inspector.call(object) if klass === object
-          end
-
           object.inspect
         end
       end
@@ -46,14 +42,6 @@ module RSpec
         else
           date_time.inspect
         end
-      end
-
-      def self.register(klass, &block)
-        registered_klasses[klass] = block
-      end
-
-      def self.registered_klasses
-        @registered_klasses ||= {}
       end
     end
   end
