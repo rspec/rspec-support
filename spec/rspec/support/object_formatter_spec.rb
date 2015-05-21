@@ -1,12 +1,12 @@
-require 'rspec/support/object_inspector'
+require 'rspec/support/object_formatter'
 require 'rspec/matchers/fail_matchers'
 
 module RSpec
   module Support
-    describe ObjectInspector, ".inspect" do
+    describe ObjectFormatter, ".format" do
       context 'with Time objects' do
         let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
-        let(:formatted_time) { ObjectInspector.inspect(time) }
+        let(:formatted_time) { ObjectFormatter.format(time) }
 
         it 'produces an extended output' do
           expected_output = "1969-12-31 19:01:40.000101"
@@ -23,7 +23,7 @@ module RSpec
         end
 
         let(:date_time) { DateTime.new(2000, 1, 1, 1, 1, Rational(1, 10)) }
-        let(:formatted_date_time) { ObjectInspector.inspect(date_time) }
+        let(:formatted_date_time) { ObjectFormatter.format(date_time) }
 
         it 'formats the DateTime using inspect' do
           with_date_loaded do
@@ -33,7 +33,7 @@ module RSpec
 
         it 'does not require DateTime to be defined since you need to require `date` to make it available' do
           hide_const('DateTime')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectFormatter.format('Test String')).to eq('"Test String"')
         end
 
         context 'when ActiveSupport is loaded' do
@@ -52,7 +52,7 @@ module RSpec
         let(:float)   { 3.3 }
         let(:decimal) { BigDecimal("3.3") }
 
-        let(:formatted_decimal) { ObjectInspector.inspect(decimal) }
+        let(:formatted_decimal) { ObjectFormatter.format(decimal) }
 
         it 'fails with a conventional representation of the decimal' do
           in_sub_process_if_possible do
@@ -63,7 +63,7 @@ module RSpec
 
         it 'does not require BigDecimal to be defined since you need to require `bigdecimal` to make it available' do
           hide_const('BigDecimal')
-          expect(ObjectInspector.inspect('Test String')).to eq('"Test String"')
+          expect(ObjectFormatter.format('Test String')).to eq('"Test String"')
         end
       end
 
@@ -79,16 +79,16 @@ module RSpec
         end
 
         it "produces a description when a matcher object has a description" do
-          expect(ObjectInspector.inspect(matcher_with_description)).to eq(:description)
+          expect(ObjectFormatter.format(matcher_with_description)).to eq(:description)
         end
 
         it "does not produce a description unless the object is a matcher" do
           double = double('non-matcher double', :description => true)
-          expect(ObjectInspector.inspect(double)).to eq(double.inspect)
+          expect(ObjectFormatter.format(double)).to eq(double.inspect)
         end
 
         it "produces an inspected object when a matcher is missing a description" do
-          expect(ObjectInspector.inspect(matcher_without_a_description)).to eq(
+          expect(ObjectFormatter.format(matcher_without_a_description)).to eq(
             matcher_without_a_description.inspect)
         end
       end
