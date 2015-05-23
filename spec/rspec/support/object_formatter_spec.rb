@@ -4,6 +4,34 @@ require 'rspec/matchers/fail_matchers'
 module RSpec
   module Support
     describe ObjectFormatter, ".format" do
+      context 'with an array object containing other objects for which we have custom formatting' do
+        let(:time)  { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+        let(:formatted_time) { ObjectFormatter.format(time) }
+        let(:input) { ["string", time, [3, time]] }
+
+        it 'formats those objects within the array output, at any level of nesting' do
+          formatted = ObjectFormatter.format(input)
+          expect(formatted).to eq(%Q{["string", #{formatted_time}, [3, #{formatted_time}]]})
+        end
+      end
+
+      context "with a hash object containing other objects for which we have custom formatting" do
+        let(:time)  { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+        let(:formatted_time) { ObjectFormatter.format(time) }
+        let(:input) { { "key" => time, time => "value", "nested" => { "key" => time } } }
+
+        it 'formats those objects within the hash output, at any level of nesting' do
+          formatted = ObjectFormatter.format(input)
+
+          if RUBY_VERSION == '1.8.7'
+            # We can't count on the ordering of the hash on 1.8.7...
+            expect(formatted).to include(%Q{"key"=>#{formatted_time}}, %Q{#{formatted_time}=>"value"}, %Q{"nested"=>{"key"=>#{formatted_time}}})
+          else
+            expect(formatted).to eq(%Q{{"key"=>#{formatted_time}, #{formatted_time}=>"value", "nested"=>{"key"=>#{formatted_time}}}})
+          end
+        end
+      end
+
       context 'with Time objects' do
         let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
         let(:formatted_time) { ObjectFormatter.format(time) }
@@ -70,7 +98,7 @@ module RSpec
       context 'with objects that implement description' do
         RSpec::Matchers.define :matcher_with_description do
           match { true }
-          description { :description }
+          description { "description" }
         end
 
         RSpec::Matchers.define :matcher_without_a_description do
@@ -79,7 +107,7 @@ module RSpec
         end
 
         it "produces a description when a matcher object has a description" do
-          expect(ObjectFormatter.format(matcher_with_description)).to eq(:description)
+          expect(ObjectFormatter.format(matcher_with_description)).to eq("description")
         end
 
         it "does not produce a description unless the object is a matcher" do
