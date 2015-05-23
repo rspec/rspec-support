@@ -1,5 +1,12 @@
 ### Development
 
+Enhancements:
+
+* Improve formatting of arrays and hashes in failure messages so they
+  use our custom formatting of matchers, time objects, etc.
+  (Myron Marston, Nicholas Chmielewski, #205)
+* Use improved formatting for diffs as well. (Nicholas Chmielewski, #205)
+
 Bug Fixes:
 
 * Fix `FuzzyMatcher` so that it checks `expected == actual` rather than
