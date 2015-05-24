@@ -19,3 +19,4 @@ bin
 bundle
 
 Gemfile-custom
+spec/examples.txt

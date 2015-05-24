@@ -261,6 +261,64 @@ EOD
           expect(diff).to be_diffed_as(expected_diff)
         end
 
+      context 'when special-case objects are inside hashes' do
+        let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+        let(:formatted_time) { ObjectFormatter.format(time) }
+
+        it "outputs unified diff message of two hashes with Time object keys" do
+          expected_diff = %Q{
+@@ -1,2 +1,2 @@
+-#{formatted_time} => "b",
++#{formatted_time} => "c",
+}
+
+          diff = differ.diff({ time => 'c'}, { time => 'b' })
+          expect(diff).to be_diffed_as(expected_diff)
+        end
+
+        it "outputs unified diff message of two hashes with hashes inside them" do
+          expected_diff = %Q{
+@@ -1,2 +1,2 @@
+-"b" => {"key_1"=>#{formatted_time}, "key_2"=>"value"},
++"c" => {"key_1"=>#{formatted_time}, "key_2"=>"value"},
+}
+
+          left_side_hash = {'c' => {'key_1' => time, 'key_2' => 'value'}}
+          right_side_hash = {'b' => {'key_1' => time, 'key_2' => 'value'}}
+          diff = differ.diff(left_side_hash, right_side_hash)
+          expect(diff).to be_diffed_as(expected_diff)
+        end
+      end
+
+      context 'when special-case objects are inside arrays' do
+        let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+        let(:formatted_time) { ObjectFormatter.format(time) }
+
+        it "outputs unified diff message of two arrays with Time object keys" do
+          expected_diff = %Q{
+@@ -1,2 +1,2 @@
+-[#{formatted_time}, "b"]
++[#{formatted_time}, "c"]
+}
+
+          diff = differ.diff([time, 'c'], [time, 'b'])
+          expect(diff).to be_diffed_as(expected_diff)
+        end
+
+        it "outputs unified diff message of two arrays with hashes inside them" do
+          expected_diff = %Q{
+@@ -1,2 +1,2 @@
+-[{"b"=>#{formatted_time}}, "c"]
++[{"a"=>#{formatted_time}}, "c"]
+}
+
+          left_side_array = [{'a' => time}, 'c']
+          right_side_array = [{'b' => time}, 'c']
+          diff = differ.diff(left_side_array, right_side_array)
+          expect(diff).to be_diffed_as(expected_diff)
+        end
+      end
+
         it "outputs unified diff of multi line strings" do
           expected = "this is:\n  one string"
           actual   = "this is:\n  another string"
