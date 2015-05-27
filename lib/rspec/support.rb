@@ -83,11 +83,11 @@ module RSpec
     end
 
     def self.failure_notifier
-      thread_local_data[:failure_notifier] ||= method(:raise)
+      thread_local_data[:failure_notifier] ||= lambda { |failure, _opts| method(:raise)(failure) }
     end
 
-    def self.notify_failure(failure)
-      failure_notifier.call(failure)
+    def self.notify_failure(failure, opts = {})
+      failure_notifier.call(failure, opts)
     end
 
     def self.with_failure_notifier(callable)
