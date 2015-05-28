@@ -13,8 +13,6 @@ Gem::Specification.new do |spec|
   spec.description   = "Support utilities for RSpec gems"
   spec.license       = "MIT"
 
-  spec.rubyforge_project  = "rspec"
-
   spec.files         = `git ls-files -- lib/*`.split("\n")
   spec.files         += %w[README.md LICENSE.txt Changelog.md]
   spec.test_files    = []
