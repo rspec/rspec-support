@@ -82,12 +82,31 @@ module RSpec
       thread_local_data[:failure_notifier] = callable
     end
 
+    # @private
+    DEFAULT_FAILURE_NOTIFIER = lambda { |failure, _opts| raise failure }
+
     def self.failure_notifier
-      thread_local_data[:failure_notifier] ||= method(:raise)
+      thread_local_data[:failure_notifier] || DEFAULT_FAILURE_NOTIFIER
     end
 
-    def self.notify_failure(failure)
-      failure_notifier.call(failure)
+    def self.notify_failure(failure, options={})
+      arity = if failure_notifier.respond_to?(:arity)
+                failure_notifier.arity
+              else
+                failure_notifier.method(:call).arity
+              end
+
+      # TODO: remove these first two branches once the other repos have been
+      # updated to deal with the new two-arg interface.
+      if arity == 1
+        failure_notifier.call(failure)
+      elsif Method === failure_notifier && failure_notifier.name.to_sym == :raise
+        # `raise` accepts 2 arguments (exception class and message) but we
+        # don't want it to treat the opts hash as the message.
+        failure_notifier.call(failure)
+      else
+        failure_notifier.call(failure, options)
+      end
     end
 
     def self.with_failure_notifier(callable)

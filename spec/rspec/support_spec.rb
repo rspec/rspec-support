@@ -123,7 +123,7 @@ module RSpec
       after  { RSpec::Support.failure_notifier = @failure_notifier }
       let(:error) { NotImplementedError.new("some message") }
       let(:failures) { [] }
-      let(:append_to_failures_array_notifier) { failures.method(:<<) }
+      let(:append_to_failures_array_notifier) { lambda { |failure, _opts| failures << failure } }
 
       def notify(failure)
         RSpec::Support.notify_failure(failure)
