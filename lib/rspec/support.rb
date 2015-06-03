@@ -90,23 +90,7 @@ module RSpec
     end
 
     def self.notify_failure(failure, options={})
-      arity = if failure_notifier.respond_to?(:arity)
-                failure_notifier.arity
-              else
-                failure_notifier.method(:call).arity
-              end
-
-      # TODO: remove these first two branches once the other repos have been
-      # updated to deal with the new two-arg interface.
-      if arity == 1
-        failure_notifier.call(failure)
-      elsif Method === failure_notifier && failure_notifier.name.to_sym == :raise
-        # `raise` accepts 2 arguments (exception class and message) but we
-        # don't want it to treat the opts hash as the message.
-        failure_notifier.call(failure)
-      else
-        failure_notifier.call(failure, options)
-      end
+      failure_notifier.call(failure, options)
     end
 
     def self.with_failure_notifier(callable)
