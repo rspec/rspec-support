@@ -1,4 +1,5 @@
-### Development
+### 3.3.0 / 2015-06-12
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.2.2...v3.3.0)
 
 Enhancements:
 
@@ -17,6 +18,7 @@ Bug Fixes:
   (Myron Marston, #193)
 
 ### 3.2.2 / 2015-02-23
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.2.1...v3.2.2)
 
 Bug Fixes:
 
