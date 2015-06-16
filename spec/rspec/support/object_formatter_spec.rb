@@ -95,6 +95,44 @@ module RSpec
         end
       end
 
+      context 'given a delegator' do
+        def with_delegate_loaded
+          in_sub_process_if_possible do
+            require 'delegate'
+            yield
+          end
+        end
+
+        let(:object) { Object.new }
+        let(:delegator) do
+          SimpleDelegator.new(object)
+        end
+
+        it 'includes the delegator class in the description' do
+          with_delegate_loaded do
+            expect(ObjectFormatter.format(delegator)).to eq "#<SimpleDelegator(#{object.inspect})>"
+          end
+        end
+
+        it 'does not require Delegator to be defined' do
+          hide_const("Delegator")
+          expect(ObjectFormatter.format(object)).to eq object.inspect
+        end
+
+        context 'for a specially-formatted object' do
+          let(:decimal) { BigDecimal("3.3") }
+          let(:formatted_decimal) { ObjectFormatter.format(decimal) }
+          let(:object) { decimal }
+
+          it 'formats the underlying object normally' do
+            with_delegate_loaded do
+              require 'bigdecimal'
+              expect(ObjectFormatter.format(delegator)).to eq "#<SimpleDelegator(#{formatted_decimal})>"
+            end
+          end
+        end
+      end
+
       context 'with objects that implement description' do
         RSpec::Matchers.define :matcher_with_description do
           match { true }

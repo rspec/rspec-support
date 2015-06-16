@@ -393,6 +393,26 @@ EOD
           expect(diff).to be_a(String)
         end
 
+        it "includes object delegation information in the diff output" do
+          in_sub_process_if_possible do
+            require "delegate"
+
+            object = Object.new
+            delegator = SimpleDelegator.new(object)
+
+            expected_diff = dedent(<<-EOS)
+              |
+              |@@ -1,2 +1,2 @@
+              |-[#<SimpleDelegator(#{object.inspect})>]
+              |+[#{object.inspect}]
+              |
+            EOS
+
+            diff = differ.diff [object], [delegator]
+            expect(diff).to eq(expected_diff)
+          end
+        end
+
         context "with :object_preparer option set" do
           let(:differ) do
             RSpec::Support::Differ.new(:object_preparer => lambda { |s| s.to_s.reverse })
