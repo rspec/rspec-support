@@ -7,6 +7,8 @@ Enhancements:
   use our custom formatting of matchers, time objects, etc.
   (Myron Marston, Nicholas Chmielewski, #205)
 * Use improved formatting for diffs as well. (Nicholas Chmielewski, #205)
+* Improve formatting of `SimpleDelegator` objects in failure messages and
+  diffs. (Andrew Horner, #215)
 
 Bug Fixes:
 
