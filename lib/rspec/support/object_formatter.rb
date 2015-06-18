@@ -36,7 +36,7 @@ module RSpec
           elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
             inspection = object.description
           else
-            return object
+            return DelegatingInspector.new(object)
           end
         end
 
@@ -86,6 +86,21 @@ module RSpec
 
         def pretty_print(pp)
           pp.text inspection
+        end
+      end
+
+      # @private
+      DelegatingInspector = Struct.new(:object) do
+        def inspect
+          if defined?(::Delegator) && ::Delegator === object
+            "#<#{object.class}(#{ObjectFormatter.format(object.__getobj__)})>"
+          else
+            object.inspect
+          end
+        end
+
+        def pretty_print(pp)
+          pp.text inspect
         end
       end
     end
