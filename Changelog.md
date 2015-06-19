@@ -2,8 +2,8 @@
 
 Enhancements:
 
-* Improve formatting of `SimpleDelegator` objects in failure messages and
-  diffs. (Andrew Horner, #215)
+* Improve formatting of `Delegator` based objects (e.g. `SimpleDelgator`) in
+  failure messages and diffs. (Andrew Horner, #215)
 
 
 ### 3.3.0 / 2015-06-12
