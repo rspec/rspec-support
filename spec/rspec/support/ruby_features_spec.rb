@@ -8,14 +8,14 @@ module RSpec
         %w[cygwin mswin mingw bccwin wince emx].each do |fragment|
           it "returns true when host os is #{fragment}" do
             stub_const("RbConfig::CONFIG", 'host_os' => fragment)
-            expect(OS).to be_windows
+            expect(OS.windows?).to be true
           end
         end
 
         %w[darwin linux].each do |fragment|
           it "returns false when host os is #{fragment}" do
             stub_const("RbConfig::CONFIG", 'host_os' => fragment)
-            expect(OS).to_not be_windows
+            expect(OS.windows?).to be false
           end
         end
       end

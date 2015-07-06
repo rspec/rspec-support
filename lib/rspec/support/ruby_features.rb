@@ -9,7 +9,7 @@ module RSpec
       module_function
 
       def windows?
-        RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/
+        !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
       end
 
       def windows_file_path?
