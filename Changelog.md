@@ -5,6 +5,11 @@ Enhancements:
 * Improve formatting of `Delegator` based objects (e.g. `SimpleDelgator`) in
   failure messages and diffs. (Andrew Horner, #215)
 
+Bug Fixes:
+
+* Work around bug in JRuby that reports that `attr_writer` methods
+  have no parameters, causing RSpec's verifying doubles to wrongly
+  fail when mocking or stubbing a writer method on JRuby. (Myron Marston, #225)
 
 ### 3.3.0 / 2015-06-12
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.2.2...v3.3.0)
