@@ -295,6 +295,23 @@ module RSpec
             expect(error_description).to eq("1")
           end
         end
+
+        describe 'an `attr_writer` method' do
+          attr_writer :foo
+          let(:test_method) { method(:foo=) }
+
+          it 'validates against a single argument' do
+            expect(valid_non_kw_args?(1)).to eq true
+          end
+
+          it 'fails validation against 0 arguments' do
+            expect(valid_non_kw_args?(0)).to eq false
+          end
+
+          it 'fails validation against 2 arguments' do
+            expect(valid_non_kw_args?(2)).to eq false
+          end
+        end
       end
 
       let(:fake_matcher) { Object.new }

@@ -136,6 +136,23 @@ module RSpec
       INFINITY = 1 / 0.0
     end
 
+    # Some versions of JRuby have a nasty bug we have to work around :(.
+    # https://github.com/jruby/jruby/issues/2816
+    if RSpec::Support::Ruby.jruby? &&
+       RubyFeatures.optional_and_splat_args_supported? &&
+       Class.new { attr_writer :foo }.instance_method(:foo=).parameters == []
+
+      class MethodSignature < remove_const(:MethodSignature)
+      private
+
+        def classify_parameters
+          super
+          return unless @method.parameters == [] && @method.arity == 1
+          @max_non_kw_args = @min_non_kw_args = 1
+        end
+      end
+    end
+
     # Deals with the slightly different semantics of block arguments.
     # For methods, arguments are required unless a default value is provided.
     # For blocks, arguments are optional, even if no default value is provided.
