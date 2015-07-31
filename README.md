@@ -19,8 +19,22 @@ end
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+Once you've set up the environment, you'll need to cd into the working
+directory of whichever repo you want to work in. From there you can run the
+specs and cucumber features, and make patches.
+
+NOTE: You do not need to use rspec-dev to work on a specific RSpec repo. You
+can treat each RSpec repo as an independent project.
+
+- [Build details](BUILD_DETAIL.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Detailed contributing guide](CONTRIBUTING.md)
+- [Development setup guide](DEVELOPMENT.md)
+
+## Patches
+
+Please submit a pull request or a github issue to one of the issue trackers
+listed below. If you submit an issue, please include a link to either of:
+
+* a gist (or equivalent) of the patch
+* a branch or commit in your github fork of the repo
