@@ -6,7 +6,7 @@ module RSpec
     #
     # Provides query methods for different OS or OS features.
     module OS
-      module_function
+    module_function
 
       def windows?
         !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
@@ -21,7 +21,7 @@ module RSpec
     #
     # Provides query methods for different rubies
     module Ruby
-      module_function
+    module_function
 
       def jruby?
         RUBY_PLATFORM == 'java'
@@ -45,7 +45,7 @@ module RSpec
     # Provides query methods for ruby features that differ among
     # implementations.
     module RubyFeatures
-      module_function
+    module_function
 
       def optional_and_splat_args_supported?
         Method.method_defined?(:parameters)
