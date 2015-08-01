@@ -2,3 +2,7 @@ inherit_from: .rubocop_rspec_base.yml
 
 Lint/NonLocalExitFromIterator:
   Enabled: false
+
+# We don't care about single vs double qoutes.
+Style/StringLiteralsInInterpolation:
+  Enabled: false
