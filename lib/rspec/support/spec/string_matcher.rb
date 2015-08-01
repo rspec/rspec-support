@@ -4,7 +4,6 @@ require 'rspec/matchers'
 # which also relies on EncodedString. Instead, confirm the
 # strings have the same bytes.
 RSpec::Matchers.define :be_identical_string do |expected|
-
   if String.method_defined?(:encoding)
     match do
       expected_encoding? &&
