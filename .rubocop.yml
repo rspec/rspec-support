@@ -26,3 +26,7 @@ Lint/AssignmentInCondition:
 
 Lint/NonLocalExitFromIterator:
   Enabled: false
+
+# We don't care about single vs double qoutes.
+Style/StringLiteralsInInterpolation:
+  Enabled: false
