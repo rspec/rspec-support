@@ -1,5 +1,34 @@
 require 'rspec/support/spec/shell_out'
 
+module RSpec
+  module Support
+    module WhitespaceChecks
+      # This malformed whitespace detection logic has been borrowed from bundler:
+      # https://github.com/bundler/bundler/blob/v1.8.0/spec/quality_spec.rb
+      def check_for_tab_characters(filename)
+        failing_lines = []
+        File.readlines(filename).each_with_index do |line, number|
+          failing_lines << number + 1 if line =~ /\t/
+        end
+
+        return if failing_lines.empty?
+        "#{filename} has tab characters on lines #{failing_lines.join(', ')}"
+      end
+
+      def check_for_extra_spaces(filename)
+        failing_lines = []
+        File.readlines(filename).each_with_index do |line, number|
+          next if line =~ /^\s+#.*\s+\n$/
+          failing_lines << number + 1 if line =~ /\s+\n$/
+        end
+
+        return if failing_lines.empty?
+        "#{filename} has spaces on the EOL on lines #{failing_lines.join(', ')}"
+      end
+    end
+  end
+end
+
 RSpec.shared_examples_for "library wide checks" do |lib, options|
   consider_a_test_env_file = options.fetch(:consider_a_test_env_file, /MATCHES NOTHING/)
   allowed_loaded_feature_regexps = options.fetch(:allowed_loaded_feature_regexps, [])
@@ -8,6 +37,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
   skip_spec_files = options.fetch(:skip_spec_files, /MATCHES NOTHING/)
 
   include RSpec::Support::ShellOut
+  include RSpec::Support::WhitespaceChecks
 
   define_method :files_to_require_for do |sub_dir|
     slash         = File::SEPARATOR
@@ -99,29 +129,6 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
     loaded_features.reject! { |feature| allowed_loaded_feature_regexps.any? { |r| r =~ feature } }
 
     expect(loaded_features).to eq([])
-  end
-
-  # This malformed whitespace detection logic has been borrowed from bundler:
-  # https://github.com/bundler/bundler/blob/v1.8.0/spec/quality_spec.rb
-  def check_for_tab_characters(filename)
-    failing_lines = []
-    File.readlines(filename).each_with_index do |line, number|
-      failing_lines << number + 1 if line =~ /\t/
-    end
-
-    return if failing_lines.empty?
-    "#{filename} has tab characters on lines #{failing_lines.join(', ')}"
-  end
-
-  def check_for_extra_spaces(filename)
-    failing_lines = []
-    File.readlines(filename).each_with_index do |line, number|
-      next if line =~ /^\s+#.*\s+\n$/
-      failing_lines << number + 1 if line =~ /\s+\n$/
-    end
-
-    return if failing_lines.empty?
-    "#{filename} has spaces on the EOL on lines #{failing_lines.join(', ')}"
   end
 
   RSpec::Matchers.define :be_well_formed do
