@@ -23,3 +23,6 @@ Lint/AssignmentInCondition:
   Exclude:
     # The pattern makes sense here
     - 'lib/rspec/support/mutex.rb'
+
+Lint/NonLocalExitFromIterator:
+  Enabled: false
