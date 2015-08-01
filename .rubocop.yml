@@ -1,1 +1,4 @@
 inherit_from: .rubocop_rspec_base.yml
+
+Lint/NonLocalExitFromIterator:
+  Enabled: false
