@@ -122,7 +122,7 @@ module RSpec
             end
           end
 
-          @max_non_kw_args = @min_non_kw_args  + optional_non_kw_args
+          @max_non_kw_args = @min_non_kw_args + optional_non_kw_args
           @allowed_kw_args = @required_kw_args + @optional_kw_args
         end
       else
