@@ -27,6 +27,14 @@ Lint/AssignmentInCondition:
 Lint/NonLocalExitFromIterator:
   Enabled: false
 
+# Over time we'd like to get this down, but this is what we're at now.
+Metrics/AbcSize:
+  Max: 22
+
+# Over time we'd like to get this down, but this is what we're at now.
+Metrics/PerceivedComplexity:
+  Max: 9
+
 # We don't care about single vs double qoutes.
 Style/StringLiteralsInInterpolation:
   Enabled: false
