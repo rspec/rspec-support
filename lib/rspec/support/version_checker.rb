@@ -5,7 +5,8 @@ module RSpec
     # @private
     class VersionChecker
       def initialize(library_name, library_version, min_patch_level)
-        @library_name, @library_version = library_name, library_version
+        @library_name = library_name
+        @library_version = library_version
         @min_patch_level = min_patch_level
 
         @major,     @minor,     @patch     = parse_version(library_version)
