@@ -101,6 +101,17 @@ module RSpec
       self.failure_notifier = orig_notifier
     end
 
+    class << self
+      attr_writer :warning_notifier
+    end
+
+    # @private
+    DEFAULT_WARNING_NOTIFIER = lambda { |warning| ::Kernel.warn warning }
+
+    def self.warning_notifier
+      @warning_notifier ||= DEFAULT_WARNING_NOTIFIER
+    end
+
     # The Differ is only needed when a a spec fails with a diffable failure.
     # In the more common case of all specs passing or the only failures being
     # non-diffable, we can avoid the extra cost of loading the differ, diff-lcs,
