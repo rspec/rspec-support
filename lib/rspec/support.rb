@@ -78,6 +78,7 @@ module RSpec
       Thread.current[:__rspec] ||= {}
     end
 
+    # @api private
     def self.failure_notifier=(callable)
       thread_local_data[:failure_notifier] = callable
     end
@@ -85,14 +86,17 @@ module RSpec
     # @private
     DEFAULT_FAILURE_NOTIFIER = lambda { |failure, _opts| raise failure }
 
+    # @api private
     def self.failure_notifier
       thread_local_data[:failure_notifier] || DEFAULT_FAILURE_NOTIFIER
     end
 
+    # @api private
     def self.notify_failure(failure, options={})
       failure_notifier.call(failure, options)
     end
 
+    # @api private
     def self.with_failure_notifier(callable)
       orig_notifier = failure_notifier
       self.failure_notifier = callable
@@ -102,12 +106,14 @@ module RSpec
     end
 
     class << self
+      # @api private
       attr_writer :warning_notifier
     end
 
     # @private
     DEFAULT_WARNING_NOTIFIER = lambda { |warning| ::Kernel.warn warning }
 
+    # @api private
     def self.warning_notifier
       @warning_notifier ||= DEFAULT_WARNING_NOTIFIER
     end
