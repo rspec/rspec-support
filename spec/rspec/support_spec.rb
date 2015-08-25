@@ -180,5 +180,32 @@ module RSpec
         expect { notify(error) }.to raise_instead_of_appending_to_failures_array
       end
     end
+
+    describe "warning notification" do
+      include RSpec::Support::Warnings
+
+      before { @warning_notifier = RSpec::Support.warning_notifier }
+      after  { RSpec::Support.warning_notifier = @warning_notifier }
+      let(:warnings) { [] }
+      let(:append_to_warnings_array_notifier) { lambda { |warning| warnings << warning } }
+
+      def append_to_array_instead_of_warning
+        change { warnings }.from([]).to([a_string_including('some warning')])
+      end
+
+      it "defaults to warning with the provided text" do
+        expect {
+          warning('some warning')
+        }.to output(a_string_including 'some warning').to_stderr
+      end
+
+      it "can be set to another callable" do
+        RSpec::Support.warning_notifier = append_to_warnings_array_notifier
+
+        expect {
+          warning('some warning')
+        }.to append_to_array_instead_of_warning
+      end
+    end
   end
 end
