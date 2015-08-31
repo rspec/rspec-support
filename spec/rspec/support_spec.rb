@@ -207,5 +207,42 @@ module RSpec
         }.to append_to_array_instead_of_warning
       end
     end
+
+    describe Support::AllExceptionsExceptOnesWeMustNotRescue do
+      it "rescues a StandardError" do
+        expect {
+          begin
+            raise StandardError
+          rescue subject
+          end
+        }.not_to raise_error
+      end
+
+      it 'rescues an Exception' do
+        expect {
+          begin
+            raise Exception
+          rescue subject
+          end
+        }.not_to raise_error
+      end
+
+      Support::AllExceptionsExceptOnesWeMustNotRescue::AVOID_RESCUING.each do |klass|
+        exception = if klass == SignalException
+                      SignalException.new("INT")
+                    else
+                      klass
+                    end
+
+        it "does not rescue a #{klass}" do
+          expect {
+            begin
+              raise exception
+            rescue subject
+            end
+          }.to raise_error(klass)
+        end
+      end
+    end
   end
 end

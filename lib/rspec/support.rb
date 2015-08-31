@@ -118,6 +118,17 @@ module RSpec
       @warning_notifier ||= DEFAULT_WARNING_NOTIFIER
     end
 
+    # @private
+    module AllExceptionsExceptOnesWeMustNotRescue
+      # These exceptions are dangerous to rescue as rescuing them
+      # would interfere with things we should not interfere with.
+      AVOID_RESCUING = [NoMemoryError, SignalException, Interrupt, SystemExit]
+
+      def self.===(exception)
+        AVOID_RESCUING.none? { |ar| ar === exception }
+      end
+    end
+
     # The Differ is only needed when a a spec fails with a diffable failure.
     # In the more common case of all specs passing or the only failures being
     # non-diffable, we can avoid the extra cost of loading the differ, diff-lcs,
