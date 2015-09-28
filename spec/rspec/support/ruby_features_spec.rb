@@ -59,6 +59,10 @@ module RSpec
     end
 
     describe RubyFeatures do
+      specify "#supports_exception_cause? exists" do
+        RubyFeatures.supports_exception_cause?
+      end
+
       specify "#kw_args_supported? exists" do
         RubyFeatures.kw_args_supported?
       end
