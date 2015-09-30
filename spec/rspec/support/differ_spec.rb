@@ -89,7 +89,7 @@ EOD
             expect(diff).to be_empty
           end
 
-          it 'copes with encoded strings' do
+          it 'copes with encoded strings', :skip => RSpec::Support::OS.windows? do
             expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
             expected_diff = <<-EOD.encode('UTF-16LE')
