@@ -55,6 +55,16 @@ module RSpec
         respond_to?(:caller_locations, true)
       end
 
+      if Exception.method_defined?(:cause)
+        def supports_exception_cause?
+          true
+        end
+      else
+        def supports_exception_cause?
+          false
+        end
+      end
+
       if Ruby.mri?
         def kw_args_supported?
           RUBY_VERSION >= '2.0.0'
