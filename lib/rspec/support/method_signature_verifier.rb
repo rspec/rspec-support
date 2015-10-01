@@ -27,6 +27,8 @@ module RSpec
       end
 
       def valid_non_kw_args?(positional_arg_count)
+        return true if positional_arg_count.nil?
+
         min_non_kw_args <= positional_arg_count &&
           positional_arg_count <= max_non_kw_args
       end
@@ -153,6 +155,32 @@ module RSpec
       end
     end
 
+    # Encapsulates expectations about the number of arguments and
+    # allowed/required keyword args of a given method.
+    class MethodSignatureExpectation
+      def initialize
+        @count    = nil
+        @keywords = []
+      end
+
+      attr_reader :count, :keywords
+
+      def count=(number)
+        raise ArgumentError, 'must be a non-negative integer or nil' \
+          unless number.nil? || (number.is_a?(Integer) && number >= 0)
+
+        @count = number
+      end
+
+      def empty?
+        @count.nil? && @keywords.to_a.empty?
+      end
+
+      def keywords=(values)
+        @keywords = values.to_a || []
+      end
+    end
+
     # Deals with the slightly different semantics of block arguments.
     # For methods, arguments are required unless a default value is provided.
     # For blocks, arguments are optional, even if no default value is provided.
@@ -182,6 +210,20 @@ module RSpec
         @non_kw_args, @kw_args = split_args(*args)
       end
 
+      def with_expectation(expectation)
+        return self unless MethodSignatureExpectation === expectation
+
+        if expectation.empty?
+          @non_kw_args = nil
+          @kw_args     = []
+        else
+          @non_kw_args = expectation.count
+          @kw_args     = expectation.keywords
+        end
+
+        self
+      end
+
       def valid?
         missing_kw_args.empty? &&
           invalid_kw_args.empty? &&
@@ -200,7 +242,7 @@ module RSpec
         elsif !valid_non_kw_args?
           "Wrong number of arguments. Expected %s, got %s." % [
             @signature.non_kw_args_arity_description,
-            non_kw_args.length
+            non_kw_args
           ]
         end
       end
@@ -208,7 +250,7 @@ module RSpec
     private
 
       def valid_non_kw_args?
-        @signature.valid_non_kw_args?(non_kw_args.length)
+        @signature.valid_non_kw_args?(non_kw_args)
       end
 
       def missing_kw_args
@@ -226,7 +268,7 @@ module RSpec
                     []
                   end
 
-        [args, kw_args]
+        [args.length, kw_args]
       end
     end
 
