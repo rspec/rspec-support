@@ -76,6 +76,14 @@ module RSpec
           @allows_any_kw_args || @allowed_kw_args.any?
         end
 
+        def arbitrary_kw_args?
+          @allows_any_kw_args
+        end
+
+        def unlimited_args?
+          @max_non_kw_args == INFINITY
+        end
+
         def classify_parameters
           optional_non_kw_args = @min_non_kw_args = 0
           @allows_any_kw_args = false
@@ -121,6 +129,14 @@ module RSpec
           false
         end
 
+        def arbitrary_kw_args?
+          false
+        end
+
+        def unlimited_args?
+          false
+        end
+
         def classify_parameters
           arity = @method.arity
           if arity < 0
@@ -157,13 +173,20 @@ module RSpec
 
     # Encapsulates expectations about the number of arguments and
     # allowed/required keyword args of a given method.
+    #
+    # @api private
     class MethodSignatureExpectation
       def initialize
         @count    = nil
         @keywords = []
+
+        @expect_unlimited_arguments = false
+        @expect_arbitrary_keywords  = false
       end
 
       attr_reader :count, :keywords
+
+      attr_accessor :expect_unlimited_arguments, :expect_arbitrary_keywords
 
       def count=(number)
         raise ArgumentError, 'must be a non-negative integer or nil' \
@@ -173,7 +196,7 @@ module RSpec
       end
 
       def empty?
-        @count.nil? && @keywords.to_a.empty?
+        @count.nil? && @keywords.to_a.empty? && !@expect_arbitrary_keywords && !@expect_unlimited_arguments
       end
 
       def keywords=(values)
@@ -208,6 +231,7 @@ module RSpec
       def initialize(signature, args)
         @signature = signature
         @non_kw_args, @kw_args = split_args(*args)
+        @arbitrary_kw_args = @unlimited_args = false
       end
 
       def with_expectation(expectation)
@@ -216,9 +240,16 @@ module RSpec
         if expectation.empty?
           @non_kw_args = nil
           @kw_args     = []
+        elsif RubyFeatures.kw_args_supported?
+          @non_kw_args       = expectation.count || 0
+          @kw_args           = expectation.keywords
+          @arbitrary_kw_args = expectation.expect_arbitrary_keywords
+          @unlimited_args    = expectation.expect_unlimited_arguments
         else
-          @non_kw_args = expectation.count
-          @kw_args     = expectation.keywords
+          @non_kw_args       = expectation.count
+          @kw_args           = []
+          @arbitrary_kw_args = false
+          @unlimited_args    = expectation.expect_unlimited_arguments
         end
 
         self
@@ -227,7 +258,9 @@ module RSpec
       def valid?
         missing_kw_args.empty? &&
           invalid_kw_args.empty? &&
-          valid_non_kw_args?
+          valid_non_kw_args? &&
+          arbitrary_kw_args? &&
+          unlimited_args?
       end
 
       def error_message
@@ -259,6 +292,14 @@ module RSpec
 
       def invalid_kw_args
         @signature.invalid_kw_args_from(kw_args)
+      end
+
+      def arbitrary_kw_args?
+        !@arbitrary_kw_args || @signature.arbitrary_kw_args?
+      end
+
+      def unlimited_args?
+        !@unlimited_args || @signature.unlimited_args?
       end
 
       def split_args(*args)
