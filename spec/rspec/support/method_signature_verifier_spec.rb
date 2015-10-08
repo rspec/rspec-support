@@ -86,23 +86,24 @@ module RSpec
               expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            it 'does not match keywords' do
-              if RubyFeatures.kw_args_supported?
+            if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
                 expect(validate_expectation :optional_keyword).to eq(false)
                 expect(validate_expectation 2, :optional_keyword).to eq(false)
-              else
-                expect(validate_expectation :optional_keyword).to eq(true)
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
               end
-            end
 
-            if RubyFeatures.kw_args_supported?
               it 'does not match arbitrary keywords' do
                 expect(validate_expectation :arbitrary_kw_args).to eq(false)
               end
             else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
               it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(true)
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
               end
             end
           end
@@ -143,30 +144,32 @@ module RSpec
                 expect(validate_expectation 1, :unlimited_args).to eq(true)
               end
             else
-              it 'does not match unlimited arguments' do
+              it 'ignores unlimited arguments expectations' do
                 expect(validate_expectation :unlimited_args).to eq(false)
 
-                expect(validate_expectation 1, :unlimited_args).to eq(false)
-              end
-            end
-
-            it 'does not match keywords' do
-              if RubyFeatures.kw_args_supported?
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(false)
-              else
-                expect(validate_expectation :optional_keyword).to eq(true)
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
+                expect(validate_expectation 1, :unlimited_args).to eq(true)
               end
             end
 
             if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(false)
+              end
+
               it 'does not match arbitrary keywords' do
                 expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(false)
               end
             else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
               it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(true)
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
               end
             end
           end
@@ -216,23 +219,26 @@ module RSpec
               expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            it 'does not match keywords' do
-              if RubyFeatures.kw_args_supported?
+            if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
                 expect(validate_expectation :optional_keyword).to eq(false)
                 expect(validate_expectation 2, :optional_keyword).to eq(false)
-              else
-                expect(validate_expectation :optional_keyword).to eq(true)
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
               end
-            end
 
-            if RubyFeatures.kw_args_supported?
               it 'does not match arbitrary keywords' do
                 expect(validate_expectation :arbitrary_kw_args).to eq(false)
               end
             else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
               it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(true)
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
               end
             end
           end

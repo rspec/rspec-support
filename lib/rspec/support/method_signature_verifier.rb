@@ -8,7 +8,7 @@ module RSpec
     # keyword args of a given method.
     #
     # @private
-    class MethodSignature
+    class MethodSignature # rubocop:disable ClassLength
       attr_reader :min_non_kw_args, :max_non_kw_args, :optional_kw_args, :required_kw_args
 
       def initialize(method)
@@ -196,7 +196,10 @@ module RSpec
       end
 
       def empty?
-        @count.nil? && @keywords.to_a.empty? && !@expect_arbitrary_keywords && !@expect_unlimited_arguments
+        @count.nil? &&
+          @keywords.to_a.empty? &&
+          !@expect_arbitrary_keywords &&
+          !@expect_unlimited_arguments
       end
 
       def keywords=(values)
@@ -234,22 +237,28 @@ module RSpec
         @arbitrary_kw_args = @unlimited_args = false
       end
 
-      def with_expectation(expectation)
+      def with_expectation(expectation) # rubocop:disable MethodLength
         return self unless MethodSignatureExpectation === expectation
 
         if expectation.empty?
           @non_kw_args = nil
           @kw_args     = []
-        elsif RubyFeatures.kw_args_supported?
-          @non_kw_args       = expectation.count || 0
-          @kw_args           = expectation.keywords
-          @arbitrary_kw_args = expectation.expect_arbitrary_keywords
-          @unlimited_args    = expectation.expect_unlimited_arguments
         else
-          @non_kw_args       = expectation.count
-          @kw_args           = []
-          @arbitrary_kw_args = false
-          @unlimited_args    = expectation.expect_unlimited_arguments
+          @non_kw_args    = expectation.count || 0
+
+          if RubyFeatures.optional_and_splat_args_supported?
+            @unlimited_args = expectation.expect_unlimited_arguments
+          else
+            @unlimited_args = false
+          end
+
+          if RubyFeatures.kw_args_supported?
+            @kw_args           = expectation.keywords
+            @arbitrary_kw_args = expectation.expect_arbitrary_keywords
+          else
+            @kw_args           = []
+            @arbitrary_kw_args = false
+          end
         end
 
         self
