@@ -5,6 +5,7 @@ Enhancements:
 * Improve formatting of `Delegator` based objects (e.g. `SimpleDelgator`) in
   failure messages and diffs. (Andrew Horner, #215)
 * Add `ComparableVersion`. (Yuji Nakayama, #245)
+* Add `Ripper` support detection. (Yuji Nakayama, #245)
 
 Bug Fixes:
 

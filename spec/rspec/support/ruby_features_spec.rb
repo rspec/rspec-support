@@ -81,6 +81,12 @@ module RSpec
           expect(RubyFeatures.caller_locations_supported?).to eq(RUBY_VERSION >= '2.0.0')
         end
       end
+
+      describe "#ripper_supported?" do
+        it 'does not load Ripper' do
+          expect { RubyFeatures.ripper_supported? }.not_to change { defined?(::Ripper) }
+        end
+      end
     end
   end
 end
