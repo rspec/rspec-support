@@ -86,6 +86,59 @@ module RSpec
         it 'does not load Ripper' do
           expect { RubyFeatures.ripper_supported? }.not_to change { defined?(::Ripper) }
         end
+
+        describe 'Ripper' do
+          let(:line_number) do
+            token = tokens.first
+            location = token.first
+            location.first
+          end
+
+          let(:tokens) do
+            require 'ripper'
+            ::Ripper.lex('foo')
+          end
+
+          if Ruby.mri?
+            context 'on MRI' do
+              context '1.8.x', :if => RUBY_VERSION.start_with?('1.8.') do
+                it 'is not supported' do
+                  expect { tokens }.to raise_error(LoadError)
+                end
+              end
+
+              context '1.9.x or later', :if => RUBY_VERSION >= '1.9' do
+                it 'is supported' do
+                  expect(line_number).to eq(1)
+                end
+              end
+            end
+          end
+
+          if Ruby.jruby?
+            context 'on JRuby' do
+              context '1.7.x', :if => JRUBY_VERSION.start_with?('1.7.') do
+                context 'in 1.8 mode', :if => RUBY_VERSION.start_with?('1.8.') do
+                  it 'is not supported' do
+                    expect { tokens }.to raise_error(NameError)
+                  end
+                end
+
+                context 'in non 1.8 mode', :unless => RUBY_VERSION.start_with?('1.8.') do
+                  it 'is supported' do
+                    expect(line_number).to eq(1)
+                  end
+                end
+              end
+
+              context '9.x.x.x', :if => JRUBY_VERSION.start_with?('9.') do
+                it 'reports wrong line number' do
+                  expect(line_number).to eq(2)
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
