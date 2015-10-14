@@ -51,7 +51,7 @@ module RSpec
           handle = object.method(method_name)
           raise original unless handle.is_a? Method
           handle
-        rescue Exception
+        rescue Support::AllExceptionsExceptOnesWeMustNotRescue
           raise original
         end
       end
@@ -67,7 +67,7 @@ module RSpec
           handle = object.method(method_name)
           raise original unless handle.is_a? Method
           handle
-        rescue Exception
+        rescue Support::AllExceptionsExceptOnesWeMustNotRescue
           raise original
         end
       end

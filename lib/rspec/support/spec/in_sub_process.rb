@@ -16,7 +16,7 @@ module RSpec
             begin
               yield
               warning_preventer.verify_no_warnings! if prevent_warnings
-            rescue Exception => e
+            rescue Support::AllExceptionsExceptOnesWeMustNotRescue => e
               exception = e
             end
 
