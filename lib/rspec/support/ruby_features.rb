@@ -1,4 +1,5 @@
 require 'rbconfig'
+RSpec::Support.require_rspec_support "comparable_version"
 
 module RSpec
   module Support
@@ -61,6 +62,24 @@ module RSpec
         end
       else
         def supports_exception_cause?
+          false
+        end
+      end
+
+      ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
+
+      if Ruby.jruby?
+        ripper_requirements.push(ComparableVersion.new(JRUBY_VERSION) >= '1.7.5')
+        # Ripper on JRuby 9.0.0.0.rc1 or later reports wrong line number.
+        ripper_requirements.push(ComparableVersion.new(JRUBY_VERSION) < '9.0.0.0.rc1')
+      end
+
+      if ripper_requirements.all?
+        def ripper_supported?
+          true
+        end
+      else
+        def ripper_supported?
           false
         end
       end
