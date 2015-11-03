@@ -29,7 +29,8 @@ module RSpec
       def validate_expectation(*args)
         obj = MethodSignatureExpectation.new
 
-        obj.count = Integer === args.first ? args.shift : nil
+        obj.min_count = Integer === args.first ? args.shift : nil
+        obj.max_count = Integer === args.first ? args.shift : nil
 
         obj.expect_unlimited_arguments = !args.delete(:unlimited_args).nil?
         obj.expect_arbitrary_keywords  = !args.delete(:arbitrary_kw_args).nil?
@@ -82,6 +83,12 @@ module RSpec
               expect(validate_expectation 3).to eq(false)
             end
 
+            it 'matches a range including the min and max counts' do
+              expect(validate_expectation 1, 2).to eq(false)
+              expect(validate_expectation 2, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(false)
+            end
+
             it 'does not match unlimited arguments' do
               expect(validate_expectation :unlimited_args).to eq(false)
             end
@@ -130,11 +137,19 @@ module RSpec
           end
 
           describe 'with an expectation object' do
-            it 'matches a range from the lower bound upwards' do
+            it 'matches a value from the lower bound upwards' do
               expect(validate_expectation 0).to eq(false)
               expect(validate_expectation 1).to eq(true)
               expect(validate_expectation 2).to eq(true)
               expect(validate_expectation 3).to eq(true)
+            end
+
+            it 'matches a range from the lower bound upwards' do
+              expect(validate_expectation 0, 1).to eq(false)
+              expect(validate_expectation 1, 1).to eq(true)
+              expect(validate_expectation 1, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(true)
+              expect(validate_expectation 1, 2 ** 31).to eq(true)
             end
 
             if RubyFeatures.optional_and_splat_args_supported?
@@ -203,7 +218,7 @@ module RSpec
           end
 
           describe 'with an expectation object' do
-            it 'matches a range from min to max possible arguments' do
+            it 'matches a value from min to max possible arguments' do
               expect(validate_expectation 1).to eq(false)
               expect(validate_expectation 2).to eq(true)
               expect(validate_expectation 3).to eq(true)
@@ -212,6 +227,18 @@ module RSpec
                 expect(validate_expectation 4).to eq(false)
               else
                 expect(validate_expectation 4).to eq(true)
+              end
+            end
+
+            it 'matches a range from the lower bound upwards' do
+              expect(validate_expectation 1, 2).to eq(false)
+              expect(validate_expectation 2, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(true)
+
+              if RubyFeatures.optional_and_splat_args_supported?
+                expect(validate_expectation 2, 4).to eq(false)
+              else
+                expect(validate_expectation 2, 4).to eq(true)
               end
             end
 
@@ -300,6 +327,12 @@ module RSpec
                 expect(validate_expectation 2).to eq(false)
               end
 
+              it 'matches the exact range' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(true)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
               it 'does not match unlimited arguments' do
                 expect(validate_expectation :unlimited_args).to eq(false)
               end
@@ -380,10 +413,24 @@ module RSpec
                 expect(validate_expectation 2).to eq(false)
               end
 
+              it 'does not match the range without the required keywords' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(false)
+                expect(validate_expectation 1, 1, :y).to eq(false)
+                expect(validate_expectation 1, 1, :z).to eq(false)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
               it 'matches the exact arity with the required keywords' do
                 expect(validate_expectation 0, :y, :z).to eq(false)
                 expect(validate_expectation 1, :y, :z).to eq(true)
                 expect(validate_expectation 2, :y, :z).to eq(false)
+              end
+
+              it 'matches the range with the required keywords' do
+                expect(validate_expectation 0, 1, :y, :z).to eq(false)
+                expect(validate_expectation 1, 1, :y, :z).to eq(true)
+                expect(validate_expectation 1, 2, :y, :z).to eq(false)
               end
 
               it 'does not match unlimited arguments' do
@@ -446,7 +493,7 @@ module RSpec
             end
 
             describe 'with an expectation object' do
-              it 'does not match a range from the lower bound upwards' do
+              it 'does not match a value from the lower bound upwards' do
                 expect(validate_expectation 0).to eq(false)
                 expect(validate_expectation 1).to eq(false)
                 expect(validate_expectation 1, :y).to eq(false)
@@ -454,11 +501,27 @@ module RSpec
                 expect(validate_expectation 2).to eq(false)
               end
 
-              it 'matches a range from the lower bound upwards with the required keywords' do
+              it 'does not match a range from the lower bound upwards' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(false)
+                expect(validate_expectation 1, 1, :y).to eq(false)
+                expect(validate_expectation 1, 1, :z).to eq(false)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
+              it 'matches a value from the lower bound upwards with the required keywords' do
                 expect(validate_expectation 0, :y, :z).to eq(false)
                 expect(validate_expectation 1, :y, :z).to eq(true)
                 expect(validate_expectation 2, :y, :z).to eq(true)
                 expect(validate_expectation 3, :y, :z).to eq(true)
+              end
+
+              it 'matches a range from the lower bound upwards with the required keywords' do
+                expect(validate_expectation 0, 1, :y, :z).to eq(false)
+                expect(validate_expectation 1, 1, :y, :z).to eq(true)
+                expect(validate_expectation 1, 2, :y, :z).to eq(true)
+                expect(validate_expectation 3, 4, :y, :z).to eq(true)
+                expect(validate_expectation 3, 2 ** 31, :y, :z).to eq(true)
               end
 
               it 'matches unlimited arguments with the minimum arity and the required keywords' do
@@ -525,8 +588,18 @@ module RSpec
                 expect(validate_expectation 1).to eq(false)
               end
 
+              it 'does not match the exact range without the required keywords' do
+                expect(validate_expectation 0, 0).to eq(false)
+                expect(validate_expectation 0, 1).to eq(false)
+              end
+
               it 'matches the exact arity with the required keywords' do
                 expect(validate_expectation 0, :x).to eq(true)
+              end
+
+              it 'does matches the exact range without the required keywords' do
+                expect(validate_expectation 0, 0, :x).to eq(true)
+                expect(validate_expectation 0, 1, :x).to eq(false)
               end
 
               it 'does not match unlimited arguments' do
@@ -586,6 +659,14 @@ module RSpec
                 expect(validate_expectation 2).to eq(false)
               end
 
+              it 'matches the exact range' do
+                expect(validate_expectation 0, 0).to eq(false)
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(true)
+                expect(validate_expectation 1, 2).to eq(false)
+                expect(validate_expectation 2, 2).to eq(false)
+              end
+
               it 'does not match unlimited arguments' do
                 expect(validate_expectation :unlimited_args).to eq(false)
                 expect(validate_expectation 1, :unlimited_args).to eq(false)
@@ -593,6 +674,10 @@ module RSpec
 
               it 'matches unlisted keywords with the required arity' do
                 expect(validate_expectation 1, :u, :v).to eq(true)
+              end
+
+              it 'matches unlisted keywords with the exact range' do
+                expect(validate_expectation 1, 1, :u, :v).to eq(true)
               end
 
               it 'matches arbitrary keywords with the required arity' do
@@ -648,38 +733,74 @@ module RSpec
       end
 
       describe MethodSignatureExpectation do
-        describe '#count' do
-          it { expect(subject).to respond_to(:count).with(0).arguments }
+        describe '#max_count' do
+          it { expect(subject).to respond_to(:max_count).with(0).arguments }
         end
 
-        describe '#count=' do
-          it { expect(subject).to respond_to(:count=).with(1).argument }
+        describe '#max_count=' do
+          it { expect(subject).to respond_to(:max_count=).with(1).argument }
 
           describe 'with nil' do
-            before(:each) { subject.count = 5 }
+            before(:each) { subject.max_count = 5 }
 
-            it { expect { subject.count = nil }.to change(subject, :count).to be(nil) }
+            it { expect { subject.max_count = nil }.to change(subject, :max_count).to be(nil) }
           end
 
           describe 'with a positive integer' do
             let(:value) { 7 }
 
-            it { expect { subject.count = value }.to change(subject, :count).to eq(value) }
+            it { expect { subject.max_count = value }.to change(subject, :max_count).to eq(value) }
           end
 
           describe 'with zero' do
-            it { expect { subject.count = 0 }.to change(subject, :count).to eq(0) }
+            it { expect { subject.max_count = 0 }.to change(subject, :max_count).to eq(0) }
           end
 
           describe 'with a negative integer value' do
             it 'should raise an error' do
-              expect { subject.count = -1 }.to raise_error ArgumentError
+              expect { subject.max_count = -1 }.to raise_error ArgumentError
             end
           end
 
           describe 'with a non-integer value' do
             it 'should raise an error' do
-              expect { subject.count = :many }.to raise_error ArgumentError
+              expect { subject.max_count = :many }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        describe '#min_count' do
+          it { expect(subject).to respond_to(:min_count).with(0).arguments }
+        end
+
+        describe '#min_count=' do
+          it { expect(subject).to respond_to(:min_count=).with(1).argument }
+
+          describe 'with nil' do
+            before(:each) { subject.min_count = 5 }
+
+            it { expect { subject.min_count = nil }.to change(subject, :min_count).to be(nil) }
+          end
+
+          describe 'with a positive integer' do
+            let(:value) { 7 }
+
+            it { expect { subject.min_count = value }.to change(subject, :min_count).to eq(value) }
+          end
+
+          describe 'with zero' do
+            it { expect { subject.min_count = 0 }.to change(subject, :min_count).to eq(0) }
+          end
+
+          describe 'with a negative integer value' do
+            it 'should raise an error' do
+              expect { subject.min_count = -1 }.to raise_error ArgumentError
+            end
+          end
+
+          describe 'with a non-integer value' do
+            it 'should raise an error' do
+              expect { subject.min_count = :many }.to raise_error ArgumentError
             end
           end
         end
@@ -690,7 +811,7 @@ module RSpec
           it { expect(subject.empty?).to eq(true) }
 
           describe 'with a count expectation' do
-            before(:each) { subject.count = 5 }
+            before(:each) { subject.min_count = 5 }
 
             it { expect(subject.empty?).to eq(false) }
           end

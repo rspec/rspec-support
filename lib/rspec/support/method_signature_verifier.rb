@@ -26,11 +26,13 @@ module RSpec
         end
       end
 
-      def valid_non_kw_args?(positional_arg_count)
+      def valid_non_kw_args?(positional_arg_count, optional_max_arg_count=nil)
         return true if positional_arg_count.nil?
 
+        optional_max_arg_count ||= positional_arg_count
+
         min_non_kw_args <= positional_arg_count &&
-          positional_arg_count <= max_non_kw_args
+          optional_max_arg_count <= max_non_kw_args
       end
 
       if RubyFeatures.optional_and_splat_args_supported?
@@ -177,26 +179,34 @@ module RSpec
     # @api private
     class MethodSignatureExpectation
       def initialize
-        @count    = nil
-        @keywords = []
+        @min_count = nil
+        @max_count = nil
+        @keywords  = []
 
         @expect_unlimited_arguments = false
         @expect_arbitrary_keywords  = false
       end
 
-      attr_reader :count, :keywords
+      attr_reader :min_count, :max_count, :keywords
 
       attr_accessor :expect_unlimited_arguments, :expect_arbitrary_keywords
 
-      def count=(number)
+      def max_count=(number)
         raise ArgumentError, 'must be a non-negative integer or nil' \
           unless number.nil? || (number.is_a?(Integer) && number >= 0)
 
-        @count = number
+        @max_count = number
+      end
+
+      def min_count=(number)
+        raise ArgumentError, 'must be a non-negative integer or nil' \
+          unless number.nil? || (number.is_a?(Integer) && number >= 0)
+
+        @min_count = number
       end
 
       def empty?
-        @count.nil? &&
+        @min_count.nil? &&
           @keywords.to_a.empty? &&
           !@expect_arbitrary_keywords &&
           !@expect_unlimited_arguments
@@ -229,11 +239,12 @@ module RSpec
     #
     # @api private
     class MethodSignatureVerifier
-      attr_reader :non_kw_args, :kw_args
+      attr_reader :non_kw_args, :kw_args, :min_non_kw_args, :max_non_kw_args
 
       def initialize(signature, args)
         @signature = signature
         @non_kw_args, @kw_args = split_args(*args)
+        @min_non_kw_args = @max_non_kw_args = @non_kw_args
         @arbitrary_kw_args = @unlimited_args = false
       end
 
@@ -241,10 +252,11 @@ module RSpec
         return self unless MethodSignatureExpectation === expectation
 
         if expectation.empty?
-          @non_kw_args = nil
+          @min_non_kw_args = @max_non_kw_args = @non_kw_args = nil
           @kw_args     = []
         else
-          @non_kw_args    = expectation.count || 0
+          @min_non_kw_args = @non_kw_args = expectation.min_count || 0
+          @max_non_kw_args                = expectation.max_count || @min_non_kw_args
 
           if RubyFeatures.optional_and_splat_args_supported?
             @unlimited_args = expectation.expect_unlimited_arguments
@@ -292,7 +304,7 @@ module RSpec
     private
 
       def valid_non_kw_args?
-        @signature.valid_non_kw_args?(non_kw_args)
+        @signature.valid_non_kw_args?(min_non_kw_args, max_non_kw_args)
       end
 
       def missing_kw_args
