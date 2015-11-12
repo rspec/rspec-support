@@ -1,4 +1,5 @@
-### Development
+### 3.4.0 / 2015-11-11
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.3.0...v3.4.0)
 
 Enhancements:
 
