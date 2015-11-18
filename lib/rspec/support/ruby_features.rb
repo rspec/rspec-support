@@ -68,6 +68,8 @@ module RSpec
 
       ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
 
+      ripper_requirements.push(false) if Ruby.rbx?
+
       if Ruby.jruby?
         ripper_requirements.push(ComparableVersion.new(JRUBY_VERSION) >= '1.7.5')
         # Ripper on JRuby 9.0.0.0.rc1 or later reports wrong line number.
