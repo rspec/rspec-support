@@ -1,3 +1,13 @@
+### 3.4.1 / 2015-11-20
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.4.0...v3.4.1)
+
+Bug Fixes:
+
+* Fix `RSpec::Support::RubyFeature.ripper_supported?` so it returns
+  `false` on Rubinius since the Rubinius team has no plans to support
+  it. This prevents rspec-core from trying to load and use ripper to
+  extract failure snippets. (Aaron Stone, #251)
+
 ### 3.4.0 / 2015-11-11
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.3.0...v3.4.0)
 
