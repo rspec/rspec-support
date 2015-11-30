@@ -15,7 +15,7 @@ end
 
 ### dep for ci/coverage
 gem 'simplecov', '~> 0.8'
-gem "nokogiri", (RUBY_VERSION < '1.9.3' ? "1.5.2" : ["~> 1.5", "< 1.6.6.3", "> 1.6.6.4"])
+gem "nokogiri", (RUBY_VERSION < '1.9.3' ? "1.5.2" : ["~> 1.5", "!= 1.6.6.3"])
 
 gem 'rubocop', "~> 0.23.0", :platform => [:ruby_19, :ruby_20, :ruby_21]
 
