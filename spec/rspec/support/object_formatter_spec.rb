@@ -158,6 +158,25 @@ module RSpec
             matcher_without_a_description.inspect)
         end
       end
+
+      context 'with truncation enabled' do
+        it 'produces an output of limited length' do
+          formatter = ObjectFormatter.new(10)
+          expect(formatter.format('Test String Of A Longer Length')).to eq('"Test ...ngth"')
+        end
+
+        it 'does not truncate shorter strings' do
+          formatter = ObjectFormatter.new(10)
+          expect(formatter.format('Testing')).to eq('"Testing"')
+        end
+      end
+
+      context 'with truncation disabled' do
+        it 'does not limit the output length' do
+          formatter = ObjectFormatter.new(nil)
+          expect(formatter.format('Test String Of A Longer Length')).to eq('"Test String Of A Longer Length"')
+        end
+      end
     end
   end
 end
