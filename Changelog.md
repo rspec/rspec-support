@@ -1,3 +1,10 @@
+### Development
+
+Enhancements:
+
+* Improve formatting of objects by allowing truncation to a pre-configured length.
+  (Liam M, #256)
+
 ### 3.4.1 / 2015-11-20
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.4.0...v3.4.1)
 
