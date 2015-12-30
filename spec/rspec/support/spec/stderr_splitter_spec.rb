@@ -22,7 +22,11 @@ describe 'RSpec::Support::StdErrSplitter' do
   end
 
   it 'conforms to the stderr interface' do
-    stderr_methods = stderr.methods
+    # There some methods that appear in the list of the #methods but actually not implemented:
+    #
+    #     $stderr.pressed?
+    #     NotImplementedError: pressed?() function is unimplemented on this machine
+    stderr_methods = stderr.methods.select { |method| stderr.respond_to?(method) }
 
     # On 2.2, there's a weird issue where stderr sometimes responds to `birthtime` and sometimes doesn't...
     stderr_methods -= [:birthtime] if RUBY_VERSION =~ /^2\.2/
