@@ -15,6 +15,10 @@ Bug Fixes:
   it. This prevents rspec-core from trying to load and use ripper to
   extract failure snippets. (Aaron Stone, #251)
 
+Changes:
+
+* Remove `VersionChecker` in favor of `ComparableVersion`. (Yuji Nakayama, #266)
+
 ### 3.4.0 / 2015-11-11
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.3.0...v3.4.0)
 
