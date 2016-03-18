@@ -47,8 +47,18 @@ module RSpec
         @string << matching_encoding(string)
       end
 
-      def split(regex_or_string)
-        @string.split(matching_encoding(regex_or_string))
+      if Ruby.jruby?
+        def split(regex_or_string)
+          @string.split(matching_encoding(regex_or_string))
+        rescue ArgumentError
+          # JRuby raises an ArgumentError when splitting a source string that
+          # contains invalid bytes.
+          remove_invalid_bytes(@string).split regex_or_string
+        end
+      else
+        def split(regex_or_string)
+          @string.split(matching_encoding(regex_or_string))
+        end
       end
 
       def to_s
