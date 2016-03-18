@@ -195,6 +195,16 @@ module RSpec::Support
               a_string_identical_to(exp2).with_same_encoding
             ]
           end
+
+          it 'handles invalidly encoded strings' do
+            source_string = "an\xAE\nother".force_encoding('US-ASCII')
+            expect(
+              build_encoded_string(source_string, utf8_encoding).split("\n")
+            ).to eq([
+              'an?',
+              'other'
+            ])
+          end
         end
 
         # see https://github.com/rspec/rspec-expectations/blob/f8a1232/spec/rspec/expectations/fail_with_spec.rb#L50
