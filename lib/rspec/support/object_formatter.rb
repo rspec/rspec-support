@@ -1,9 +1,11 @@
+RSpec::Support.require_rspec_support 'matcher_definition'
+
 module RSpec
   module Support
     # Provide additional output details beyond what `inspect` provides when
     # printing Time, DateTime, or BigDecimal
     # @api private
-    class ObjectFormatter
+    class ObjectFormatter # rubocop:disable ClassLength
       attr_accessor :max_formatted_output_length
 
       def initialize(max_formatted_output_length=200)
@@ -35,8 +37,6 @@ module RSpec
         @default_instance.format(object)
       end
 
-      # rubocop:disable MethodLength
-
       # Prepares the provided object to be formatted by wrapping it as needed
       # in something that, when `inspect` is called on it, will produce the
       # desired output.
@@ -46,7 +46,7 @@ module RSpec
       # with custom items that have `inspect` defined to return the desired output
       # for that item. Then we can just use `Array#inspect` or `Hash#inspect` to
       # format the entire thing.
-      def prepare_for_inspection(object)
+      def prepare_for_inspection(object) # rubocop:disable MethodLength, CyclomaticComplexity
         case object
         when Array
           return object.map { |o| prepare_for_inspection(o) }
@@ -59,6 +59,8 @@ module RSpec
             inspection = format_date_time(object)
           elsif defined?(BigDecimal) && BigDecimal === object
             inspection = "#{object.to_s 'F'} (#{object.inspect})"
+          elsif UninspectableObjectInspector.uninspectable_object?(object)
+            return UninspectableObjectInspector.new(object)
           elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
             inspection = object.description
           else
@@ -68,7 +70,6 @@ module RSpec
 
         InspectableItem.new(inspection)
       end
-      # rubocop:enable MethodLength
 
       def self.prepare_for_inspection(object)
         @default_instance.prepare_for_inspection(object)
@@ -137,6 +138,41 @@ module RSpec
 
         def pretty_print(pp)
           pp.text inspect
+        end
+      end
+
+      UninspectableObjectInspector = Struct.new(:object) do
+        OBJECT_ID_FORMAT = '%#016x'
+
+        def self.uninspectable_object?(object)
+          object.inspect
+          false
+        rescue NoMethodError
+          true
+        end
+
+        # NoMethodError: undefined method `inspect' for #<BasicObject:0x007fe26d175140>
+        def inspect
+          "#<#{klass}:#{native_object_id}>"
+        end
+
+        def pretty_print(pp)
+          pp.text inspect
+        end
+
+        private
+
+        def klass
+          singleton_class = class << object; self; end
+          singleton_class.ancestors.find { |ancestor| !ancestor.equal?(singleton_class) }
+        end
+
+        # http://stackoverflow.com/a/2818916
+        def native_object_id
+          OBJECT_ID_FORMAT % (object.__id__ << 1)
+        rescue NoMethodError
+          # In Ruby 1.9.2, BasicObject responds to none of #__id__, #object_id, #id...
+          '-'
         end
       end
     end
