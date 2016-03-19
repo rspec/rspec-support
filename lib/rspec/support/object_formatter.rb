@@ -1,3 +1,5 @@
+RSpec::Support.require_rspec_support 'matcher_definition'
+
 module RSpec
   module Support
     # Provide additional output details beyond what `inspect` provides when
