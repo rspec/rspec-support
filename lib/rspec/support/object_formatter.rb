@@ -6,17 +6,27 @@ module RSpec
     # printing Time, DateTime, or BigDecimal
     # @api private
     class ObjectFormatter # rubocop:disable ClassLength
+      ELLIPSIS = "..."
+
       attr_accessor :max_formatted_output_length
+
+      # Methods are deferred to a default instance of the class to maintain the interface
+      # For example, calling ObjectFormatter.format is still possible
+      def self.default_instance
+        @default_instance ||= new
+      end
+
+      def self.format(object)
+        default_instance.format(object)
+      end
+
+      def self.prepare_for_inspection(object)
+        default_instance.prepare_for_inspection(object)
+      end
 
       def initialize(max_formatted_output_length=200)
         @max_formatted_output_length = max_formatted_output_length
       end
-
-      # Methods are deferred to a default instance of the class to maintain the interface
-      # For example, calling ObjectFormatter.format is still possible
-      @default_instance = new(200)
-
-      ELLIPSIS = "..."
 
       def format(object)
         if max_formatted_output_length.nil?
@@ -31,10 +41,6 @@ module RSpec
             return beginning + ELLIPSIS + ending
           end
         end
-      end
-
-      def self.format(object)
-        @default_instance.format(object)
       end
 
       # Prepares the provided object to be formatted by wrapping it as needed
@@ -69,10 +75,6 @@ module RSpec
         end
 
         InspectableItem.new(inspection)
-      end
-
-      def self.prepare_for_inspection(object)
-        @default_instance.prepare_for_inspection(object)
       end
 
       def prepare_hash(input)
