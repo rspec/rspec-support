@@ -193,6 +193,66 @@ module RSpec
         end
       end
 
+      context 'with a recursive array' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          array = [time]
+          array << array
+          array
+        end
+
+        let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+
+        let(:formatted_time) { ObjectFormatter.format(time) }
+
+        it 'formats the recursive element as [...] and other elements with custom formatting' do
+          expect(output).to eq("[#{formatted_time}, [...]]")
+        end
+      end
+
+      context 'with a recursive-key hash' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          hash = {}
+          hash[hash] = time
+          hash
+        end
+
+        let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+
+        let(:formatted_time) { ObjectFormatter.format(time) }
+
+        it 'formats the recursive element as {...} and other elements with custom formatting' do
+          expect(output).to eq("{{...}=>#{formatted_time}}")
+        end
+      end
+
+      context 'with a recursive-value hash' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          hash = {}
+          hash[time] = hash
+          hash
+        end
+
+        let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
+
+        let(:formatted_time) { ObjectFormatter.format(time) }
+
+        it 'formats the recursive element as {...} and other elements with custom formatting' do
+          expect(output).to eq("{#{formatted_time}=>{...}}")
+        end
+      end
+
       context 'with truncation enabled' do
         it 'produces an output of limited length' do
           formatter = ObjectFormatter.new(10)

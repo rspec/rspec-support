@@ -65,13 +65,37 @@ module RSpec
       end
 
       def prepare_array(array)
-        array.map { |o| prepare_for_inspection(o) }
+        array.map do |element|
+          if element.equal?(array)
+            InspectableItem.new('[...]')
+          else
+            prepare_for_inspection(element)
+          end
+        end
       end
 
-      def prepare_hash(input)
-        input.inject({}) do |hash, (k, v)|
-          hash[prepare_for_inspection(k)] = prepare_for_inspection(v)
-          hash
+      def prepare_hash(input_hash)
+        input_hash.inject({}) do |output_hash, key_and_value|
+          key, value = key_and_value.map do |element|
+            if element.equal?(input_hash)
+              InspectableItem.new('{...}')
+            else
+              prepare_for_inspection(element)
+            end
+          end
+
+          output_hash[key] = value
+          output_hash
+        end
+      end
+
+      InspectableItem = Struct.new(:text) do
+        def inspect
+          text
+        end
+
+        def pretty_print(pp)
+          pp.text(text)
         end
       end
 
