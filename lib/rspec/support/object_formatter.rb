@@ -82,10 +82,6 @@ module RSpec
         end
       end
 
-      def self.prepare_hash(input)
-        @default_instance.prepare_hash(input)
-      end
-
       TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
       if Time.method_defined?(:nsec)
@@ -98,10 +94,6 @@ module RSpec
         end
       end
 
-      def self.format_time(time)
-        @default_instance.format_time(time)
-      end
-
       DATE_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S.%N %z"
       # ActiveSupport sometimes overrides inspect. If `ActiveSupport` is
       # defined use a custom format string that includes more time precision.
@@ -111,10 +103,6 @@ module RSpec
         else
           date_time.inspect
         end
-      end
-
-      def self.format_date_time(date_time)
-        @default_instance.format_date_time(date_time)
       end
 
       InspectableItem = Struct.new(:inspection) do
