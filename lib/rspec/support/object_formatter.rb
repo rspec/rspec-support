@@ -5,18 +5,28 @@ module RSpec
     # Provide additional output details beyond what `inspect` provides when
     # printing Time, DateTime, or BigDecimal
     # @api private
-    class ObjectFormatter # rubocop:disable ClassLength
+    class ObjectFormatter
+      ELLIPSIS = "..."
+
       attr_accessor :max_formatted_output_length
+
+      # Methods are deferred to a default instance of the class to maintain the interface
+      # For example, calling ObjectFormatter.format is still possible
+      def self.default_instance
+        @default_instance ||= new
+      end
+
+      def self.format(object)
+        default_instance.format(object)
+      end
+
+      def self.prepare_for_inspection(object)
+        default_instance.prepare_for_inspection(object)
+      end
 
       def initialize(max_formatted_output_length=200)
         @max_formatted_output_length = max_formatted_output_length
       end
-
-      # Methods are deferred to a default instance of the class to maintain the interface
-      # For example, calling ObjectFormatter.format is still possible
-      @default_instance = new(200)
-
-      ELLIPSIS = "..."
 
       def format(object)
         if max_formatted_output_length.nil?
@@ -33,10 +43,6 @@ module RSpec
         end
       end
 
-      def self.format(object)
-        @default_instance.format(object)
-      end
-
       # Prepares the provided object to be formatted by wrapping it as needed
       # in something that, when `inspect` is called on it, will produce the
       # desired output.
@@ -46,121 +52,136 @@ module RSpec
       # with custom items that have `inspect` defined to return the desired output
       # for that item. Then we can just use `Array#inspect` or `Hash#inspect` to
       # format the entire thing.
-      def prepare_for_inspection(object) # rubocop:disable MethodLength, CyclomaticComplexity
+      def prepare_for_inspection(object)
         case object
         when Array
-          return object.map { |o| prepare_for_inspection(o) }
+          prepare_array(object)
         when Hash
-          return prepare_hash(object)
-        when Time
-          inspection = format_time(object)
+          prepare_hash(object)
         else
-          if defined?(DateTime) && DateTime === object
-            inspection = format_date_time(object)
-          elsif defined?(BigDecimal) && BigDecimal === object
-            inspection = "#{object.to_s 'F'} (#{object.inspect})"
-          elsif UninspectableObjectInspector.uninspectable_object?(object)
-            return UninspectableObjectInspector.new(object)
-          elsif RSpec::Support.is_a_matcher?(object) && object.respond_to?(:description)
-            inspection = object.description
+          inspector_class = INSPECTOR_CLASSES.find { |inspector| inspector.can_inspect?(object) }
+          inspector_class.new(object, self)
+        end
+      end
+
+      def prepare_array(array)
+        array.map do |element|
+          if element.equal?(array)
+            InspectableItem.new('[...]')
           else
-            return DelegatingInspector.new(object)
+            prepare_for_inspection(element)
           end
         end
-
-        InspectableItem.new(inspection)
       end
 
-      def self.prepare_for_inspection(object)
-        @default_instance.prepare_for_inspection(object)
-      end
+      def prepare_hash(input_hash)
+        input_hash.inject({}) do |output_hash, key_and_value|
+          key, value = key_and_value.map do |element|
+            if element.equal?(input_hash)
+              InspectableItem.new('{...}')
+            else
+              prepare_for_inspection(element)
+            end
+          end
 
-      def prepare_hash(input)
-        input.inject({}) do |hash, (k, v)|
-          hash[prepare_for_inspection(k)] = prepare_for_inspection(v)
-          hash
+          output_hash[key] = value
+          output_hash
         end
       end
 
-      def self.prepare_hash(input)
-        @default_instance.prepare_hash(input)
-      end
-
-      TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-      if Time.method_defined?(:nsec)
-        def format_time(time)
-          time.strftime("#{TIME_FORMAT}.#{"%09d" % time.nsec} %z")
-        end
-      else # for 1.8.7
-        def format_time(time)
-          time.strftime("#{TIME_FORMAT}.#{"%06d" % time.usec} %z")
-        end
-      end
-
-      def self.format_time(time)
-        @default_instance.format_time(time)
-      end
-
-      DATE_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S.%N %z"
-      # ActiveSupport sometimes overrides inspect. If `ActiveSupport` is
-      # defined use a custom format string that includes more time precision.
-      def format_date_time(date_time)
-        if defined?(ActiveSupport)
-          date_time.strftime(DATE_TIME_FORMAT)
-        else
-          date_time.inspect
-        end
-      end
-
-      def self.format_date_time(date_time)
-        @default_instance.format_date_time(date_time)
-      end
-
-      InspectableItem = Struct.new(:inspection) do
+      InspectableItem = Struct.new(:text) do
         def inspect
-          inspection
+          text
         end
 
         def pretty_print(pp)
-          pp.text inspection
+          pp.text(text)
         end
       end
 
-      DelegatingInspector = Struct.new(:object) do
+      BaseInspector = Struct.new(:object, :formatter) do
+        def self.can_inspect?(_object)
+          raise NotImplementedError
+        end
+
         def inspect
-          if defined?(::Delegator) && ::Delegator === object
-            "#<#{object.class}(#{ObjectFormatter.format(object.__getobj__)})>"
+          raise NotImplementedError
+        end
+
+        def pretty_print(pp)
+          pp.text(inspect)
+        end
+      end
+
+      class TimeInspector < BaseInspector
+        FORMAT = "%Y-%m-%d %H:%M:%S"
+
+        def self.can_inspect?(object)
+          Time === object
+        end
+
+        if Time.method_defined?(:nsec)
+          def inspect
+            object.strftime("#{FORMAT}.#{"%09d" % object.nsec} %z")
+          end
+        else # for 1.8.7
+          def inspect
+            object.strftime("#{FORMAT}.#{"%06d" % object.usec} %z")
+          end
+        end
+      end
+
+      class DateTimeInspector < BaseInspector
+        FORMAT = "%a, %d %b %Y %H:%M:%S.%N %z"
+
+        def self.can_inspect?(object)
+          defined?(DateTime) && DateTime === object
+        end
+
+        # ActiveSupport sometimes overrides inspect. If `ActiveSupport` is
+        # defined use a custom format string that includes more time precision.
+        def inspect
+          if defined?(ActiveSupport)
+            object.strftime(FORMAT)
           else
             object.inspect
           end
         end
+      end
 
-        def pretty_print(pp)
-          pp.text inspect
+      class BigDecimalInspector < BaseInspector
+        def self.can_inspect?(object)
+          defined?(BigDecimal) && BigDecimal === object
+        end
+
+        def inspect
+          "#{object.to_s('F')} (#{object.inspect})"
         end
       end
 
-      UninspectableObjectInspector = Struct.new(:object) do
+      class DescribableMatcherInspector < BaseInspector
+        def self.can_inspect?(object)
+          Support.is_a_matcher?(object) && object.respond_to?(:description)
+        end
+
+        def inspect
+          object.description
+        end
+      end
+
+      class UninspectableObjectInspector < BaseInspector
         OBJECT_ID_FORMAT = '%#016x'
 
-        def self.uninspectable_object?(object)
+        def self.can_inspect?(object)
           object.inspect
           false
         rescue NoMethodError
           true
         end
 
-        # NoMethodError: undefined method `inspect' for #<BasicObject:0x007fe26d175140>
         def inspect
           "#<#{klass}:#{native_object_id}>"
         end
-
-        def pretty_print(pp)
-          pp.text inspect
-        end
-
-        private
 
         def klass
           singleton_class = class << object; self; end
@@ -175,6 +196,39 @@ module RSpec
           '-'
         end
       end
+
+      class DelegatorInspector < BaseInspector
+        def self.can_inspect?(object)
+          defined?(Delegator) && Delegator === object
+        end
+
+        def inspect
+          "#<#{object.class}(#{formatter.format(object.__getobj__)})>"
+        end
+      end
+
+      class InspectableObjectInspector < BaseInspector
+        def self.can_inspect?(object)
+          object.inspect
+          true
+        rescue NoMethodError
+          false
+        end
+
+        def inspect
+          object.inspect
+        end
+      end
+
+      INSPECTOR_CLASSES = [
+        TimeInspector,
+        DateTimeInspector,
+        BigDecimalInspector,
+        UninspectableObjectInspector,
+        DescribableMatcherInspector,
+        DelegatorInspector,
+        InspectableObjectInspector
+      ]
     end
   end
 end
