@@ -31,8 +31,8 @@ RSpec.configure do |c|
     c.default_formatter = 'doc'
   end
 
-  c.filter_run :focus
-  c.run_all_when_everything_filtered = true
+  c.filter_run_when_matching :focus
+
   c.example_status_persistence_file_path = "./spec/examples.txt"
 
   c.define_derived_metadata :failing_on_appveyor do |meta|
