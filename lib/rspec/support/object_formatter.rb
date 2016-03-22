@@ -5,7 +5,7 @@ module RSpec
     # Provide additional output details beyond what `inspect` provides when
     # printing Time, DateTime, or BigDecimal
     # @api private
-    class ObjectFormatter
+    class ObjectFormatter # rubocop:disable Style/ClassLength
       ELLIPSIS = "..."
 
       attr_accessor :max_formatted_output_length
@@ -26,6 +26,7 @@ module RSpec
 
       def initialize(max_formatted_output_length=200)
         @max_formatted_output_length = max_formatted_output_length
+        @current_structure_stack = []
       end
 
       def format(object)
@@ -65,28 +66,42 @@ module RSpec
       end
 
       def prepare_array(array)
-        array.map do |element|
-          if element.equal?(array)
-            InspectableItem.new('[...]')
-          else
-            prepare_for_inspection(element)
-          end
+        with_entering_structure(array) do
+          array.map { |element| prepare_element(element) }
         end
       end
 
       def prepare_hash(input_hash)
-        input_hash.inject({}) do |output_hash, key_and_value|
-          key, value = key_and_value.map do |element|
-            if element.equal?(input_hash)
-              InspectableItem.new('{...}')
-            else
-              prepare_for_inspection(element)
-            end
+        with_entering_structure(input_hash) do
+          input_hash.inject({}) do |output_hash, key_and_value|
+            key, value = key_and_value.map { |element| prepare_element(element) }
+            output_hash[key] = value
+            output_hash
           end
-
-          output_hash[key] = value
-          output_hash
         end
+      end
+
+      def prepare_element(element)
+        if recursive_structure?(element)
+          case element
+          when Array then InspectableItem.new('[...]')
+          when Hash then InspectableItem.new('{...}')
+          else raise # This won't happen
+          end
+        else
+          prepare_for_inspection(element)
+        end
+      end
+
+      def with_entering_structure(structure)
+        @current_structure_stack.push(structure)
+        return_value = yield
+        @current_structure_stack.pop
+        return_value
+      end
+
+      def recursive_structure?(object)
+        @current_structure_stack.any? { |seen_structure| seen_structure.equal?(object) }
       end
 
       InspectableItem = Struct.new(:text) do
