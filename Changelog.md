@@ -7,7 +7,7 @@ Bug Fixes:
   `#inspect` (such as `BasicObject`) does not cause `NoMethodError`.
   (Yuji Nakayama, #269)
 * Fix `ObjectFormatter` so that formatting recursive array or hash does not
-  cause `SystemStackError`. (Yuji Nakayama, #270)
+  cause `SystemStackError`. (Yuji Nakayama, #270, #272)
 
 ### 3.5.0.beta1 / 2016-02-06
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.4.1...v3.5.0.beta1)

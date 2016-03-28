@@ -253,6 +253,53 @@ module RSpec
         end
       end
 
+      context 'with a non-immediate recursive array' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          array = []
+          array[0] = { :recursive_array => array }
+          array
+        end
+
+        it 'formats the recursive element as [...]' do
+          expect(output).to eq('[{:recursive_array=>[...]}]')
+        end
+      end
+
+      context 'with a non-immediate recursive hash' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          hash = {}
+          hash[:array] = [:next_is_recursive_hash, hash]
+          hash
+        end
+
+        it 'formats the recursive element as {...}' do
+          expect(output).to eq('{:array=>[:next_is_recursive_hash, {...}]}')
+        end
+      end
+
+      context 'with an array including a same collection object multiple times' do
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          hash = { :key => 'value' }
+          [hash, hash]
+        end
+
+        it 'does not omit them' do
+          expect(output).to eq('[{:key=>"value"}, {:key=>"value"}]')
+        end
+      end
+
       context 'with truncation enabled' do
         it 'produces an output of limited length' do
           formatter = ObjectFormatter.new(10)
