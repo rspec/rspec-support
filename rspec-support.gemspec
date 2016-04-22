@@ -19,7 +19,12 @@ Gem::Specification.new do |spec|
   spec.rdoc_options  = ["--charset=UTF-8"]
   spec.require_paths = ["lib"]
 
-  private_key = File.expand_path('~/.gem/rspec-gem-private_key.pem')
+
+  private_key = ""
+  begin
+    private_key = File.expand_path('~/.gem/rspec-gem-private_key.pem')
+  rescue ArgumentError => e
+  end
   if File.exist?(private_key)
     spec.signing_key = private_key
     spec.cert_chain = [File.expand_path('~/.gem/rspec-gem-public_cert.pem')]
