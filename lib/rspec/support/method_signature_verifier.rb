@@ -26,10 +26,8 @@ module RSpec
         end
       end
 
-      def valid_non_kw_args?(positional_arg_count, optional_max_arg_count=nil)
+      def valid_non_kw_args?(positional_arg_count, optional_max_arg_count=positional_arg_count)
         return true if positional_arg_count.nil?
-
-        optional_max_arg_count ||= positional_arg_count
 
         min_non_kw_args <= positional_arg_count &&
           optional_max_arg_count <= max_non_kw_args
