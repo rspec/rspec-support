@@ -53,6 +53,17 @@ module RSpec
         end
       end
 
+      def strip_known_warnings(input)
+        input.split("\n").reject do |l|
+          # Ignore bundler warning.
+          l =~ %r{bundler/source/rubygems} ||
+          # Ignore bundler + rubygems warning.
+          l =~ %r{site_ruby/\d\.\d\.\d/rubygems} ||
+          # This is required for windows for some reason
+          l =~ %r{lib/bundler/rubygems}
+        end.join("\n")
+      end
+
     private
 
       if Ruby.jruby?

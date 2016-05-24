@@ -33,7 +33,7 @@ RSpec.describe RSpec::Support::ShellOut, :slow do
   it 'passes along the provided ruby flags' do
     out, err, status = run_ruby_with_current_load_path('puts "version"', '-v')
     expect(out).to include('version', RUBY_DESCRIPTION)
-    expect(err).to eq('')
+    expect(strip_known_warnings err).to eq('')
     expect(status.exitstatus).to eq(0)
   end
 
@@ -41,7 +41,7 @@ RSpec.describe RSpec::Support::ShellOut, :slow do
     with_env 'RUBY_GC_HEAP_FREE_SLOTS' => '10001', 'RUBY_GC_MALLOC_LIMIT' => '16777217', 'RUBY_FREE_MIN' => '10001' do
       out, err, status = run_ruby_with_current_load_path('', '-w')
       expect(out).to eq('')
-      expect(err).to eq('')
+      expect(strip_known_warnings err).to eq('')
       expect(status.exitstatus).to eq(0)
     end
   end
