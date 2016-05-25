@@ -8,7 +8,7 @@ module RSpec
     # keyword args of a given method.
     #
     # @private
-    class MethodSignature
+    class MethodSignature # rubocop:disable ClassLength
       attr_reader :min_non_kw_args, :max_non_kw_args, :optional_kw_args, :required_kw_args
 
       def initialize(method)
@@ -26,9 +26,11 @@ module RSpec
         end
       end
 
-      def valid_non_kw_args?(positional_arg_count)
+      def valid_non_kw_args?(positional_arg_count, optional_max_arg_count=positional_arg_count)
+        return true if positional_arg_count.nil?
+
         min_non_kw_args <= positional_arg_count &&
-          positional_arg_count <= max_non_kw_args
+          optional_max_arg_count <= max_non_kw_args
       end
 
       if RubyFeatures.optional_and_splat_args_supported?
@@ -72,6 +74,14 @@ module RSpec
         def could_contain_kw_args?(args)
           return false if args.count <= min_non_kw_args
           @allows_any_kw_args || @allowed_kw_args.any?
+        end
+
+        def arbitrary_kw_args?
+          @allows_any_kw_args
+        end
+
+        def unlimited_args?
+          @max_non_kw_args == INFINITY
         end
 
         def classify_parameters
@@ -119,6 +129,14 @@ module RSpec
           false
         end
 
+        def arbitrary_kw_args?
+          false
+        end
+
+        def unlimited_args?
+          false
+        end
+
         def classify_parameters
           arity = @method.arity
           if arity < 0
@@ -153,6 +171,50 @@ module RSpec
       end
     end
 
+    # Encapsulates expectations about the number of arguments and
+    # allowed/required keyword args of a given method.
+    #
+    # @api private
+    class MethodSignatureExpectation
+      def initialize
+        @min_count = nil
+        @max_count = nil
+        @keywords  = []
+
+        @expect_unlimited_arguments = false
+        @expect_arbitrary_keywords  = false
+      end
+
+      attr_reader :min_count, :max_count, :keywords
+
+      attr_accessor :expect_unlimited_arguments, :expect_arbitrary_keywords
+
+      def max_count=(number)
+        raise ArgumentError, 'must be a non-negative integer or nil' \
+          unless number.nil? || (number.is_a?(Integer) && number >= 0)
+
+        @max_count = number
+      end
+
+      def min_count=(number)
+        raise ArgumentError, 'must be a non-negative integer or nil' \
+          unless number.nil? || (number.is_a?(Integer) && number >= 0)
+
+        @min_count = number
+      end
+
+      def empty?
+        @min_count.nil? &&
+          @keywords.to_a.empty? &&
+          !@expect_arbitrary_keywords &&
+          !@expect_unlimited_arguments
+      end
+
+      def keywords=(values)
+        @keywords = values.to_a || []
+      end
+    end
+
     # Deals with the slightly different semantics of block arguments.
     # For methods, arguments are required unless a default value is provided.
     # For blocks, arguments are optional, even if no default value is provided.
@@ -175,17 +237,49 @@ module RSpec
     #
     # @api private
     class MethodSignatureVerifier
-      attr_reader :non_kw_args, :kw_args
+      attr_reader :non_kw_args, :kw_args, :min_non_kw_args, :max_non_kw_args
 
       def initialize(signature, args)
         @signature = signature
         @non_kw_args, @kw_args = split_args(*args)
+        @min_non_kw_args = @max_non_kw_args = @non_kw_args
+        @arbitrary_kw_args = @unlimited_args = false
+      end
+
+      def with_expectation(expectation) # rubocop:disable MethodLength
+        return self unless MethodSignatureExpectation === expectation
+
+        if expectation.empty?
+          @min_non_kw_args = @max_non_kw_args = @non_kw_args = nil
+          @kw_args     = []
+        else
+          @min_non_kw_args = @non_kw_args = expectation.min_count || 0
+          @max_non_kw_args                = expectation.max_count || @min_non_kw_args
+
+          if RubyFeatures.optional_and_splat_args_supported?
+            @unlimited_args = expectation.expect_unlimited_arguments
+          else
+            @unlimited_args = false
+          end
+
+          if RubyFeatures.kw_args_supported?
+            @kw_args           = expectation.keywords
+            @arbitrary_kw_args = expectation.expect_arbitrary_keywords
+          else
+            @kw_args           = []
+            @arbitrary_kw_args = false
+          end
+        end
+
+        self
       end
 
       def valid?
         missing_kw_args.empty? &&
           invalid_kw_args.empty? &&
-          valid_non_kw_args?
+          valid_non_kw_args? &&
+          arbitrary_kw_args? &&
+          unlimited_args?
       end
 
       def error_message
@@ -200,7 +294,7 @@ module RSpec
         elsif !valid_non_kw_args?
           "Wrong number of arguments. Expected %s, got %s." % [
             @signature.non_kw_args_arity_description,
-            non_kw_args.length
+            non_kw_args
           ]
         end
       end
@@ -208,7 +302,7 @@ module RSpec
     private
 
       def valid_non_kw_args?
-        @signature.valid_non_kw_args?(non_kw_args.length)
+        @signature.valid_non_kw_args?(min_non_kw_args, max_non_kw_args)
       end
 
       def missing_kw_args
@@ -219,6 +313,14 @@ module RSpec
         @signature.invalid_kw_args_from(kw_args)
       end
 
+      def arbitrary_kw_args?
+        !@arbitrary_kw_args || @signature.arbitrary_kw_args?
+      end
+
+      def unlimited_args?
+        !@unlimited_args || @signature.unlimited_args?
+      end
+
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
                     args.pop.keys
@@ -226,7 +328,7 @@ module RSpec
                     []
                   end
 
-        [args, kw_args]
+        [args.length, kw_args]
       end
     end
 

@@ -26,6 +26,20 @@ module RSpec
         signature.description
       end
 
+      def validate_expectation(*args)
+        obj = MethodSignatureExpectation.new
+
+        obj.min_count = Integer === args.first ? args.shift : nil
+        obj.max_count = Integer === args.first ? args.shift : nil
+
+        obj.expect_unlimited_arguments = !args.delete(:unlimited_args).nil?
+        obj.expect_arbitrary_keywords  = !args.delete(:arbitrary_kw_args).nil?
+
+        obj.keywords = args
+
+        described_class.new(signature, []).with_expectation(obj).valid?
+      end
+
       shared_context 'a method verifier' do
         describe 'with a method with arguments' do
           def arity_two(x, y); end
@@ -61,6 +75,45 @@ module RSpec
           it 'indicates it has no required kw args' do
             expect(signature.required_kw_args).to eq([])
           end
+
+          describe 'with an expectation object' do
+            it 'matches the exact arity' do
+              expect(validate_expectation 1).to eq(false)
+              expect(validate_expectation 2).to eq(true)
+              expect(validate_expectation 3).to eq(false)
+            end
+
+            it 'matches a range including the min and max counts' do
+              expect(validate_expectation 1, 2).to eq(false)
+              expect(validate_expectation 2, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(false)
+            end
+
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
+            end
+
+            if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+              end
+            else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
+              it 'ignores arbitrary keyword expectations' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
+              end
+            end
+          end
         end
 
         describe 'a method with splat arguments' do
@@ -81,6 +134,59 @@ module RSpec
 
           it 'mentions only the arity in the description' do
             expect(signature_description).to eq("arity of 1 or more")
+          end
+
+          describe 'with an expectation object' do
+            it 'matches a value from the lower bound upwards' do
+              expect(validate_expectation 0).to eq(false)
+              expect(validate_expectation 1).to eq(true)
+              expect(validate_expectation 2).to eq(true)
+              expect(validate_expectation 3).to eq(true)
+            end
+
+            it 'matches a range from the lower bound upwards' do
+              expect(validate_expectation 0, 1).to eq(false)
+              expect(validate_expectation 1, 1).to eq(true)
+              expect(validate_expectation 1, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(true)
+              expect(validate_expectation 1, 2 ** 31).to eq(true)
+            end
+
+            if RubyFeatures.optional_and_splat_args_supported?
+              it 'matches unlimited arguments with the minimum arity' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+
+                expect(validate_expectation 1, :unlimited_args).to eq(true)
+              end
+            else
+              it 'ignores unlimited arguments expectations' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+
+                expect(validate_expectation 1, :unlimited_args).to eq(true)
+              end
+            end
+
+            if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(false)
+              end
+            else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
+              it 'ignores arbitrary keyword expectations' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
+              end
+            end
           end
         end
 
@@ -108,6 +214,59 @@ module RSpec
           else
             it 'describes the arity with no upper bound' do
               expect(error_description).to eq("2 or more")
+            end
+          end
+
+          describe 'with an expectation object' do
+            it 'matches a value from min to max possible arguments' do
+              expect(validate_expectation 1).to eq(false)
+              expect(validate_expectation 2).to eq(true)
+              expect(validate_expectation 3).to eq(true)
+
+              if RubyFeatures.optional_and_splat_args_supported?
+                expect(validate_expectation 4).to eq(false)
+              else
+                expect(validate_expectation 4).to eq(true)
+              end
+            end
+
+            it 'matches a range from the lower bound upwards' do
+              expect(validate_expectation 1, 2).to eq(false)
+              expect(validate_expectation 2, 2).to eq(true)
+              expect(validate_expectation 2, 3).to eq(true)
+
+              if RubyFeatures.optional_and_splat_args_supported?
+                expect(validate_expectation 2, 4).to eq(false)
+              else
+                expect(validate_expectation 2, 4).to eq(true)
+              end
+            end
+
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
+            end
+
+            if RubyFeatures.kw_args_supported?
+              it 'does not match keywords' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+                expect(validate_expectation 2, :optional_keyword).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+              end
+            else
+              it 'ignores keyword expectations' do
+                expect(validate_expectation :optional_keyword).to eq(false)
+
+                expect(validate_expectation 2, :optional_keyword).to eq(true)
+              end
+
+              it 'ignores arbitrary keyword expectations' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+
+                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
+              end
             end
           end
         end
@@ -160,6 +319,50 @@ module RSpec
             it "indicates it has no required keyword args" do
               expect(signature.required_kw_args).to eq([])
             end
+
+            describe 'with an expectation object' do
+              it 'matches the exact arity' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(true)
+                expect(validate_expectation 2).to eq(false)
+              end
+
+              it 'matches the exact range' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(true)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+              end
+
+              it 'matches optional keywords with the correct arity' do
+                expect(validate_expectation :y).to eq(false)
+                expect(validate_expectation :z).to eq(false)
+                expect(validate_expectation :y, :z).to eq(false)
+
+                expect(validate_expectation 1, :y).to eq(true)
+                expect(validate_expectation 1, :z).to eq(true)
+                expect(validate_expectation 1, :y, :z).to eq(true)
+
+                expect(validate_expectation 2, :y).to eq(false)
+                expect(validate_expectation 2, :z).to eq(false)
+                expect(validate_expectation 2, :y, :z).to eq(false)
+              end
+
+              it 'does not match invalid keywords' do
+                expect(validate_expectation :w).to eq(false)
+                expect(validate_expectation :w, :z).to eq(false)
+
+                expect(validate_expectation 1, :w).to eq(false)
+                expect(validate_expectation 1, :w, :z).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+              end
+            end
           end
         end
 
@@ -200,6 +403,68 @@ module RSpec
             it "indicates the required keyword args" do
               expect(signature.required_kw_args).to contain_exactly(:y, :z)
             end
+
+            describe 'with an expectation object' do
+              it 'does not match the exact arity without the required keywords' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(false)
+                expect(validate_expectation 1, :y).to eq(false)
+                expect(validate_expectation 1, :z).to eq(false)
+                expect(validate_expectation 2).to eq(false)
+              end
+
+              it 'does not match the range without the required keywords' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(false)
+                expect(validate_expectation 1, 1, :y).to eq(false)
+                expect(validate_expectation 1, 1, :z).to eq(false)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
+              it 'matches the exact arity with the required keywords' do
+                expect(validate_expectation 0, :y, :z).to eq(false)
+                expect(validate_expectation 1, :y, :z).to eq(true)
+                expect(validate_expectation 2, :y, :z).to eq(false)
+              end
+
+              it 'matches the range with the required keywords' do
+                expect(validate_expectation 0, 1, :y, :z).to eq(false)
+                expect(validate_expectation 1, 1, :y, :z).to eq(true)
+                expect(validate_expectation 1, 2, :y, :z).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+                expect(validate_expectation :y, :z, :unlimited_args).to eq(false)
+              end
+
+              it 'matches optional keywords with the required keywords' do
+                expect(validate_expectation 1, :a, :y, :z).to eq(true)
+              end
+
+              it 'does not match optional keywords without the required keywords' do
+                expect(validate_expectation :a).to eq(false)
+                expect(validate_expectation :a, :y).to eq(false)
+                expect(validate_expectation :a, :z).to eq(false)
+
+                expect(validate_expectation 1, :a).to eq(false)
+                expect(validate_expectation 1, :a, :y).to eq(false)
+                expect(validate_expectation 1, :a, :z).to eq(false)
+              end
+
+              it 'does not match invalid keywords' do
+                expect(validate_expectation :w).to eq(false)
+                expect(validate_expectation :w, :y, :z).to eq(false)
+
+                expect(validate_expectation 1, :w).to eq(false)
+                expect(validate_expectation 1, :w, :y, :z).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation :y, :z, :arbitrary_kw_args).to eq(false)
+              end
+            end
           end
 
           describe 'a method with required keyword arguments and a splat' do
@@ -226,6 +491,73 @@ module RSpec
               expect(signature_description).to \
                 eq("arity of 1 or more and optional keyword args (:a) and required keyword args (:y, :z)")
             end
+
+            describe 'with an expectation object' do
+              it 'does not match a value from the lower bound upwards' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(false)
+                expect(validate_expectation 1, :y).to eq(false)
+                expect(validate_expectation 1, :z).to eq(false)
+                expect(validate_expectation 2).to eq(false)
+              end
+
+              it 'does not match a range from the lower bound upwards' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(false)
+                expect(validate_expectation 1, 1, :y).to eq(false)
+                expect(validate_expectation 1, 1, :z).to eq(false)
+                expect(validate_expectation 1, 2).to eq(false)
+              end
+
+              it 'matches a value from the lower bound upwards with the required keywords' do
+                expect(validate_expectation 0, :y, :z).to eq(false)
+                expect(validate_expectation 1, :y, :z).to eq(true)
+                expect(validate_expectation 2, :y, :z).to eq(true)
+                expect(validate_expectation 3, :y, :z).to eq(true)
+              end
+
+              it 'matches a range from the lower bound upwards with the required keywords' do
+                expect(validate_expectation 0, 1, :y, :z).to eq(false)
+                expect(validate_expectation 1, 1, :y, :z).to eq(true)
+                expect(validate_expectation 1, 2, :y, :z).to eq(true)
+                expect(validate_expectation 3, 4, :y, :z).to eq(true)
+                expect(validate_expectation 3, 2 ** 31, :y, :z).to eq(true)
+              end
+
+              it 'matches unlimited arguments with the minimum arity and the required keywords' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+                expect(validate_expectation 1, :unlimited_args).to eq(false)
+                expect(validate_expectation :y, :z, :unlimited_args).to eq(false)
+                expect(validate_expectation 1, :y, :z, :unlimited_args).to eq(true)
+              end
+
+              it 'matches optional keywords with the required keywords' do
+                expect(validate_expectation 1, :a, :y, :z).to eq(true)
+              end
+
+              it 'does not match optional keywords without the required keywords' do
+                expect(validate_expectation :a).to eq(false)
+                expect(validate_expectation :a, :y).to eq(false)
+                expect(validate_expectation :a, :z).to eq(false)
+
+                expect(validate_expectation 1, :a).to eq(false)
+                expect(validate_expectation 1, :a, :y).to eq(false)
+                expect(validate_expectation 1, :a, :z).to eq(false)
+              end
+
+              it 'does not match invalid keywords' do
+                expect(validate_expectation :w).to eq(false)
+                expect(validate_expectation :w, :y, :z).to eq(false)
+
+                expect(validate_expectation 1, :w).to eq(false)
+                expect(validate_expectation 1, :w, :y, :z).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation :y, :z, :arbitrary_kw_args).to eq(false)
+              end
+            end
           end
 
           describe 'a method with required keyword arguments and a keyword arg splat' do
@@ -248,6 +580,47 @@ module RSpec
             it 'mentions the required kw args and keyword splat in the description' do
               expect(signature_description).to \
                 eq("required keyword args (:x) and any additional keyword args")
+            end
+
+            describe 'with an expectation object' do
+              it 'does not match the exact arity without the required keywords' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(false)
+              end
+
+              it 'does not match the exact range without the required keywords' do
+                expect(validate_expectation 0, 0).to eq(false)
+                expect(validate_expectation 0, 1).to eq(false)
+              end
+
+              it 'matches the exact arity with the required keywords' do
+                expect(validate_expectation 0, :x).to eq(true)
+              end
+
+              it 'does matches the exact range without the required keywords' do
+                expect(validate_expectation 0, 0, :x).to eq(true)
+                expect(validate_expectation 0, 1, :x).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+                expect(validate_expectation :x, :unlimited_args).to eq(false)
+              end
+
+              it 'matches arbitrary keywords with the required keywords' do
+                expect(validate_expectation 0, :x, :u, :v).to eq(true)
+              end
+
+              it 'does not match arbitrary keywords without the required keywords' do
+                expect(validate_expectation :a).to eq(false)
+
+                expect(validate_expectation 0, :a).to eq(false)
+              end
+
+              it 'matches arbitrary keywords with the required keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation :x, :arbitrary_kw_args).to eq(true)
+              end
             end
           end
 
@@ -277,6 +650,40 @@ module RSpec
             it 'mentions the required kw args and keyword splat in the description' do
               expect(signature_description).to \
                 eq("arity of 1 and any additional keyword args")
+            end
+
+            describe 'with an expectation object' do
+              it 'matches the exact arity' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(true)
+                expect(validate_expectation 2).to eq(false)
+              end
+
+              it 'matches the exact range' do
+                expect(validate_expectation 0, 0).to eq(false)
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(true)
+                expect(validate_expectation 1, 2).to eq(false)
+                expect(validate_expectation 2, 2).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+                expect(validate_expectation 1, :unlimited_args).to eq(false)
+              end
+
+              it 'matches unlisted keywords with the required arity' do
+                expect(validate_expectation 1, :u, :v).to eq(true)
+              end
+
+              it 'matches unlisted keywords with the exact range' do
+                expect(validate_expectation 1, 1, :u, :v).to eq(true)
+              end
+
+              it 'matches arbitrary keywords with the required arity' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+                expect(validate_expectation 1, :arbitrary_kw_args).to eq(true)
+              end
             end
           end
         end
@@ -325,6 +732,151 @@ module RSpec
         RSpec::Support.deregister_matcher_definition(&fake_matcher_def)
       end
 
+      describe MethodSignatureExpectation do
+        describe '#max_count' do
+          it { expect(subject).to respond_to(:max_count).with(0).arguments }
+        end
+
+        describe '#max_count=' do
+          it { expect(subject).to respond_to(:max_count=).with(1).argument }
+
+          describe 'with nil' do
+            before(:each) { subject.max_count = 5 }
+
+            it { expect { subject.max_count = nil }.to change(subject, :max_count).to be(nil) }
+          end
+
+          describe 'with a positive integer' do
+            let(:value) { 7 }
+
+            it { expect { subject.max_count = value }.to change(subject, :max_count).to eq(value) }
+          end
+
+          describe 'with zero' do
+            it { expect { subject.max_count = 0 }.to change(subject, :max_count).to eq(0) }
+          end
+
+          describe 'with a negative integer value' do
+            it 'should raise an error' do
+              expect { subject.max_count = -1 }.to raise_error ArgumentError
+            end
+          end
+
+          describe 'with a non-integer value' do
+            it 'should raise an error' do
+              expect { subject.max_count = :many }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        describe '#min_count' do
+          it { expect(subject).to respond_to(:min_count).with(0).arguments }
+        end
+
+        describe '#min_count=' do
+          it { expect(subject).to respond_to(:min_count=).with(1).argument }
+
+          describe 'with nil' do
+            before(:each) { subject.min_count = 5 }
+
+            it { expect { subject.min_count = nil }.to change(subject, :min_count).to be(nil) }
+          end
+
+          describe 'with a positive integer' do
+            let(:value) { 7 }
+
+            it { expect { subject.min_count = value }.to change(subject, :min_count).to eq(value) }
+          end
+
+          describe 'with zero' do
+            it { expect { subject.min_count = 0 }.to change(subject, :min_count).to eq(0) }
+          end
+
+          describe 'with a negative integer value' do
+            it 'should raise an error' do
+              expect { subject.min_count = -1 }.to raise_error ArgumentError
+            end
+          end
+
+          describe 'with a non-integer value' do
+            it 'should raise an error' do
+              expect { subject.min_count = :many }.to raise_error ArgumentError
+            end
+          end
+        end
+
+        describe '#empty?' do
+          it { expect(subject).to respond_to(:empty?).with(0).arguments }
+
+          it { expect(subject.empty?).to eq(true) }
+
+          describe 'with a count expectation' do
+            before(:each) { subject.min_count = 5 }
+
+            it { expect(subject.empty?).to eq(false) }
+          end
+
+          describe 'with a keywords expectation' do
+            before(:each) { subject.keywords << :greetings << :programs }
+
+            it { expect(subject.empty?).to eq(false) }
+          end
+        end
+
+        describe '#expect_arbitrary_keywords' do
+          it { expect(subject).to respond_to(:expect_arbitrary_keywords).with(0).arguments }
+
+          it 'should default to false' do
+            expect(described_class.new.expect_arbitrary_keywords).to eq(false)
+          end
+        end
+
+        describe '#expect_arbitrary_keywords=' do
+          it { expect(subject).to respond_to(:expect_arbitrary_keywords=).with(1).argument }
+
+          describe 'with true' do
+            it { expect { subject.expect_arbitrary_keywords = true }.to change(subject, :expect_arbitrary_keywords).to eq(true) }
+          end
+        end
+
+        describe '#expect_unlimited_arguments' do
+          it { expect(subject).to respond_to(:expect_unlimited_arguments).with(0).arguments }
+
+          it 'should default to false' do
+            expect(described_class.new.expect_unlimited_arguments).to eq(false)
+          end
+        end
+
+        describe '#expect_unlimited_arguments=' do
+          it { expect(subject).to respond_to(:expect_unlimited_arguments=).with(1).argument }
+
+          describe 'with true' do
+            it { expect { subject.expect_unlimited_arguments = true }.to change(subject, :expect_unlimited_arguments).to eq(true) }
+          end
+        end
+
+        describe '#keywords' do
+          it { expect(subject).to respond_to(:keywords).with(0).arguments }
+
+          it { expect(subject.keywords).to eq(Array.new) }
+        end
+
+        describe '#keywords=' do
+          it { expect(subject).to respond_to(:keywords=).with(1).argument }
+
+          describe 'with nil' do
+            before(:each) { subject.keywords = [:greetings, :programs] }
+
+            it { expect { subject.keywords = nil }.to change(subject, :keywords).to eq(Array.new) }
+          end
+
+          describe 'with an array' do
+            let(:keywords) { [:greetings, :programs] }
+
+            it { expect { subject.keywords = keywords }.to change(subject, :keywords).to eq(keywords) }
+          end
+        end
+      end
 
       describe StrictSignatureVerifier do
         it_behaves_like 'a method verifier'
