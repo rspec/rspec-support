@@ -1,6 +1,9 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta1...master)
 
+Enhancements:
+* Improve `MethodSignature` to better support keyword arguments. (#250, Rob Smith).
+
 Bug Fixes:
 
 * Fix `ObjectFormatter` so that formatting objects that don't respond to
