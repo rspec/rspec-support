@@ -15,7 +15,7 @@ module RSpec
       end
 
       def error_description
-        described_class.new(signature, []).error_message[/Expected (.*),/, 1]
+        described_class.new(signature).error_message[/Expected (.*),/, 1]
       end
 
       def error_for(*args)
@@ -37,7 +37,7 @@ module RSpec
 
         obj.keywords = args
 
-        described_class.new(signature, []).with_expectation(obj).valid?
+        described_class.new(signature).with_expectation(obj).valid?
       end
 
       shared_context 'a method verifier' do
