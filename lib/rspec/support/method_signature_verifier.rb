@@ -239,7 +239,7 @@ module RSpec
     class MethodSignatureVerifier
       attr_reader :non_kw_args, :kw_args, :min_non_kw_args, :max_non_kw_args
 
-      def initialize(signature, args = [])
+      def initialize(signature, args=[])
         @signature = signature
         @non_kw_args, @kw_args = split_args(*args)
         @min_non_kw_args = @max_non_kw_args = @non_kw_args
