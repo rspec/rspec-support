@@ -1,16 +1,26 @@
 ### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta1...master)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta3...master)
 
 Enhancements:
 * Improve `MethodSignature` to better support keyword arguments. (#250, Rob Smith).
 
+### 3.5.0.beta3 / 2016-04-02
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta2...v3.5.0.beta3)
+
 Bug Fixes:
 
+* Fix `EncodedString` to properly handle the behavior of `String#split`
+  on JRuby when the string contains invalid bytes. (Jon Rowe, #268)
 * Fix `ObjectFormatter` so that formatting objects that don't respond to
   `#inspect` (such as `BasicObject`) does not cause `NoMethodError`.
   (Yuji Nakayama, #269)
 * Fix `ObjectFormatter` so that formatting recursive array or hash does not
   cause `SystemStackError`. (Yuji Nakayama, #270, #272)
+
+### 3.5.0.beta2 / 2016-03-10
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta1...v3.5.0.beta2)
+
+No user-facing changes.
 
 ### 3.5.0.beta1 / 2016-02-06
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.4.1...v3.5.0.beta1)
