@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module RSpecHelpers
   def expect_no_deprecation
     expect(RSpec.configuration.reporter).not_to receive(:deprecation)

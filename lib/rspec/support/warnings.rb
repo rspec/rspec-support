@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rspec/support'
 RSpec::Support.require_rspec_support "caller_filter"
 
