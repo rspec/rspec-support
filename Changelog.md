@@ -1,5 +1,7 @@
 ### 3.5 Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta4...master)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta4...v3.5.0)
+
+**No user facing changes since beat4**
 
 ### 3.5.0.beta4 / 2016-06-05
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta3...v3.5.0.beta4)
