@@ -46,7 +46,10 @@ module RSpec
           end
         end
 
-        finalize_output(output, hunks.last.diff(format_type).to_s) if hunks.last
+        if hunks.last
+          last_hunk_diff = hunks.last.diff(format_type).to_s.strip
+          finalize_output(output, last_hunk_diff)
+        end
 
         color_diff output
       rescue Encoding::CompatibilityError
