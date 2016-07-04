@@ -25,7 +25,7 @@ module RSpec
  this
  is
  soo
-@@ -9,6 +9,5 @@
+@@ -9,7 +9,6 @@
  equal
  insert
  a
@@ -52,7 +52,7 @@ EOD
             | this
             | is
             | soo
-            |@@ -9,6 +9,5 @@
+            |@@ -9,7 +9,6 @@
             | equal
             | insert
             | a
@@ -106,7 +106,7 @@ EOD
           it 'handles differently encoded strings that are compatible' do
             expected = "abc\n".encode('us-ascii')
             actual   = "강인철\n".encode('UTF-8')
-            expected_diff = "\n@@ -1,2 +1,2 @@\n-abc\n+강인철\n"
+            expected_diff = "\n@@ -1,3 +1,3 @@\n-abc\n+강인철\n"
             diff = differ.diff(actual, expected)
             expect(diff).to be_diffed_as(expected_diff)
           end
@@ -114,7 +114,7 @@ EOD
           it 'uses the default external encoding when the two strings have incompatible encodings', :failing_on_appveyor do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expected_diff = "\n@@ -1,2 +1,2 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
+            expected_diff = "\n@@ -1,3 +1,3 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
 
             diff = differ.diff(actual, expected)
             expect(diff).to be_diffed_as(expected_diff)
@@ -154,7 +154,7 @@ EOD
 
           expected_diff = <<'EOD'
 
-@@ -1,5 +1,5 @@
+@@ -1,6 +1,6 @@
  <Animal
    name=bob,
 -  species=tortoise
@@ -173,7 +173,7 @@ EOD
           expected_diff = <<'EOD'
 
 
-@@ -5,7 +5,7 @@
+@@ -5,8 +5,8 @@
   :metasyntactic,
   "variable",
   :delta,
@@ -202,7 +202,7 @@ EOD
 
           expected_diff = <<-EOD
 
-@@ -1,2 +1,2 @@
+@@ -1,3 +1,3 @@
 -[]
 +[<BrokenObject>]
 EOD
@@ -296,7 +296,7 @@ EOD
 
         it "outputs unified diff message of two arrays with Time object keys" do
           expected_diff = %Q{
-@@ -1,2 +1,2 @@
+@@ -1,3 +1,3 @@
 -[#{formatted_time}, "b"]
 +[#{formatted_time}, "c"]
 }
@@ -307,7 +307,7 @@ EOD
 
         it "outputs unified diff message of two arrays with hashes inside them" do
           expected_diff = %Q{
-@@ -1,2 +1,2 @@
+@@ -1,3 +1,3 @@
 -[{"b"=>#{formatted_time}}, "c"]
 +[{"a"=>#{formatted_time}}, "c"]
 }
@@ -402,7 +402,7 @@ EOD
 
             expected_diff = dedent(<<-EOS)
               |
-              |@@ -1,2 +1,2 @@
+              |@@ -1,3 +1,3 @@
               |-[#<SimpleDelegator(#{object.inspect})>]
               |+[#{object.inspect}]
               |
@@ -441,7 +441,7 @@ EOD
           it "outputs colored diffs" do
             expected = "foo bar baz\n"
             actual = "foo bang baz\n"
-            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,2 +1,2 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
+            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1,3 +1,3 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
 
             diff = differ.diff(expected,actual)
             expect(diff).to be_diffed_as(expected_diff)
