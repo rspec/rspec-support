@@ -187,6 +187,8 @@ module RSpec
           PP.pp(ObjectFormatter.prepare_for_inspection(object), "")
         when String
           object =~ /\n/ ? object : object.inspect
+        when Regexp
+          PP.pp(object, "").chomp
         else
           PP.pp(object, "")
         end
