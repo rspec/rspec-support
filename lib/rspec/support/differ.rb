@@ -46,11 +46,7 @@ module RSpec
           end
         end
 
-        if hunks.last
-          last_hunk_diff = hunks.last.diff(format_type).to_s.strip
-          finalize_output(output, last_hunk_diff)
-        end
-
+        finalize_output(output, final_line(hunks.last)) if hunks.last
         color_diff output
       rescue Encoding::CompatibilityError
         handle_encoding_errors(actual, expected)
@@ -117,6 +113,12 @@ module RSpec
 
       def build_hunks(actual, expected)
         HunkGenerator.new(actual, expected).hunks
+      end
+
+      def final_line(last_hunk)
+        output_message = last_hunk.diff(format_type).to_s.strip
+        # Checks last char of string for + or -, appends message on match
+        output_message.gsub(/(?<=[+-]$)\z/, "\\ No newline at end of input")
       end
 
       def finalize_output(output, final_line)
