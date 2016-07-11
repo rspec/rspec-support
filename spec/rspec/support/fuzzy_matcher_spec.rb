@@ -210,6 +210,38 @@ module RSpec
         end
       end
     end
+    describe FuzzyMatcher, '#failure_message' do
+      def failure_message(expected, actual)
+        described_class.new(expected, actual).failure_message
+      end
+
+      it 'tells that the hashes have different size' do
+        h1 = { :a => 'b', :b => nil }
+        h2 = { :a => 'b' }
+        expect(failure_message(h1, h2)).to eq "#{h2.inspect} failed to match: expected #{h2.inspect} to have 2 size"
+      end
+
+      it 'generates informative failure messages in case of nested structures' do
+        h1 = {
+          :a => {
+            :b => [String, Fixnum],
+            :c => { :d => be_within(0.1).of(2) }
+          }
+        }
+
+        h2 = {
+          :a => {
+            :b => ["foo", 5],
+            :c => { :d => 2.05 }
+          }
+        }
+
+        expect(failure_message(h1, h2)).to be_nil
+        h2[:a][:c][:d] += 1
+        expect(failure_message(h1, h2)).to eq "#{h2.inspect}[:a][:c][:d] failed to match: " \
+          'expected 3.05 to be within 0.1 of 2'
+      end
+    end
   end
 end
 
