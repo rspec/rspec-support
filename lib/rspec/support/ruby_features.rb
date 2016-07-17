@@ -28,6 +28,10 @@ module RSpec
         RUBY_PLATFORM == 'java'
       end
 
+      def jruby_9000?
+        jruby? && JRUBY_VERSION >= '9.0.0.0'
+      end
+
       def rbx?
         defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
       end

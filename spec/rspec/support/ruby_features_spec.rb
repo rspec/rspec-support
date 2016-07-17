@@ -48,6 +48,16 @@ module RSpec
         expect(Ruby).to_not be_rbx
       end
 
+      specify "jruby_9000? reflects the state of RUBY_PLATFORM and JRUBY_VERSION" do
+        stub_const("RUBY_PLATFORM", "java")
+        stub_const("JRUBY_VERSION", "")
+        expect(Ruby).to_not be_jruby_9000
+        stub_const("JRUBY_VERSION", "9.0.3.0")
+        expect(Ruby).to be_jruby_9000
+        stub_const("RUBY_PLATFORM", "")
+        expect(Ruby).to_not be_jruby_9000
+      end
+
       specify "rbx? reflects the state of RUBY_ENGINE" do
         hide_const("RUBY_ENGINE")
         expect(Ruby).to be_mri
@@ -131,9 +141,15 @@ module RSpec
                 end
               end
 
-              context '9.x.x.x', :if => JRUBY_VERSION.start_with?('9.') do
+              context '9.0.x.x', :if => JRUBY_VERSION.start_with?('9.0') do
                 it 'reports wrong line number' do
                   expect(line_number).to eq(2)
+                end
+              end
+
+              context '9.1.x.x', :if => JRUBY_VERSION.start_with?('9.1') do
+                it 'is supported' do
+                  expect(line_number).to eq(1)
                 end
               end
             end
