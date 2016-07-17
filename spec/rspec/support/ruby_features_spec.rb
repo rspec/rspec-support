@@ -141,9 +141,15 @@ module RSpec
                 end
               end
 
-              context '9.x.x.x', :if => JRUBY_VERSION.start_with?('9.') do
+              context '9.0.x.x', :if => JRUBY_VERSION.start_with?('9.0') do
                 it 'reports wrong line number' do
                   expect(line_number).to eq(2)
+                end
+              end
+
+              context '9.1.x.x', :if => JRUBY_VERSION.start_with?('9.1') do
+                it 'is supported' do
+                  expect(line_number).to eq(1)
                 end
               end
             end
