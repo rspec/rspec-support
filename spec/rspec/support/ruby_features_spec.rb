@@ -69,6 +69,12 @@ module RSpec
     end
 
     describe RubyFeatures do
+      specify "#module_refinedment_supported? reflects refinement support" do
+        if Ruby.mri? && RUBY_VERSION >= '2.1.0'
+          expect(RubyFeatures.module_refinement_supported?).to eq true
+        end
+      end
+
       specify "#supports_exception_cause? exists" do
         RubyFeatures.supports_exception_cause?
       end
