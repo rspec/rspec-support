@@ -97,7 +97,7 @@ module RSpec
           if Array === entry
             entry.inspect
           else
-            entry.to_s.gsub("\n", "\\n")
+            entry.to_s.gsub("\n", "\\n").gsub("\r", "\\r")
           end
         end
       end
