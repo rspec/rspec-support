@@ -310,6 +310,18 @@ module RSpec
           formatter = ObjectFormatter.new(10)
           expect(formatter.format('Testing')).to eq('"Testing"')
         end
+
+        context 'with ANSI escape codes that fall on the truncate split' do
+          it 'removes that escape code so terminals do not get corrupted print a partial escape code' do
+            formatter = ObjectFormatter.new(38)
+            object = Class.new do
+              def inspect
+                "#<\e[33mClass\e[0m \e[36mname: \e[0m\"foobars\" \e[36mcount: \e[0m42>"
+              end
+            end.new
+            expect(formatter.format(object)).to eq("#<\e[33mClass\e[0m ...\e[36mcount: \e[0m42>")
+          end
+        end
       end
 
       context 'with truncation disabled' do
