@@ -37,8 +37,8 @@ module RSpec
           if formatted_object.length < max_formatted_output_length
             return formatted_object
           else
-            beginning = formatted_object[0 .. max_formatted_output_length / 2]
-            ending = formatted_object[-max_formatted_output_length / 2 ..-1]
+            beginning = truncate_string formatted_object, 0, max_formatted_output_length / 2
+            ending = truncate_string formatted_object, -max_formatted_output_length / 2, -1
             return beginning + ELLIPSIS + ending
           end
         end
@@ -244,6 +244,20 @@ module RSpec
         DelegatorInspector,
         InspectableObjectInspector
       ]
+
+    private
+
+      # Returns the substring defined by the start_index and end_index
+      # If the string ends with a partial ANSI code code then that
+      # will be removed as printing partial ANSI
+      # codes to the terminal can lead to corruption
+      def truncate_string(str, start_index, end_index)
+        cut_str = str[start_index..end_index]
+
+        # ANSI color codes are like: \e[33m so anything with \e[ and a
+        # number without a 'm' is an incomplete color code
+        cut_str.sub(/\e\[\d+$/, '')
+      end
     end
   end
 end
