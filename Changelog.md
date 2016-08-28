@@ -1,3 +1,10 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0...master)
+
+Bug Fixes:
+
+* Prevent truncated formatted object output from mangling console codes. (#294, Anson Kelly)
+
 ### 3.5.0 / 2016-07-01
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0.beta4...v3.5.0)
 
