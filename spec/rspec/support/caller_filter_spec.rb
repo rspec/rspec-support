@@ -4,21 +4,6 @@ require 'rspec/support/caller_filter'
 
 module RSpec
   describe CallerFilter do
-    around do |ex|
-      Dir.mktmpdir do |dir|
-        @tmpdir = dir
-        ex.run
-      end
-    end
-
-    it 'works' do
-      expect(@tmpdir).to eq "a"
-    end
-
-    it 'works 2' do
-      expect(@tmpdir).to eq "a"
-    end
-
     it 'can receive skip_frames and increment arguments' do
       expect(RSpec::CallerFilter.first_non_rspec_line(1, 5)).to include("#{__FILE__}:#{__LINE__}")
     end
