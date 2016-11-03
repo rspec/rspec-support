@@ -16,6 +16,10 @@ module RSpec
         @default_instance ||= new
       end
 
+      def self.default_max_formatted_output_length=(length)
+        default_instance.max_formatted_output_length = length
+      end
+
       def self.format(object)
         default_instance.format(object)
       end
