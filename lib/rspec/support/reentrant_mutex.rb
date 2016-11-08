@@ -25,18 +25,10 @@ module RSpec
         exit
       end
 
-      def locked?
-        @owner != nil
-      end
-
-      def owned?
-        @owner == Thread.current
-      end
-
     private
 
       def enter
-        @mutex.lock unless owned?
+        @mutex.lock if @owner != Thread.current
         @owner = Thread.current
         @count += 1
       end
