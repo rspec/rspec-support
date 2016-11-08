@@ -27,20 +27,4 @@ RSpec.describe RSpec::Support::ReentrantMutex do
     mutex.synchronize { order.pass_to :thread, :resume_on => :sleep }
     order.join_all
   end
-
-  it 'reports when locked' do
-    expect(mutex.locked?).to be(false)
-    mutex.synchronize { expect(mutex.locked?).to be(true) }
-    expect(mutex.locked?).to be(false)
-  end
-
-  it 'reports if the current thread is the owner' do
-    expect(mutex.owned?).to be(false)
-    order.declare(:thread) { expect(mutex.owned?).to be(false) }
-    mutex.synchronize do
-      expect(mutex.owned?).to be(true)
-      order.pass_to :thread, :resume_on => :exit
-    end
-    order.join_all
-  end
 end
