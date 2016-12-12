@@ -1,5 +1,10 @@
-### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0...master)
+### 3.6.0.beta2 / 2016-12-12
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta1...v3.6.0.beta2)
+
+No user-facinc changes.
+
+### 3.6.0.beta1 / 2016-10-09
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.5.0...v3.6.0.beta1)
 
 Bug Fixes:
 
