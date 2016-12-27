@@ -120,17 +120,17 @@ module RSpec
         end
 
         it 'does the fuzzy matching on the individual elements' do
-          expect([String, Fixnum]).to match_against(["a", 2])
-          expect([String, Fixnum]).not_to match_against([2, "a"])
+          expect([String, Integer]).to match_against(["a", 2])
+          expect([String, Integer]).not_to match_against([2, "a"])
         end
 
         it 'returns false if they have a different number of elements' do
-          expect([String, Fixnum]).not_to match_against(['a', 2, nil])
+          expect([String, Integer]).not_to match_against(['a', 2, nil])
         end
 
         it 'supports arbitrary nested arrays' do
           a1 = [
-            [String, Fixnum, [be_within(0.1).of(2)]],
+            [String, Integer, [be_within(0.1).of(2)]],
             3, [[[ /foo/ ]]]
           ]
 
@@ -154,8 +154,8 @@ module RSpec
           end
         end.new
 
-        expect([Fixnum, String]).to match_against(my_enum)
-        expect([String, Fixnum]).not_to match_against(my_enum)
+        expect([Integer, String]).to match_against(my_enum)
+        expect([String, Integer]).not_to match_against(my_enum)
       end
 
       it 'does not match an empty hash against an empty array or vice-versa' do
@@ -192,7 +192,7 @@ module RSpec
         it 'supports arbitrary nested hashes' do
           h1 = {
             :a => {
-              :b => [String, Fixnum],
+              :b => [String, Integer],
               :c => { :d => be_within(0.1).of(2) }
             }
           }

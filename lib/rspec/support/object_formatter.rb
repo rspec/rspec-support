@@ -243,7 +243,12 @@ module RSpec
         DescribableMatcherInspector,
         DelegatorInspector,
         InspectableObjectInspector
-      ]
+      ].tap do |classes|
+        # 2.4 has improved BigDecimal formatting so we do not need
+        # to provide our own.
+        # https://github.com/ruby/bigdecimal/pull/42
+        classes.delete(BigDecimalInspector) if RUBY_VERSION >= '2.4'
+      end
 
     private
 
