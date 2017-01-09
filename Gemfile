@@ -20,7 +20,7 @@ if RUBY_VERSION < '2.0.0' || RUBY_ENGINE == 'java'
   gem 'json', '< 2.0.0' # is a dependency of simplecov
 end
 
-if RUBY_VERSION >= '1.9' && RUBY_VERSION <= '2.1'
+if RUBY_VERSION >= '2.0' && RUBY_VERSION <= '2.1'
   gem 'rubocop', "~> 0.23.0"
 end
 
