@@ -20,6 +20,10 @@ if RUBY_VERSION < '2.0.0' || RUBY_ENGINE == 'java'
   gem 'json', '< 2.0.0' # is a dependency of simplecov
 end
 
+if RUBY_VERSION < '2.0.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
+  gem 'ffi', '< 1.9.15' # allow ffi to be installed on older rubies on windows
+end
+
 if RUBY_VERSION >= '2.0' && RUBY_VERSION <= '2.1'
   gem 'rubocop', "~> 0.23.0"
 end
