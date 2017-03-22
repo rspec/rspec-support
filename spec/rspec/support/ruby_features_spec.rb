@@ -91,6 +91,10 @@ module RSpec
         RubyFeatures.supports_rebinding_module_methods?
       end
 
+      specify "#supports_qualified_constant_toplevel_lookup? exists" do
+        RubyFeatures.supports_qualified_constant_toplevel_lookup?
+      end
+
       specify "#caller_locations_supported? exists" do
         RubyFeatures.caller_locations_supported?
         if Ruby.mri?

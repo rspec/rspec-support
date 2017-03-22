@@ -90,6 +90,23 @@ module RSpec
         end
       end
 
+      begin
+        verbose_was = $VERBOSE
+        $VERBOSE = nil
+
+        _ = String::Hash
+
+        def supports_qualified_constant_toplevel_lookup?
+          true
+        end
+      rescue NameError
+        def supports_qualified_constant_toplevel_lookup?
+          false
+        end
+      ensure
+        $VERBOSE = verbose_was
+      end
+
       if Ruby.mri?
         def kw_args_supported?
           RUBY_VERSION >= '2.0.0'
