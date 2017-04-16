@@ -189,6 +189,22 @@ module RSpec
           expect(/foo/ => 1).not_to match_against("foo" => 1)
         end
 
+        it "can match mulitple values in an array with a single matcher" do
+
+          expectation_consumer = double(
+            :accepting? => true,
+            :can_consume_more_args? => true,
+            :consume => nil
+          )
+          matcher = double(:matcher, :expectation_consumer => expectation_consumer)
+          expected = [1,2,3,matcher]
+          actual = [1,2,3,4,5,6]
+
+          match = RSpec::Support::FuzzyMatcher.values_match?(expected, actual)
+          expect(match).to be true
+
+        end
+
         it 'supports arbitrary nested hashes' do
           h1 = {
             :a => {

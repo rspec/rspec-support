@@ -1,3 +1,5 @@
+RSpec::Support.require_rspec_support 'match_expectation_consumer'
+
 module RSpec
   module Support
     # Provides a means to fuzzy-match between two arbitrary objects.
@@ -25,10 +27,37 @@ module RSpec
 
       # @private
       def self.arrays_match?(expected_list, actual_list)
-        return false if expected_list.size != actual_list.size
+        return expected_list == actual_list if expected_list.empty?
+        actual_list = actual_list.dup
+        consumers = map_to_consumers(expected_list)
+        orig_consumers = consumers.dup
+        until consumers.empty?
+          consumer = consumers.delete_at(0)
+          while consumer.can_consume_more_args?
+            return orig_consumers.all?(&:accepting?) if actual_list.empty?
+            arg = actual_list.delete_at(0)
 
-        expected_list.zip(actual_list).all? do |expected, actual|
-          values_match?(expected, actual)
+            consumer.consume(arg)
+          end
+        end
+
+        orig_consumers.all?(&:accepting?) && actual_list.empty?
+      end
+
+      def self.map_to_consumers(expected_list)
+        expected_list.map do |expected_value|
+          expected_value_is_null_object_double = [
+            RSpec::Mocks::Double === expected_value,
+            expected_value.respond_to?(:i_respond_to_everything)
+          ].all?
+
+          expected_value_can_consume = expected_value.respond_to?(:expectation_consumer)
+
+          if !(expected_value_is_null_object_double) && expected_value_can_consume
+            expected_value.expectation_consumer(expected_value)
+          else
+            MatchExpectationConsumer.new(expected_value)
+          end
         end
       end
 
