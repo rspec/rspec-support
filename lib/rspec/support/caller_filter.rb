@@ -17,7 +17,9 @@ module RSpec
 
     ADDITIONAL_TOP_LEVEL_FILES = %w[ autorun ]
 
-    LIB_REGEX = %r{/lib/rspec/(#{(RSPEC_LIBS + ADDITIONAL_TOP_LEVEL_FILES).join('|')})(\.rb|/)}
+    sep = Regexp.escape(File::ALT_SEPARATOR || File::SEPARATOR)
+
+    LIB_REGEX = %r{#{sep}lib#{sep}rspec#{sep}(#{(RSPEC_LIBS + ADDITIONAL_TOP_LEVEL_FILES).join('|')})(\.rb|#{sep})}
 
     # rubygems/core_ext/kernel_require.rb isn't actually part of rspec (obviously) but we want
     # it ignored when we are looking for the first meaningful line of the backtrace outside
