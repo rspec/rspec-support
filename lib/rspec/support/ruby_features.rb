@@ -28,6 +28,10 @@ module RSpec
         RUBY_PLATFORM == 'java'
       end
 
+      def jruby_version
+        @jruby_version ||= ComparableVersion.new(JRUBY_VERSION)
+      end
+
       def jruby_9000?
         jruby? && JRUBY_VERSION >= '9.0.0.0'
       end
@@ -75,9 +79,9 @@ module RSpec
       ripper_requirements.push(false) if Ruby.rbx?
 
       if Ruby.jruby?
-        ripper_requirements.push(ComparableVersion.new(JRUBY_VERSION) >= '1.7.5')
-        # Ripper on JRuby 9.0.0.0.rc1 or later reports wrong line number.
-        ripper_requirements.push(ComparableVersion.new(JRUBY_VERSION) < '9.0.0.0.rc1')
+        ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
+        # Ripper on JRuby 9.0.0.0.rc1 - 9.0.5.0 reports wrong line number.
+        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.0.5.0'))
       end
 
       if ripper_requirements.all?

@@ -1,3 +1,12 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta2...master)
+
+Enhancements:
+
+* Reflect Ripper support in the latest JRuby in `RubyFeatures#ripper_supported`
+  so that rspec-core on JRuby 9.1.0.0 or later can benefit from the multiline
+  failure snippet extraction. (Yuji Nakayama, #313)
+
 ### 3.6.0.beta2 / 2016-12-12
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta1...v3.6.0.beta2)
 

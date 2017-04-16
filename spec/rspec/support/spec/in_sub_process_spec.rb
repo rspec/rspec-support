@@ -12,6 +12,14 @@ describe 'isolating code to a sub process' do
 
   if Process.respond_to?(:fork) && !(RUBY_PLATFORM == 'java' && RUBY_VERSION == '1.8.7')
 
+    it 'returns the result of sub process' do
+      expect(in_sub_process { :foo }).to eq(:foo)
+    end
+
+    it 'returns a UnmarshableObject if the result of sub process cannot be marshaled' do
+      expect(in_sub_process { proc {} }).to be_a(RSpec::Support::InSubProcess::UnmarshableObject)
+    end
+
     it 'captures and reraises errors to the main process' do
       expect {
         in_sub_process { raise "An Internal Error" }
