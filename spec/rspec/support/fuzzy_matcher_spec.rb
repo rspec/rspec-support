@@ -145,6 +145,64 @@ module RSpec
         end
       end
 
+      context "when given objects which subclass from Array" do
+        context "which override #to_a and #to_ary" do
+          let(:my_array) do
+            Class.new(Array) do
+              # when both objects are subclassed from Array,
+              # the comparison should not try to coerce one or both to Array
+              def to_a
+                raise "No you don't"
+              end
+              def to_ary
+                raise "Not this either"
+              end
+            end
+          end
+
+          it 'returns true if they contain the same values, without invoking #to_a or #to_ary' do
+            expect(my_array.new([1,2,3])).to match_against(my_array.new([1,2,3]))
+          end
+
+          it 'returns false if they contain different values, without invoking #to_a or #to_ary' do
+            expect(my_array.new([3,2,1])).not_to match_against(my_array.new([1,2,3]))
+          end
+        end
+
+        context "which override #== and #eql?" do
+          let(:my_array) do
+            Class.new(Array) do
+              # completely bizarre implementation of #== and #eql?
+              # the point is that we can easily tell if the comparison was done
+              # using #==, #eql?, or it it was manually done item by item
+              def ==(other);   other[0] == :eq;  end
+              def eql?(other); other[0] == :eql; end
+            end
+          end
+
+          it 'compares the objects using #==' do
+            expect(my_array.new([1,2,3])).to match_against(my_array.new([:eq,2,3]))
+          end
+        end
+      end
+
+      context "when expected is an Array, and actual is a subclass of Array" do
+        let(:my_array) do
+          Class.new(Array) do
+            def to_a
+              ['blah'] + self
+            end
+            def to_ary
+              raise "Wrong one"
+            end
+          end
+        end
+
+        it "coerces actual to Array using #to_a" do
+          expect(['blah',1,2,3]).to match_against(my_array.new([1,2,3]))
+        end
+      end
+
       it 'can match an array an arbitrary enumerable' do
         my_enum = Class.new do
           include Enumerable
