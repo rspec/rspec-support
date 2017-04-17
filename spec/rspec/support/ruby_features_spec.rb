@@ -111,6 +111,12 @@ module RSpec
         end
 
         def ripper_works_correctly?
+          ripper_reports_correct_line_number? &&
+            ripper_can_parse_source_including_keywordish_symbol?
+        end
+
+        # https://github.com/jruby/jruby/issues/3386
+        def ripper_reports_correct_line_number?
           in_sub_process_if_possible do
             require 'ripper'
             tokens = ::Ripper.lex('foo')
@@ -118,6 +124,15 @@ module RSpec
             location = token.first
             line_number = location.first
             line_number == 1
+          end
+        end
+
+        # https://github.com/jruby/jruby/issues/4562
+        def ripper_can_parse_source_including_keywordish_symbol?
+          in_sub_process_if_possible do
+            require 'ripper'
+            sexp = ::Ripper.sexp(':if')
+            !sexp.nil?
           end
         end
 
