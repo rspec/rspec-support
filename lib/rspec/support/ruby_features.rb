@@ -80,8 +80,9 @@ module RSpec
 
       if Ruby.jruby?
         ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
-        # Ripper on JRuby 9.0.0.0.rc1 - 9.0.5.0 reports wrong line number.
-        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.0.5.0'))
+        # Ripper on JRuby 9.0.0.0.rc1 or later reports wrong line number
+        # or cannot parse source including `:if`.
+        ripper_requirements.push(Ruby.jruby_version < '9.0.0.0.rc1')
       end
 
       if ripper_requirements.all?
