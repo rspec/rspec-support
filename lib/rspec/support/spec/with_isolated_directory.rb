@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'tmpdir'
 
 RSpec.shared_context "isolated directory" do
