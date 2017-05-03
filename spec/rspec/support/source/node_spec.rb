@@ -59,9 +59,9 @@ class RSpec::Support::Source
           root_node.find { |node| node.type == :args_add_block }
         end
 
-        it 'returns pseudo group node for the array' do
+        it 'returns pseudo expression sequence node for the array' do
           expect(target_node.args).to match([
-            an_object_having_attributes(:type => :group),
+            an_object_having_attributes(:type => :_expression_sequence),
             false
           ])
         end
@@ -77,7 +77,7 @@ class RSpec::Support::Source
         expect { |b| target_node.each_ancestor(&b) }.to yield_successive_args(
           an_object_having_attributes(:type => :method_add_arg),
           an_object_having_attributes(:type => :assign),
-          an_object_having_attributes(:type => :group),
+          an_object_having_attributes(:type => :_expression_sequence),
           an_object_having_attributes(:type => :program)
         )
       end

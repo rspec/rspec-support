@@ -30,7 +30,7 @@ module RSpec
             elsif Location.location?(raw_arg)
               Location.new(*raw_arg)
             elsif raw_arg.is_a?(Array)
-              GroupNode.new(raw_arg, self)
+              ExpressionSequenceNode.new(raw_arg, self)
             else
               raw_arg
             end
@@ -77,9 +77,23 @@ module RSpec
       end
 
       # @private
-      class GroupNode < Node
+      # Basically `Ripper.sexp` generates arrays whose first element is a symbol (type of sexp),
+      # but it exceptionally generates typeless arrays for expression sequence:
+      #
+      # Ripper.sexp('foo; bar')
+      # => [
+      #      :program,
+      #      [ # Typeless array
+      #        [:vcall, [:@ident, "foo", [1, 0]]],
+      #        [:vcall, [:@ident, "bar", [1, 5]]]
+      #      ]
+      #    ]
+      #
+      # We wrap typeless arrays in this pseudo type node
+      # so that it can be handled in the same way as other type node.
+      class ExpressionSequenceNode < Node
         def type
-          :group
+          :_expression_sequence
         end
 
       private
