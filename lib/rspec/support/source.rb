@@ -1,6 +1,5 @@
 RSpec::Support.require_rspec_support 'encoded_string'
-RSpec::Support.require_rspec_support 'source/node'
-RSpec::Support.require_rspec_support 'source/token'
+RSpec::Support.require_rspec_support 'ruby_features'
 
 module RSpec
   module Support
@@ -32,39 +31,44 @@ module RSpec
         @lines ||= source.split("\n")
       end
 
-      def ast
-        @ast ||= begin
-          require 'ripper'
-          sexp = Ripper.sexp(source)
-          raise SyntaxError unless sexp
-          Node.new(sexp)
-        end
-      end
-
-      def tokens
-        @tokens ||= begin
-          require 'ripper'
-          tokens = Ripper.lex(source)
-          Token.tokens_from_ripper_tokens(tokens)
-        end
-      end
-
-      def nodes_by_line_number
-        @nodes_by_line_number ||= begin
-          nodes_by_line_number = ast.select(&:location).group_by { |node| node.location.line }
-          Hash.new { |hash, key| hash[key] = [] }.merge(nodes_by_line_number)
-        end
-      end
-
-      def tokens_by_line_number
-        @tokens_by_line_number ||= begin
-          nodes_by_line_number = tokens.group_by { |token| token.location.line }
-          Hash.new { |hash, key| hash[key] = [] }.merge(nodes_by_line_number)
-        end
-      end
-
       def inspect
         "#<#{self.class} #{path}>"
+      end
+
+      if RSpec::Support::RubyFeatures.ripper_supported?
+        RSpec::Support.require_rspec_support 'source/node'
+        RSpec::Support.require_rspec_support 'source/token'
+
+        def ast
+          @ast ||= begin
+            require 'ripper'
+            sexp = Ripper.sexp(source)
+            raise SyntaxError unless sexp
+            Node.new(sexp)
+          end
+        end
+
+        def tokens
+          @tokens ||= begin
+            require 'ripper'
+            tokens = Ripper.lex(source)
+            Token.tokens_from_ripper_tokens(tokens)
+          end
+        end
+
+        def nodes_by_line_number
+          @nodes_by_line_number ||= begin
+            nodes_by_line_number = ast.select(&:location).group_by { |node| node.location.line }
+            Hash.new { |hash, key| hash[key] = [] }.merge(nodes_by_line_number)
+          end
+        end
+
+        def tokens_by_line_number
+          @tokens_by_line_number ||= begin
+            nodes_by_line_number = tokens.group_by { |token| token.location.line }
+            Hash.new { |hash, key| hash[key] = [] }.merge(nodes_by_line_number)
+          end
+        end
       end
     end
   end
