@@ -1,6 +1,10 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta2...master)
 
+Enhancements:
+
+* Import `Source` classes from rspec-core. (Yuji Nakayama, #315)
+
 ### 3.6.0.beta2 / 2016-12-12
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta1...v3.6.0.beta2)
 
