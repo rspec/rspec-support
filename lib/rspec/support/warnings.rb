@@ -28,8 +28,8 @@ module RSpec
       # Used internally to print longer warnings
       def warn_with(message, options={})
         call_site = options.fetch(:call_site) { CallerFilter.first_non_rspec_line }
-        message << " Use #{options[:replacement]} instead." if options[:replacement]
-        message << " Called from #{call_site}." if call_site
+        message += " Use #{options[:replacement]} instead." if options[:replacement]
+        message += " Called from #{call_site}." if call_site
         Support.warning_notifier.call message
       end
     end
