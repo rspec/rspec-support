@@ -1,3 +1,11 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...master)
+
+Bug Fixes:
+
+* Fix recursive const support to not blow up when given buggy classes
+  that raise odd errors from `#to_str`. (Myron Marston, #317)
+
 ### 3.6.0 / 2017-05-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0.beta2...3.6.0)
 
