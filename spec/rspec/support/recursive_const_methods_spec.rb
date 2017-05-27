@@ -31,6 +31,13 @@ module RSpec
         it 'does not find constants in ancestors' do
           expect(recursive_const_defined?('::RSpec::Support::Foo::Bar::UNDETECTED')).to be_falsy
         end
+
+        it 'does not blow up on buggy classes that raise weird errors on `to_str`' do
+          allow(Foo::Bar).to receive(:to_str).and_raise("boom!")
+          const, _ = recursive_const_defined?('::RSpec::Support::Foo::Bar::VAL')
+
+          expect(const).to eq(10)
+        end
       end
 
       describe '#recursive_const_get' do
