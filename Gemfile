@@ -4,7 +4,8 @@ source 'https://rubygems.org'
 gemspec
 
 branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
-%w[rspec rspec-core rspec-expectations rspec-mocks].each do |lib|
+#%w[rspec rspec-core rspec-expectations rspec-mocks].each do |lib|
+%w[rspec rspec-core rspec-mocks].each do |lib|
   library_path = File.expand_path("../../#{lib}", __FILE__)
   if File.exist?(library_path) && !ENV['USE_GIT_REPOS']
     gem lib, :path => library_path
@@ -12,6 +13,9 @@ branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
     gem lib, :git => "https://github.com/rspec/#{lib}.git", :branch => branch
   end
 end
+
+gem 'rspec-expectations', git: 'git://github.com/chaeokay/rspec-expectations.git',
+                          branch: 'chaeokay/display_trailing_newlines'
 
 ### dep for ci/coverage
 gem 'simplecov', '~> 0.8'
