@@ -181,19 +181,19 @@ module RSpec
         when Hash
           hash_to_string(object)
         when Array
-          PP.pp(ObjectFormatter.prepare_for_inspection(object), "")
+          PP.pp(ObjectFormatter.prepare_for_inspection(object), "".dup)
         when String
           object =~ /\n/ ? object : object.inspect
         else
-          PP.pp(object, "")
+          PP.pp(object, "".dup)
         end
       end
 
       def hash_to_string(hash)
         formatted_hash = ObjectFormatter.prepare_for_inspection(hash)
         formatted_hash.keys.sort_by { |k| k.to_s }.map do |key|
-          pp_key   = PP.singleline_pp(key, "")
-          pp_value = PP.singleline_pp(formatted_hash[key], "")
+          pp_key   = PP.singleline_pp(key, "".dup)
+          pp_value = PP.singleline_pp(formatted_hash[key], "".dup)
 
           "#{pp_key} => #{pp_value},"
         end.join("\n")

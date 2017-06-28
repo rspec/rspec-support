@@ -19,15 +19,15 @@ module RSpec::Support
       if String.method_defined?(:encoding)
         it "picks the default external encoding for incompatible encodings" do
 
-          str1 = "\xa1".force_encoding("iso-8859-1")
-          str2 = "\xa1\xa1".force_encoding("euc-jp")
+          str1 = forced_encoding("\xa1", "iso-8859-1")
+          str2 = forced_encoding("\xa1\xa1", "euc-jp")
           expect(Encoding.compatible?(str1, str2)).to be_nil
           expect(EncodedString.pick_encoding(str1, str2)).to eq(Encoding.default_external)
         end
 
         # https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/encoding/compatible_spec.rb#L31
         it "picks a compatible encoding" do
-          str1 = "abc".force_encoding Encoding::US_ASCII
+          str1 = forced_encoding "abc", Encoding::US_ASCII
           str2 = "\u3042".encode("utf-8")
           expect(EncodedString.pick_encoding(str1, str2)).to eq(Encoding::UTF_8)
         end
@@ -54,7 +54,7 @@ module RSpec::Support
           # see https://github.com/jruby/jruby/blob/c1be61a501/test/mri/ruby/test_transcode.rb#L13
           let(:source_encoding) { Encoding.find('US-ASCII') }
           let(:target_encoding) { Encoding.find('UTF-8') }
-          let(:string) { "I have a bad byté\x80".force_encoding(source_encoding) }
+          let(:string) { forced_encoding("I have a bad byté\x80", source_encoding) }
 
           it 'normally raises an EncodedString::InvalidByteSequenceError' do
             expect {
@@ -66,7 +66,7 @@ module RSpec::Support
           it 'replaces invalid byte sequences with the REPLACE string', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
-            expected_string = "I have a bad byt#{replacement}".force_encoding(target_encoding)
+            expected_string = forced_encoding("I have a bad byt#{replacement}", target_encoding)
             expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
@@ -75,7 +75,7 @@ module RSpec::Support
           # see https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/string/shared/encode.rb#L12
           let(:source_encoding) { Encoding.find('ASCII-8BIT') }
           let(:no_converter_encoding) { Encoding::Emacs_Mule }
-          let(:string) { "\x80".force_encoding(source_encoding) }
+          let(:string) { forced_encoding("\x80", source_encoding) }
 
           it 'normally raises an Encoding::ConverterNotFoundError' do
             expect {
@@ -88,13 +88,13 @@ module RSpec::Support
           if RUBY_VERSION < '2.1'
             it 'does nothing' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-              expected_string  = "\x80".force_encoding(no_converter_encoding)
+              expected_string  = forced_encoding("\x80", no_converter_encoding)
               expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
             end
           else
             it 'forces the encoding and replaces invalid characters with the REPLACE string' do
               resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-              expected_string  = EncodedString::REPLACE.dup.force_encoding(no_converter_encoding)
+              expected_string  = forced_encoding(EncodedString::REPLACE, no_converter_encoding)
               expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
             end
 
@@ -112,7 +112,7 @@ module RSpec::Support
         context 'when there is an undefined conversion to the target encoding' do
           let(:source_encoding) { Encoding.find('ISO-8859-1') }
           let(:incompatible_encoding) { Encoding.find('EUC-JP') }
-          let(:string) { "\xa0 hi I am not going to work".force_encoding(source_encoding) }
+          let(:string) { forced_encoding("\xa0 hi I am not going to work", source_encoding) }
 
           it 'normally raises an Encoding::UndefinedConversionError' do
             expect {
@@ -123,7 +123,7 @@ module RSpec::Support
           it 'replaces all undefines conversions with the REPLACE string' do
             resulting_string = build_encoded_string(string, incompatible_encoding).to_s
             replacement = EncodedString::REPLACE
-            expected_string = "#{replacement} hi I am not going to work".force_encoding('EUC-JP')
+            expected_string = forced_encoding("#{replacement} hi I am not going to work", 'EUC-JP')
             expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
@@ -134,20 +134,20 @@ module RSpec::Support
 
       describe '#<<' do
         context 'with strings that can be converted to the target encoding' do
-          let(:valid_ascii_string) { "abcde".force_encoding("ASCII-8BIT") }
-          let(:valid_unicode_string) { utf_8_euro_symbol.force_encoding('UTF-8') }
+          let(:valid_ascii_string) { forced_encoding("abcde", "ASCII-8BIT") }
+          let(:valid_unicode_string) { forced_encoding(utf_8_euro_symbol, 'UTF-8') }
 
           it 'encodes and appends the string' do
             resulting_string = build_encoded_string(valid_unicode_string, utf8_encoding) << valid_ascii_string
-            expected_string = "#{utf_8_euro_symbol}abcde".force_encoding('UTF-8')
+            expected_string = forced_encoding("#{utf_8_euro_symbol}abcde", 'UTF-8')
             expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
 
         context 'with a string that cannot be converted to the target encoding' do
           context 'when appending a string with an incompatible character encoding' do
-            let(:ascii_string) { ascii_arrow_symbol.force_encoding("ASCII-8BIT") }
-            let(:valid_unicode_string) { utf_8_euro_symbol.force_encoding('UTF-8') }
+            let(:ascii_string) { forced_encoding(ascii_arrow_symbol, "ASCII-8BIT") }
+            let(:valid_unicode_string) { forced_encoding(utf_8_euro_symbol, 'UTF-8') }
 
             it "normally raises an Encoding::CompatibilityError" do
               expect {
@@ -165,11 +165,11 @@ module RSpec::Support
 
         context 'with two ascii strings with a target encoding of UTF-8 ' do
           it 'has an encoding of UTF-8' do
-            ascii_string = 'abc'.force_encoding("ASCII-8BIT")
-            other_ascii_string = '123'.force_encoding("ASCII-8BIT")
+            ascii_string = forced_encoding('abc', "ASCII-8BIT")
+            other_ascii_string = forced_encoding('123', "ASCII-8BIT")
 
             resulting_string = build_encoded_string(ascii_string, utf8_encoding) << other_ascii_string
-            expected_string = 'abc123'.force_encoding(utf8_encoding)
+            expected_string = forced_encoding('abc123', utf8_encoding)
             expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
           end
         end
@@ -187,7 +187,7 @@ module RSpec::Support
           end
 
           it 'splits the string based on the delimiter accounting for encoding' do
-            delimiter = "b".force_encoding(utf8_encoding)
+            delimiter = forced_encoding("b", utf8_encoding)
             resulting_string = build_encoded_string(wrapped_string, utf8_encoding).split(delimiter)
             exp1, exp2 = sprintf(wrapped_string_template, EncodedString::REPLACE).force_encoding(utf8_encoding).split(delimiter)
             expect(resulting_string).to match [
@@ -197,7 +197,7 @@ module RSpec::Support
           end
 
           it 'handles invalidly encoded strings' do
-            source_string = "an\xAE\nother".force_encoding('US-ASCII')
+            source_string = forced_encoding("an\xAE\nother", 'US-ASCII')
             expect(
               build_encoded_string(source_string, utf8_encoding).split("\n")
             ).to eq([
@@ -229,7 +229,7 @@ module RSpec::Support
         end
 
         context 'when the string has an invalid byte sequence' do
-          let(:message_with_invalid_byte_sequence) { "\xEF \255 \xAD I have bad bytes".force_encoding(utf8_encoding) }
+          let(:message_with_invalid_byte_sequence) { forced_encoding("\xEF \255 \xAD I have bad bytes", utf8_encoding) }
 
           it 'normally raises an ArgumentError' do
             expect(message_with_invalid_byte_sequence).not_to be_valid_encoding
@@ -250,6 +250,10 @@ module RSpec::Support
 
       def build_encoded_string(string, target_encoding = string.encoding)
         EncodedString.new(string, target_encoding)
+      end
+
+      def forced_encoding(string, encoding)
+        string.dup.force_encoding(encoding)
       end
     else
 
