@@ -1,6 +1,11 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...master)
 
+Enhancements:
+
+* Improve compatibility with `--enable-frozen-string-literal` option
+  on Ruby 2.3+. (Pat Allan, #320)
+
 Bug Fixes:
 
 * Fix recursive const support to not blow up when given buggy classes
