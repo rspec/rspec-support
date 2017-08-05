@@ -73,6 +73,16 @@ module RSpec
       end
     end
 
+    # @api private
+    #
+    # Used internally to get a class of a given object, even if it does not respond to #class.
+    def self.class_of(object)
+      object.class
+    rescue NoMethodError
+      singleton_class = class << object; self; end
+      singleton_class.ancestors.find { |ancestor| !ancestor.equal?(singleton_class) }
+    end
+
     # A single thread local variable so we don't excessively pollute that namespace.
     def self.thread_local_data
       Thread.current[:__rspec] ||= {}

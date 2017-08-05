@@ -199,8 +199,7 @@ module RSpec
         end
 
         def klass
-          singleton_class = class << object; self; end
-          singleton_class.ancestors.find { |ancestor| !ancestor.equal?(singleton_class) }
+          Support.class_of(object)
         end
 
         # http://stackoverflow.com/a/2818916
