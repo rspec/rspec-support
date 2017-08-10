@@ -93,6 +93,11 @@ module RSpec
           it 'includes a conventional representation of the decimal' do
             in_sub_process_if_possible do
               require 'bigdecimal'
+              # Suppress warning on JRuby 1.7:
+              #   file:/Users/me/.rbenv/versions/jruby-1.7.26/lib/jruby.jar!/jruby/bigdecimal.rb:1
+              #   warning: loading in progress, circular require considered harmful - bigdecimal.jar
+              $stderr.reset!
+
               expect(formatted_decimal).to include('3.3 (#<BigDecimal')
             end
           end
@@ -136,6 +141,11 @@ module RSpec
           it 'formats the underlying object normally' do
             with_delegate_loaded do
               require 'bigdecimal'
+              # Suppress warning on JRuby 1.7:
+              #   file:/Users/me/.rbenv/versions/jruby-1.7.26/lib/jruby.jar!/jruby/bigdecimal.rb:1
+              #   warning: loading in progress, circular require considered harmful - bigdecimal.jar
+              $stderr.reset!
+
               expect(ObjectFormatter.format(delegator)).to eq "#<SimpleDelegator(#{formatted_decimal})>"
             end
           end
