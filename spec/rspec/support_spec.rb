@@ -118,6 +118,73 @@ module RSpec
       end
     end
 
+    describe '.class_of' do
+      subject(:klass) do
+        Support.class_of(object)
+      end
+
+      context 'with a String instance' do
+        let(:object) do
+          'foo'
+        end
+
+        it { should equal(String) }
+      end
+
+      context 'with a BasicObject instance' do
+        let(:object) do
+          basic_object_class.new
+        end
+
+        let(:basic_object_class) do
+          defined?(BasicObject) ? BasicObject : fake_basic_object_class
+        end
+
+        let(:fake_basic_object_class) do
+          Class.new do
+            def self.to_s
+              'BasicObject'
+            end
+
+            undef class, inspect, respond_to?
+          end
+        end
+
+        it { should equal(basic_object_class) }
+      end
+
+      context 'with nil' do
+        let(:object) do
+          nil
+        end
+
+        it { should equal(NilClass) }
+      end
+
+      context 'with an object having a singleton class' do
+        let(:object) do
+          object = 'foo'
+
+          def object.some_method
+          end
+
+          object
+        end
+
+        it 'returns its non-singleton ancestor class' do
+          expect(klass).to equal(String)
+        end
+      end
+
+      context 'with a Class instance' do
+        let(:object) do
+          String
+        end
+
+        it { should equal(Class) }
+      end
+    end
+
     describe "failure notification" do
       before { @failure_notifier = RSpec::Support.failure_notifier }
       after  { RSpec::Support.failure_notifier = @failure_notifier }

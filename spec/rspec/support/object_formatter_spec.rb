@@ -178,7 +178,7 @@ module RSpec
         end
       end
 
-      context 'with an object that does not respond to #inspect such as BasicObject' do
+      context 'with an object that does not respond to #class and #inspect such as BasicObject' do
         subject(:output) do
           ObjectFormatter.format(input)
         end
@@ -197,7 +197,7 @@ module RSpec
               'BasicObject'
             end
 
-            undef inspect, respond_to?
+            undef class, inspect, respond_to?
           end
         end
 

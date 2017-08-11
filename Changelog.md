@@ -5,6 +5,8 @@ Enhancements:
 
 * Improve compatibility with `--enable-frozen-string-literal` option
   on Ruby 2.3+. (Pat Allan, #320)
+* Add `Support.class_of` for extracting class of any object.
+  (Yuji Nakayama, #325)
 
 Bug Fixes:
 
