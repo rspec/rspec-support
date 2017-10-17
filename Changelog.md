@@ -1,5 +1,8 @@
 ### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...master)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.0...master)
+
+### 3.7.0 / 2017-05-04
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...v3.7.0)
 
 Enhancements:
 
