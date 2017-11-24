@@ -32,6 +32,18 @@ module RSpec
         end
       end
 
+      unless RUBY_VERSION == '1.8.7' # We can't count on the ordering of the hash on 1.8.7...
+        context 'with a hash object' do
+          let(:input) { { :c => "ccc", :a => "aaa", "b" => 'bbb' } }
+          let(:expected) { '{:a=>"aaa", "b"=>"bbb", :c=>"ccc"}' }
+
+          it 'sorts keys to ensure objects are always displayed the same way' do
+            formatted = ObjectFormatter.format(input)
+            expect(formatted).to eq expected
+          end
+        end
+      end
+
       context 'with Time objects' do
         let(:time) { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
         let(:formatted_time) { ObjectFormatter.format(time) }

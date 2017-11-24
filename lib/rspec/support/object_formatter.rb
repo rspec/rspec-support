@@ -73,11 +73,19 @@ module RSpec
 
       def prepare_hash(input_hash)
         with_entering_structure(input_hash) do
-          input_hash.inject({}) do |output_hash, key_and_value|
+          sort_hash_keys(input_hash).inject({}) do |output_hash, key_and_value|
             key, value = key_and_value.map { |element| prepare_element(element) }
             output_hash[key] = value
             output_hash
           end
+        end
+      end
+
+      def sort_hash_keys(input_hash)
+        if input_hash.keys.all? { |k| k.is_a?(String) || k.is_a?(Symbol) }
+          Hash[input_hash.sort_by { |k, _v| k.to_s }]
+        else
+          input_hash
         end
       end
 
