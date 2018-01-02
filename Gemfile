@@ -24,8 +24,8 @@ if RUBY_VERSION < '2.0.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|min
   gem 'ffi', '< 1.9.15' # allow ffi to be installed on older rubies on windows
 end
 
-if RUBY_VERSION >= '2.0' && RUBY_VERSION <= '2.1'
-  gem 'rubocop', "~> 0.23.0"
+if RUBY_VERSION >= '2.0'
+  gem 'rubocop', "~> 0.52.1"
 end
 
 eval File.read('Gemfile-custom') if File.exist?('Gemfile-custom')

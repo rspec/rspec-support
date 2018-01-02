@@ -109,7 +109,6 @@ module RSpec
         end
       else
         # RBX / JRuby et al support is unknown for keyword arguments
-        # rubocop:disable Lint/Eval
         begin
           eval("o = Object.new; def o.m(a: 1); end;"\
                " raise SyntaxError unless o.method(:m).parameters.include?([:key, :a])")
@@ -147,7 +146,6 @@ module RSpec
             false
           end
         end
-        # rubocop:enable Lint/Eval
       end
 
       def module_refinement_supported?

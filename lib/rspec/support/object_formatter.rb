@@ -5,7 +5,7 @@ module RSpec
     # Provide additional output details beyond what `inspect` provides when
     # printing Time, DateTime, or BigDecimal
     # @api private
-    class ObjectFormatter # rubocop:disable Style/ClassLength
+    class ObjectFormatter # rubocop:disable Metrics/ClassLength
       ELLIPSIS = "..."
 
       attr_accessor :max_formatted_output_length
@@ -31,15 +31,15 @@ module RSpec
 
       def format(object)
         if max_formatted_output_length.nil?
-          return prepare_for_inspection(object).inspect
+          prepare_for_inspection(object).inspect
         else
           formatted_object = prepare_for_inspection(object).inspect
           if formatted_object.length < max_formatted_output_length
-            return formatted_object
+            formatted_object
           else
             beginning = truncate_string formatted_object, 0, max_formatted_output_length / 2
             ending = truncate_string formatted_object, -max_formatted_output_length / 2, -1
-            return beginning + ELLIPSIS + ending
+            beginning + ELLIPSIS + ending
           end
         end
       end
