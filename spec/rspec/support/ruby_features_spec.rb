@@ -75,6 +75,10 @@ module RSpec
         end
       end
 
+      specify "#fork_supported? exists" do
+        RubyFeatures.fork_supported?
+      end
+
       specify "#supports_exception_cause? exists" do
         RubyFeatures.supports_exception_cause?
       end
