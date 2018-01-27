@@ -45,13 +45,16 @@ module RSpec
           @location ||= args.find { |arg| arg.is_a?(Location) }
         end
 
-        def each(&block)
+        # We use a loop here (instead of recursion) to prevent SystemStackError
+        def each
           return to_enum(__method__) unless block_given?
 
-          yield self
+          node_queue = []
+          node_queue << self
 
-          children.each do |child|
-            child.each(&block)
+          while (current_node = node_queue.shift)
+            yield current_node
+            node_queue.concat(current_node.children)
           end
         end
 
