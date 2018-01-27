@@ -56,6 +56,22 @@ module RSpec
     module RubyFeatures
       module_function
 
+      if Ruby.jruby?
+        # On JRuby 1.7 `--1.8` mode, `Process.respond_to?(:fork)` returns true,
+        # but when you try to fork, it raises an error:
+        #   NotImplementedError: fork is not available on this platform
+        #
+        # When we drop support for JRuby 1.7 and/or Ruby 1.8, we can drop
+        # this special case.
+        def fork_supported?
+          false
+        end
+      else
+        def fork_supported?
+          Process.respond_to?(:fork)
+        end
+      end
+
       def optional_and_splat_args_supported?
         Method.method_defined?(:parameters)
       end
