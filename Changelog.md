@@ -1,7 +1,12 @@
-### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.0...master)
+### 3.7.1 / 2018-01-29
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.0...v3.7.1)
 
-### 3.7.0 / 2017-05-04
+Bug Fixes:
+
+* Fix source extraction logic so that it does not trigger a `SystemStackError`
+  when processing deeply nested example groups. (Craig Bass, #343)
+
+### 3.7.0 / 2017-10-17
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...v3.7.0)
 
 Enhancements:
