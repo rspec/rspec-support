@@ -1,14 +1,20 @@
 ### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.0...master)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...master)
 
 Bug Fixes:
 
 * Order hash keys before diffing to improve diff accuracy when using mocked calls.
   (James Crisp, #334)
+
+### 3.7.1 / 2018-01-29
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.0...v3.7.1)
+
+Bug Fixes:
+
 * Fix source extraction logic so that it does not trigger a `SystemStackError`
   when processing deeply nested example groups. (Craig Bass, #343)
 
-### 3.7.0 / 2017-05-04
+### 3.7.0 / 2017-10-17
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.6.0...v3.7.0)
 
 Enhancements:
