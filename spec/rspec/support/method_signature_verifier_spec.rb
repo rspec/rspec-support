@@ -719,6 +719,16 @@ module RSpec
             expect(valid_non_kw_args?(2)).to eq false
           end
         end
+
+        if Ruby.jruby?
+          describe 'a single-argument Java method' do
+            let(:test_method) { Java::JavaLang::String.instance_method(:char_at) }
+
+            it 'validates against a single argument' do
+              expect(valid_non_kw_args?(1)).to eq true
+            end
+          end
+        end
       end
 
       let(:fake_matcher) { Object.new }

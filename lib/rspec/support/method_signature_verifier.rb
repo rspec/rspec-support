@@ -154,19 +154,26 @@ module RSpec
       INFINITY = 1 / 0.0
     end
 
-    # Some versions of JRuby have a nasty bug we have to work around :(.
-    # https://github.com/jruby/jruby/issues/2816
+    # JRuby has only partial support for UnboundMethod#parameters, so we fall back on using #arity
+    # https://github.com/jruby/jruby/issues/2816 and https://github.com/jruby/jruby/issues/2817
     if RSpec::Support::Ruby.jruby? &&
        RubyFeatures.optional_and_splat_args_supported? &&
-       Class.new { attr_writer :foo }.instance_method(:foo=).parameters == []
+       Java::JavaLang::String.instance_method(:char_at).parameters == []
 
       class MethodSignature < remove_const(:MethodSignature)
       private
 
         def classify_parameters
           super
-          return unless @method.parameters == [] && @method.arity == 1
-          @max_non_kw_args = @min_non_kw_args = 1
+          if (arity = @method.arity) != 0 && @method.parameters.empty?
+            if arity < 0
+              @min_non_kw_args = ~arity
+              @max_non_kw_args = INFINITY
+            else
+              @min_non_kw_args = arity
+              @max_non_kw_args = arity
+            end
+          end
         end
       end
     end
