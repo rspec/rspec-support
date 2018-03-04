@@ -154,25 +154,56 @@ module RSpec
       INFINITY = 1 / 0.0
     end
 
-    # JRuby has only partial support for UnboundMethod#parameters, so we fall back on using #arity
-    # https://github.com/jruby/jruby/issues/2816 and https://github.com/jruby/jruby/issues/2817
-    if RSpec::Support::Ruby.jruby? &&
-       RubyFeatures.optional_and_splat_args_supported? &&
-       Java::JavaLang::String.instance_method(:char_at).parameters == []
+    if RSpec::Support::Ruby.jruby?
+      # JRuby has only partial support for UnboundMethod#parameters, so we fall back on using #arity
+      # https://github.com/jruby/jruby/issues/2816 and https://github.com/jruby/jruby/issues/2817
+      if RubyFeatures.optional_and_splat_args_supported? &&
+         Java::JavaLang::String.instance_method(:char_at).parameters == []
 
-      class MethodSignature < remove_const(:MethodSignature)
-      private
+        class MethodSignature < remove_const(:MethodSignature)
+        private
 
-        def classify_parameters
-          super
-          if (arity = @method.arity) != 0 && @method.parameters.empty?
-            if arity < 0
-              @min_non_kw_args = ~arity
-              @max_non_kw_args = INFINITY
-            else
-              @min_non_kw_args = arity
-              @max_non_kw_args = arity
+          def classify_parameters
+            super
+            if (arity = @method.arity) != 0 && @method.parameters.empty?
+              if arity < 0
+                @min_non_kw_args = ~arity
+                @max_non_kw_args = INFINITY
+              else
+                @min_non_kw_args = arity
+                @max_non_kw_args = arity
+              end
             end
+          end
+        end
+      end
+
+      # JRuby used to always report -1 arity for Java proxy methods
+      if Java::JavaLang::String.instance_method(:char_at).arity == -1
+        class MethodSignature < remove_const(:MethodSignature)
+        private
+
+          def classify_parameters
+            super
+            if @method.arity == -1
+              arity = java_single_overload_arity
+              if arity < 0
+                @min_non_kw_args = ~arity
+                @max_non_kw_args = INFINITY
+              else
+                @min_non_kw_args = arity
+                @max_non_kw_args = arity
+              end
+            end
+          end
+
+          def java_single_overload_arity
+            return @method.arity unless @method.owner.respond_to?(:java_class)
+            java_instance_methods = @method.owner.java_class.java_instance_methods
+            compatible_overloads = java_instance_methods.select do |java_method|
+              @method == @method.owner.instance_method(java_method.name)
+            end
+            (compatible_overloads.size == 1) ? compatible_overloads.first.arity : @method.arity
           end
         end
       end
