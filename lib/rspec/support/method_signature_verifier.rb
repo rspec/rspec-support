@@ -33,6 +33,18 @@ module RSpec
           optional_max_arg_count <= max_non_kw_args
       end
 
+      def classify_arity(arity=@method.arity)
+        if arity < 0
+          # `~` inverts the one's complement and gives us the
+          # number of required args
+          @min_non_kw_args = ~arity
+          @max_non_kw_args = INFINITY
+        else
+          @min_non_kw_args = arity
+          @max_non_kw_args = arity
+        end
+      end
+
       if RubyFeatures.optional_and_splat_args_supported?
         def description
           @description ||= begin
@@ -137,18 +149,7 @@ module RSpec
           false
         end
 
-        def classify_parameters
-          arity = @method.arity
-          if arity < 0
-            # `~` inverts the one's complement and gives us the
-            # number of required args
-            @min_non_kw_args = ~arity
-            @max_non_kw_args = INFINITY
-          else
-            @min_non_kw_args = arity
-            @max_non_kw_args = arity
-          end
-        end
+        alias_method :classify_parameters, :classify_arity
       end
 
       INFINITY = 1 / 0.0
@@ -166,13 +167,7 @@ module RSpec
           def classify_parameters
             super
             if (arity = @method.arity) != 0 && @method.parameters.empty?
-              if arity < 0
-                @min_non_kw_args = ~arity
-                @max_non_kw_args = INFINITY
-              else
-                @min_non_kw_args = arity
-                @max_non_kw_args = arity
-              end
+              classify_arity(arity)
             end
           end
         end
@@ -185,25 +180,14 @@ module RSpec
 
           def classify_parameters
             super
-            if @method.arity == -1
-              arity = java_single_overload_arity
-              if arity < 0
-                @min_non_kw_args = ~arity
-                @max_non_kw_args = INFINITY
-              else
-                @min_non_kw_args = arity
-                @max_non_kw_args = arity
-              end
-            end
-          end
-
-          def java_single_overload_arity
-            return @method.arity unless @method.owner.respond_to?(:java_class)
+            return unless @method.arity == -1 && @method.owner.respond_to?(:java_class)
             java_instance_methods = @method.owner.java_class.java_instance_methods
             compatible_overloads = java_instance_methods.select do |java_method|
               @method == @method.owner.instance_method(java_method.name)
             end
-            (compatible_overloads.size == 1) ? compatible_overloads.first.arity : @method.arity
+            if compatible_overloads.size == 1
+              classify_arity(compatible_overloads.first.arity)
+            end
           end
         end
       end
