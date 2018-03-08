@@ -173,7 +173,13 @@ module RSpec
         end
       end
 
-      # JRuby used to always report -1 arity for Java proxy methods
+      # JRuby used to always report -1 arity for Java proxy methods.
+      # The workaround essentially makes use of Java's introspection to figure
+      # out matching methods (which could be more than one partly because Java
+      # supports multiple overloads, and partly because JRuby introduces
+      # aliases to make method names look more Rubyesque). If there is only a
+      # single match, we can use that methods arity directly instead of the
+      # default -1 arity.
       if Java::JavaLang::String.instance_method(:char_at).arity == -1
         class MethodSignature < remove_const(:MethodSignature)
         private
