@@ -180,13 +180,19 @@ module RSpec
       # aliases to make method names look more Rubyesque). If there is only a
       # single match, we can use that methods arity directly instead of the
       # default -1 arity.
+      #
+      # This workaround only works for Java proxy methods, and in order to
+      # support regular methods and blocks, we need to be careful about calling
+      # owner and java_class as they might not be available
       if Java::JavaLang::String.instance_method(:char_at).arity == -1
         class MethodSignature < remove_const(:MethodSignature)
         private
 
           def classify_parameters
             super
-            return unless @method.arity == -1 && @method.owner.respond_to?(:java_class)
+            return unless @method.arity == -1
+            return unless @method.respond_to?(:owner)
+            return unless @method.owner.respond_to?(:java_class)
             java_instance_methods = @method.owner.java_class.java_instance_methods
             compatible_overloads = java_instance_methods.select do |java_method|
               @method == @method.owner.instance_method(java_method.name)
