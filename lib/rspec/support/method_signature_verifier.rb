@@ -285,7 +285,7 @@ module RSpec
         @arbitrary_kw_args = @unlimited_args = false
       end
 
-      def with_expectation(expectation) # rubocop:disable MethodLength
+      def with_expectation(expectation) # rubocop:disable MethodLength, Metrics/PerceivedComplexity
         return self unless MethodSignatureExpectation === expectation
 
         if expectation.empty?
