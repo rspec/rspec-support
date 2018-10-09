@@ -187,13 +187,19 @@ module RSpec
       if Java::JavaLang::String.instance_method(:char_at).arity == -1
         class MethodSignature < remove_const(:MethodSignature)
         private
+          def java_instance_methods
+            if @method.owner.java_class.public?
+              [@method.owner.java_class]
+            else
+              @method.owner.java_class.interfaces + [@method.owner.java_class.generic_superclass]
+            end.select(&:public?).map(&:java_instance_methods).flatten
+          end
 
           def classify_parameters
             super
             return unless @method.arity == -1
             return unless @method.respond_to?(:owner)
             return unless @method.owner.respond_to?(:java_class)
-            java_instance_methods = @method.owner.java_class.java_instance_methods
             compatible_overloads = java_instance_methods.select do |java_method|
               @method == @method.owner.instance_method(java_method.name)
             end
