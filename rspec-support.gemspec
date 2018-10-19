@@ -13,6 +13,14 @@ Gem::Specification.new do |spec|
   spec.description   = "Support utilities for RSpec gems"
   spec.license       = "MIT"
 
+  spec.metadata = {
+    'bug_tracker_uri'   => 'https://github.com/rspec/rspec-support/issues',
+    'changelog_uri'     => "https://github.com/rspec/rspec-support/blob/v#{spec.version}/Changelog.md",
+    'documentation_uri' => 'https://rspec.info/documentation/',
+    'mailing_list_uri'  => 'https://groups.google.com/forum/#!forum/rspec',
+    'source_code_uri'   => 'https://github.com/rspec/rspec-support',
+  }
+
   spec.files         = `git ls-files -- lib/*`.split("\n")
   spec.files         += %w[README.md LICENSE.md Changelog.md]
   spec.test_files    = []
