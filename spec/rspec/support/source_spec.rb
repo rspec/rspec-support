@@ -79,10 +79,19 @@ module RSpec::Support
     describe '#nodes_by_line_number' do
       it 'returns a hash containing nodes for each line number' do
         expect(source.nodes_by_line_number).to match(
-          1 => [
-            an_object_having_attributes(:type => :@int),
-            an_object_having_attributes(:type => :@ident)
-          ],
+          1 =>
+            if RUBY_VERSION >= '2.6.0'
+              [
+                an_object_having_attributes(:type => :@int),
+                an_object_having_attributes(:type => :@period),
+                an_object_having_attributes(:type => :@ident)
+              ]
+            else
+              [
+                an_object_having_attributes(:type => :@int),
+                an_object_having_attributes(:type => :@ident)
+              ]
+            end,
           2 => [
             an_object_having_attributes(:type => :@ident),
             an_object_having_attributes(:type => :@ident)
