@@ -14,14 +14,22 @@ module RSpec
       # stubbed out within tests.
       class File
         class << self
-          [:read, :expand_path].each do |method_name|
-            define_method(method_name, &::File.method(method_name))
+          define_method(:expand_path, &::File.method(:expand_path))
+
+          if RUBY_VERSION.to_f > 1.9
+            define_method(:binread, &::File.method(:binread))
+          else
+            define_method(:binread, &::File.method(:read))
           end
         end
       end
 
       def self.from_file(path)
-        source = File.read(path)
+        # We must use `binread` here, there is no spec for this behaviour
+        # as its proven troublesome to replicate within our spec suite, but
+        # to manually verify run:
+        # `bundle exec rspec spec/support/source_broken_example`
+        source = File.binread(path)
         new(source, path)
       end
 
