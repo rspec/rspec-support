@@ -140,6 +140,15 @@ module RSpec
           end
         end
 
+        it 'includes the delegator class in the description even when protected' do
+          with_delegate_loaded do
+            protected_delegator = Class.new(SimpleDelegator) { protected :__getobj__ }
+            expect(
+              ObjectFormatter.format(protected_delegator.new(object))
+            ).to eq "#<#{protected_delegator.inspect}(#{object.inspect})>"
+          end
+        end
+
         it 'does not require Delegator to be defined' do
           hide_const("Delegator")
           expect(ObjectFormatter.format(object)).to eq object.inspect
