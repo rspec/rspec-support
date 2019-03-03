@@ -225,7 +225,7 @@ module RSpec
         end
 
         def inspect
-          "#<#{object.class}(#{formatter.format(object.__getobj__)})>"
+          "#<#{object.class}(#{formatter.format(object.send(:__getobj__))})>"
         end
       end
 
