@@ -1,5 +1,5 @@
-### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.0...master)
+### 3.8.1 / 2019-03-03
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.0...v3.8.1)
 
 Bug Fixes:
 
