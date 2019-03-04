@@ -366,6 +366,98 @@ module RSpec
           end
         end
 
+        if RubyFeatures.kw_args_supported?
+          describe 'a method with optional argument and keyword arguments' do
+            eval <<-RUBY
+              def arity_kw(x, y = {}, z:2); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw) }
+
+            it 'does not require any of the arguments' do
+              expect(valid?(nil)).to eq(true)
+              expect(valid?(nil, nil)).to eq(true)
+            end
+
+            it 'does not allow an invalid keyword arguments' do
+              expect(valid?(nil, nil, :a => 1)).to eq(false)
+              expect(valid?(nil, :a => 1)).to eq(false)
+            end
+
+            it 'allows Hash containing strings as last argument' do
+              expect(valid?(nil, 'a' => 1)).to eq(true)
+            end
+
+            it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+              expect(error_for(nil, nil, :a => 0)).to \
+                eq("Invalid keyword arguments provided: a")
+            end
+
+            it 'describes invalid arity precisely' do
+              expect(error_for()).to \
+                eq("Wrong number of arguments. Expected 1 to 2, got 0.")
+            end
+
+            it 'does not blow up when given a BasicObject as the last arg' do
+              expect(valid?(BasicObject.new)).to eq(true)
+            end
+
+            it 'does not mutate the provided args array' do
+              args = [nil, nil, { :y => 1 }]
+              described_class.new(signature, args).valid?
+              expect(args).to eq([nil, nil, { :y => 1 }])
+            end
+
+            it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+              expect(signature_description).to eq("arity of 1 to 2 and optional keyword args (:z)")
+            end
+
+            it "indicates the optional keyword args" do
+              expect(signature.optional_kw_args).to contain_exactly(:z)
+            end
+
+            it "indicates it has no required keyword args" do
+              expect(signature.required_kw_args).to eq([])
+            end
+
+            describe 'with an expectation object' do
+              it 'matches the exact arity' do
+                expect(validate_expectation 0).to eq(false)
+                expect(validate_expectation 1).to eq(true)
+                expect(validate_expectation 2).to eq(true)
+              end
+
+              it 'matches the exact range' do
+                expect(validate_expectation 0, 1).to eq(false)
+                expect(validate_expectation 1, 1).to eq(true)
+                expect(validate_expectation 1, 2).to eq(true)
+                expect(validate_expectation 1, 3).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+              end
+
+              it 'matches optional keywords with the correct arity' do
+                expect(validate_expectation :z).to eq(false)
+                expect(validate_expectation 1, :z).to eq(true) # Are we OK with that?
+                expect(validate_expectation 1, 2, :z).to eq(true)
+                expect(validate_expectation 1, 2, :y).to eq(false)
+              end
+
+              it 'does not match invalid keywords' do
+                expect(validate_expectation :w).to eq(false)
+
+                expect(validate_expectation 2, :w).to eq(false)
+              end
+
+              it 'does not match arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(false)
+              end
+            end
+          end
+        end
+
         if RubyFeatures.required_kw_args_supported?
           describe 'a method with required keyword arguments' do
             eval <<-RUBY
