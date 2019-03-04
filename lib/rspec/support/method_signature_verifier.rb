@@ -361,7 +361,14 @@ module RSpec
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
-                    args.pop.keys
+                    last = args.pop
+                    non_kw_args = last.reject { |k, _| k.is_a?(Symbol) }
+                    if non_kw_args.empty?
+                      last.keys
+                    else
+                      args << non_kw_args
+                      last.select { |k, _| k.is_a?(Symbol) }.keys
+                    end
                   else
                     []
                   end
