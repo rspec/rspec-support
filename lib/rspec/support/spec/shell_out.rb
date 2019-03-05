@@ -65,7 +65,9 @@ module RSpec
           # This is a JRuby file that generates warnings on 9.0.3.0
           l =~ %r{lib/ruby/stdlib/jar} ||
           # This is a JRuby file that generates warnings on 9.1.7.0
-          l =~ %r{org/jruby/RubyKernel\.java}
+          l =~ %r{org/jruby/RubyKernel\.java} ||
+          # Remove blank lines
+          l == "" || l.nil?
         end.join("\n")
       end
 
