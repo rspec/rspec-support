@@ -59,10 +59,13 @@ module RSpec
           l =~ %r{bundler/source/rubygems} ||
           # Ignore bundler + rubygems warning.
           l =~ %r{site_ruby/\d\.\d\.\d/rubygems} ||
+          l =~ %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/rubygems} ||
           # This is required for windows for some reason
           l =~ %r{lib/bundler/rubygems} ||
           # This is a JRuby file that generates warnings on 9.0.3.0
-          l =~ %r{lib/ruby/stdlib/jar}
+          l =~ %r{lib/ruby/stdlib/jar} ||
+          # This is a JRuby file that generates warnings on 9.1.7.0
+          l =~ %r{org/jruby/RubyKernel\.java}
         end.join("\n")
       end
 
