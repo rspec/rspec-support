@@ -5,6 +5,8 @@ Bug Fixes:
 
 * Ensure that inspecting a `SimpleDelegator` based object works regardless of
   visibilty of the `__getobj__` method. (Jon Rowe, #369)
+* Ensure that optional hash arguments are recognised correctly vs keyword
+  arguments. (Evgeni Dzhelyov, #366)
 
 ### 3.8.0 / 2018-08-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...v3.8.0)
