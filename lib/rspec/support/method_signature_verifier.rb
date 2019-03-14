@@ -77,6 +77,8 @@ module RSpec
           given_kw_args - @allowed_kw_args
         end
 
+        # If the last argument is Hash, Ruby will treat only symbol keys as keyword arguments
+        # the rest will be grouped in another Hash and passed as positional argument.
         def has_kw_args_in?(args)
           Hash === args.last &&
             could_contain_kw_args?(args) &&
@@ -87,6 +89,7 @@ module RSpec
         # contain keyword arguments?
         def could_contain_kw_args?(args)
           return false if args.count <= min_non_kw_args
+
           @allows_any_kw_args || @allowed_kw_args.any?
         end
 
@@ -359,7 +362,14 @@ module RSpec
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
-                    args.pop.keys
+                    last = args.pop
+                    non_kw_args = last.reject { |k, _| k.is_a?(Symbol) }
+                    if non_kw_args.empty?
+                      last.keys
+                    else
+                      args << non_kw_args
+                      last.select { |k, _| k.is_a?(Symbol) }.keys
+                    end
                   else
                     []
                   end
