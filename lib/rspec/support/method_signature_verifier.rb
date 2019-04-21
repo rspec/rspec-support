@@ -82,7 +82,7 @@ module RSpec
         def has_kw_args_in?(args)
           Hash === args.last &&
             could_contain_kw_args?(args) &&
-            args.last.keys.any? { |x| x.is_a?(Symbol) }
+            (args.last.empty? || args.last.keys.any? { |x| x.is_a?(Symbol) })
         end
 
         # Without considering what the last arg is, could it
