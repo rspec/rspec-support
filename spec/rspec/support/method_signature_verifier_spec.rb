@@ -732,6 +732,7 @@ module RSpec
               expect(valid?(nil, :x => 1)).to eq(true)
               expect(valid?(nil, :x => 1, :y => 2)).to eq(true)
               expect(valid?(:x => 1)).to eq(true)
+              expect(valid?(nil, {})).to eq(true)
 
               expect(valid?).to eq(false)
               expect(valid?(nil, nil)).to eq(false)
