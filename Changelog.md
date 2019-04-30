@@ -7,6 +7,8 @@ Bug Fixes:
   visibilty of the `__getobj__` method. (Jon Rowe, #369)
 * Ensure that optional hash arguments are recognised correctly vs keyword
   arguments. (Evgeni Dzhelyov, #366)
+* Ensure that an empty hash is recognised as empty keyword arguments when
+  applicable. (Thomas Walpole, #375)
 
 ### 3.8.0 / 2018-08-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...v3.8.0)
