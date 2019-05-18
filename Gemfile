@@ -24,9 +24,10 @@ if RUBY_VERSION < '2.0.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|min
   gem 'ffi', '< 1.9.15' # allow ffi to be installed on older rubies on windows
 elsif RUBY_VERSION < '1.9'
   gem 'ffi', '< 1.9.19' # ffi dropped Ruby 1.8 support in 1.9.19
-else
-  gem 'ffi', '~> 1.9.25'
+elsif RUBY_VERSION < '2.0'
+  gem 'ffi', '< 1.11.0' # ffi dropped Ruby 1.9 support in 1.11.0
 end
+
 
 # No need to run rubocop on earlier versions
 if RUBY_VERSION >= '2.4' && RUBY_ENGINE == 'ruby'
