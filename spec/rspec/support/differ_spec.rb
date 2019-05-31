@@ -468,6 +468,13 @@ EOD
             expect(diff).to be_diffed_as(expected_diff)
           end
         end
+
+        context 'when expected or actual is false' do
+          it 'generates a diff' do
+            expect(differ.diff(true, false)).to_not be_empty
+            expect(differ.diff(false, true)).to_not be_empty
+          end
+        end
       end
     end
   end
