@@ -9,6 +9,8 @@ Bug Fixes:
   arguments. (Evgeni Dzhelyov, #366)
 * Ensure that an empty hash is recognised as empty keyword arguments when
   applicable. (Thomas Walpole, #375)
+* Ensure that diffing truthy values produce diffs consistently.
+  (#377, #377)
 
 ### 3.8.0 / 2018-08-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...v3.8.0)
