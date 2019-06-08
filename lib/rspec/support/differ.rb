@@ -11,7 +11,7 @@ module RSpec
       def diff(actual, expected)
         diff = ""
 
-        if actual && expected
+        unless actual.nil? || expected.nil?
           if all_strings?(actual, expected)
             if any_multiline_strings?(actual, expected)
               diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
