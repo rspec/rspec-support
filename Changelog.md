@@ -1,3 +1,15 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.1...master)
+
+Bug Fixes:
+
+* Ensure that optional hash arguments are recognised correctly vs keyword
+  arguments. (Evgeni Dzhelyov, #366)
+* Ensure that an empty hash is recognised as empty keyword arguments when
+  applicable. (Thomas Walpole, #375)
+* Ensure that diffing truthy values produce diffs consistently.
+  (#377, #377)
+  
 ### 3.8.1 / 2019-03-03
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.0...v3.8.1)
 
@@ -5,12 +17,6 @@ Bug Fixes:
 
 * Ensure that inspecting a `SimpleDelegator` based object works regardless of
   visibilty of the `__getobj__` method. (Jon Rowe, #369)
-* Ensure that optional hash arguments are recognised correctly vs keyword
-  arguments. (Evgeni Dzhelyov, #366)
-* Ensure that an empty hash is recognised as empty keyword arguments when
-  applicable. (Thomas Walpole, #375)
-* Ensure that diffing truthy values produce diffs consistently.
-  (#377, #377)
 
 ### 3.8.0 / 2018-08-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...v3.8.0)
