@@ -1,3 +1,15 @@
+### 3.8.2 / 2019-06-10
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.1...v3.8.2)
+
+Bug Fixes:
+
+* Ensure that optional hash arguments are recognised correctly vs keyword
+  arguments. (Evgeni Dzhelyov, #366)
+* Ensure that an empty hash is recognised as empty keyword arguments when
+  applicable. (Thomas Walpole, #375)
+* Ensure that diffing truthy values produce diffs consistently.
+  (Lucas Nestor, #377)
+
 ### 3.8.1 / 2019-03-03
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.0...v3.8.1)
 
