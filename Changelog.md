@@ -1,3 +1,9 @@
+### 3.9.0 / 2019-10-07
+
+*NO CHANGES*
+
+Version 3.9.0 was released to allow other RSpec gems to release 3.9.0.
+
 ### 3.8.3 / 2019-10-02
 
 Bug Fixes:
