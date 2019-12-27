@@ -95,6 +95,10 @@ module RSpec
         RubyFeatures.supports_rebinding_module_methods?
       end
 
+      specify "#supports_taint?" do
+        RubyFeatures.supports_taint?
+      end
+
       specify "#caller_locations_supported? exists" do
         RubyFeatures.caller_locations_supported?
         if Ruby.mri?
