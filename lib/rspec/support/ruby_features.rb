@@ -90,6 +90,15 @@ module RSpec
         end
       end
 
+      if RUBY_VERSION.to_f >= 2.7
+        def supports_taint?
+          false
+        end
+      else
+        def supports_taint?
+          true
+        end
+      end
       ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
 
       ripper_requirements.push(false) if Ruby.rbx?
