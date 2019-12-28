@@ -1,4 +1,5 @@
 ### 3.9.1 / 2019-12-28
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.0...v3.9.1)
 
 Bug Fixes:
 
