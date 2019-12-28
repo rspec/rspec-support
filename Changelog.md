@@ -1,3 +1,11 @@
+### 3.9.1 / 2019-12-28
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.0...v3.9.1)
+
+Bug Fixes:
+
+* Remove warning caused by keyword arguments on Ruby 2.7.0.
+  (Jon Rowe, #392)
+
 ### 3.9.0 / 2019-10-07
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.3...v3.9.0)
 
