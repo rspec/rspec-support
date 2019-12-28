@@ -1,3 +1,10 @@
+### 3.9.1 / 2019-12-28
+
+Bug Fixes:
+
+* Remove warning caused by keyword arguments on Ruby 2.7.0.
+  (Jon Rowe, #392)
+
 ### 3.9.0 / 2019-10-07
 
 *NO CHANGES*
