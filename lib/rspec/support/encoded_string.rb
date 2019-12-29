@@ -112,34 +112,9 @@ module RSpec
           string = remove_invalid_bytes(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          encode_unconvertable_bytes(string)
+          string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES)
         rescue Encoding::ConverterNotFoundError
-          encode_no_converter(string.dup.force_encoding(@encoding))
-        end
-
-        # On Ruby 2.7.0 keyword arguments mixed with conventional cause a warning to
-        # be issued requiring us to be explicit by using a ** to pass the hash as
-        # keyword arguments. Any keyword argument supporting Ruby supports this.
-        if RubyFeatures.kw_args_supported?
-          # Note on non keyword supporting Ruby ** causes a syntax error hence
-          # we must use eval. To be removed in RSpec 4.
-          binding.eval(<<-CODE, __FILE__, __LINE__)
-          def encode_unconvertable_bytes(string)
-            string.encode(@encoding, **ENCODE_UNCONVERTABLE_BYTES)
-          end
-
-          def encode_no_converter(string)
-            string.encode(**ENCODE_NO_CONVERTER)
-          end
-          CODE
-        else
-          def encode_unconvertable_bytes(string)
-            string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES)
-          end
-
-          def encode_no_converter(string)
-            string.encode(ENCODE_NO_CONVERTER)
-          end
+          string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER)
         end
 
         # Prevents raising ArgumentError
