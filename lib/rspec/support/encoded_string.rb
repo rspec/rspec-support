@@ -117,8 +117,6 @@ module RSpec
           encode_no_converter(string.dup.force_encoding(@encoding))
         end
 
-        private
-
         # On Ruby 2.7.0 keyword arguments mixed with conventional cause a warning to
         # be issued requiring us to be explicit by using a ** to pass the hash as
         # keyword arguments. Any keyword argument supporting Ruby supports this.
@@ -143,8 +141,6 @@ module RSpec
             string.encode(ENCODE_NO_CONVERTER)
           end
         end
-
-        public
 
         # Prevents raising ArgumentError
         if String.method_defined?(:scrub)
