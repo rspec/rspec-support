@@ -112,9 +112,15 @@ module RSpec
           string = remove_invalid_bytes(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES)
+          # ENCODE_UNCONVERTABLE_BYTES inlined here to avoid warnings on Ruby 2.7
+          string.encode(@encoding,
+                        :invalid => :replace,
+                        :undef   => :replace,
+                        :replace => REPLACE)
         rescue Encoding::ConverterNotFoundError
-          string.dup.force_encoding(@encoding).encode(ENCODE_NO_CONVERTER)
+          # ENCODE_NO_CONVERTER inlined here to avoid warnings on Ruby 2.7
+          string.dup.force_encoding(@encoding).encode(:invalid => :replace,
+                                                      :replace => REPLACE)
         end
 
         # Prevents raising ArgumentError
