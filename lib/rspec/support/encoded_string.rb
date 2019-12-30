@@ -5,31 +5,11 @@ module RSpec
       # Reduce allocations by storing constants.
       UTF_8    = "UTF-8"
       US_ASCII = "US-ASCII"
-      #
-      # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
-      # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
-      # https://www.ruby-forum.com/topic/6861247
-      # https://twitter.com/nalsh/status/553413844685438976
-      #
-      # For example, given:
-      #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
-      #
-      # On MRI 2.1 or above: 63  # '?'
-      # else               : 128 # "\x80"
-      #
+
       # Ruby's default replacement string is:
       #   U+FFFD ("\xEF\xBF\xBD"), for Unicode encoding forms, else
       #   ?      ("\x3F")
       REPLACE = "?"
-      ENCODE_UNCONVERTABLE_BYTES =  {
-        :invalid => :replace,
-        :undef   => :replace,
-        :replace => REPLACE
-      }
-      ENCODE_NO_CONVERTER = {
-        :invalid => :replace,
-        :replace => REPLACE
-      }
 
       def initialize(string, encoding=nil)
         @encoding = encoding
@@ -112,34 +92,25 @@ module RSpec
           string = remove_invalid_bytes(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          encode_unconvertable_bytes(string)
+          # Originally defined as a constant to avoid uneeded allocations, this hash must
+          # be defined inline (without {}) to avoid warnings on Ruby 2.7
+          #
+          # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
+          # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
+          # https://www.ruby-forum.com/topic/6861247
+          # https://twitter.com/nalsh/status/553413844685438976
+          #
+          # For example, given:
+          #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
+          #
+          # On MRI 2.1 or above: 63  # '?'
+          # else               : 128 # "\x80"
+          #
+          string.encode(@encoding, :invalid => :replace, :undef => :replace, :replace => REPLACE)
         rescue Encoding::ConverterNotFoundError
-          encode_no_converter(string.dup.force_encoding(@encoding))
-        end
-
-        # On Ruby 2.7.0 keyword arguments mixed with conventional cause a warning to
-        # be issued requiring us to be explicit by using a ** to pass the hash as
-        # keyword arguments. Any keyword argument supporting Ruby supports this.
-        if RubyFeatures.kw_args_supported?
-          # Note on non keyword supporting Ruby ** causes a syntax error hence
-          # we must use eval. To be removed in RSpec 4.
-          binding.eval(<<-CODE, __FILE__, __LINE__)
-          def encode_unconvertable_bytes(string)
-            string.encode(@encoding, **ENCODE_UNCONVERTABLE_BYTES)
-          end
-
-          def encode_no_converter(string)
-            string.encode(**ENCODE_NO_CONVERTER)
-          end
-          CODE
-        else
-          def encode_unconvertable_bytes(string)
-            string.encode(@encoding, ENCODE_UNCONVERTABLE_BYTES)
-          end
-
-          def encode_no_converter(string)
-            string.encode(ENCODE_NO_CONVERTER)
-          end
+          # Originally defined as a constant to avoid uneeded allocations, this hash must
+          # be defined inline (without {}) to avoid warnings on Ruby 2.7
+          string.dup.force_encoding(@encoding).encode(:invalid => :replace, :replace => REPLACE)
         end
 
         # Prevents raising ArgumentError
