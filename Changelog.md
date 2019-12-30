@@ -1,3 +1,10 @@
+### 3.9.2 / 2019-12-30
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.1...v3.9.2)
+
+Bug Fixes:
+
+* Remove unneeded eval. (Matijs van Zuijlen, #394)
+
 ### 3.9.1 / 2019-12-28
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.0...v3.9.1)
 
