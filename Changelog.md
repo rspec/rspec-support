@@ -14,12 +14,14 @@ Bug Fixes:
   (Jon Rowe, #392)
 
 ### 3.9.0 / 2019-10-07
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.3...v3.9.0)
 
 *NO CHANGES*
 
 Version 3.9.0 was released to allow other RSpec gems to release 3.9.0.
 
 ### 3.8.3 / 2019-10-02
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.8.2...v3.8.3)
 
 Bug Fixes:
 
