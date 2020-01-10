@@ -111,7 +111,7 @@ module RSpec
           in_sub_process_if_possible do
             begin
               require 'ripper'
-              !!defined?(::Ripper)
+              !!defined?(::Ripper) && Ripper.respond_to?(:lex)
             rescue LoadError
               false
             end
