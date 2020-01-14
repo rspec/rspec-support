@@ -47,6 +47,10 @@ module RSpec
       def mri?
         !defined?(RUBY_ENGINE) || RUBY_ENGINE == 'ruby'
       end
+
+      def truffleruby?
+        defined?(RUBY_ENGINE) && RUBY_ENGINE == 'truffleruby'
+      end
     end
 
     # @api private
@@ -101,7 +105,7 @@ module RSpec
       end
       ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
 
-      ripper_requirements.push(false) if Ruby.rbx?
+      ripper_requirements.push(false) if Ruby.rbx? || Ruby.truffleruby?
 
       if Ruby.jruby?
         ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
