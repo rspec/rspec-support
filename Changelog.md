@@ -1,3 +1,10 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.2...master)
+
+Bug Fixes:
+
+* Mark ripper as unsupported on Truffle Ruby. (Brandon Fish, #395)
+
 ### 3.9.2 / 2019-12-30
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.1...v3.9.2)
 
