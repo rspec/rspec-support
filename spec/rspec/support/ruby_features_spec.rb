@@ -120,7 +120,8 @@ module RSpec
 
         def ripper_works_correctly?
           ripper_reports_correct_line_number? &&
-            ripper_can_parse_source_including_keywordish_symbol?
+            ripper_can_parse_source_including_keywordish_symbol? &&
+            ripper_can_parse_source_referencing_keyword_arguments?
         end
 
         # https://github.com/jruby/jruby/issues/3386
@@ -141,6 +142,25 @@ module RSpec
             require 'ripper'
             sexp = ::Ripper.sexp(':if')
             !sexp.nil?
+          end
+        end
+
+        # https://github.com/jruby/jruby/issues/5209
+        def ripper_can_parse_source_referencing_keyword_arguments?
+          in_sub_process_if_possible do
+            require 'ripper'
+            # It doesn't matter if keyword arguments don't exist.
+            if Ruby.mri? || Ruby.jruby?
+              if RUBY_VERSION < '2.0'
+                true
+              else
+                begin
+                  !::Ripper.sexp('def a(**kw_args); end').nil?
+                rescue NoMethodError
+                  false
+                end
+              end
+            end
           end
         end
 
