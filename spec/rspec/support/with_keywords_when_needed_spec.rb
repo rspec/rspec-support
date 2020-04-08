@@ -22,7 +22,7 @@ module RSpec::Support
         run(klass, 42) { |arg| check_argument(arg) }
       end
 
-      it "will run a block with a hash with out keyword arguments" do
+      it "will run a block with a hash without keyword arguments" do
         run(klass, "value" => 42) { |arg| check_argument(arg["value"]) }
       end
 
