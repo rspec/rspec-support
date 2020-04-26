@@ -43,7 +43,15 @@ module RSpec
 
     if defined? ::Mutex
       # On 1.9 and up, this is in core, so we just use the real one
-      Mutex = ::Mutex
+      class Mutex < ::Mutex
+        # If you mock Mutex.new you break our usage of Mutex, so
+        # instead we capture the original method to return Mutexs.
+        NEW_MUTEX_METHOD = Mutex.method(:new)
+
+        def self.new
+          NEW_MUTEX_METHOD.call
+        end
+      end
     else # For 1.8.7
       # :nocov:
       RSpec::Support.require_rspec_support "mutex"
