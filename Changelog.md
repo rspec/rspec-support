@@ -5,6 +5,8 @@ Bug Fixes:
 
 * Mark ripper as unsupported on Truffle Ruby. (Brandon Fish, #395)
 * Mark ripper as unsupported on JRuby 9.2.0.0. (Brian Hawley, #400)
+* Capture `Mutex.new` for our `RSpec::Support:Mutex` in order to
+  allow stubbing `Mutex.new`. (Jon Rowe, #411)
 
 ### 3.9.2 / 2019-12-30
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.1...v3.9.2)
