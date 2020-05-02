@@ -13,6 +13,22 @@ branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
   end
 end
 
+if RUBY_VERSION < '1.9.3'
+  gem 'rake', '< 11.0.0' # rake 11 requires Ruby 1.9.3 or later
+elsif RUBY_VERSION < '2.0.0'
+  gem 'rake', '< 12.0.0' # rake 12 requires Ruby 2.0.0 or later
+else
+  gem 'rake', '>= 12.3.3'
+end
+
+if RUBY_VERSION < '2.2.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
+  gem "childprocess", "< 1.0.0"
+elsif RUBY_VERSION < '2.3.0'
+  gem "childprocess", "< 3.0.0"
+else
+  gem "childprocess", ">= 3.0.0"
+end
+
 ### dep for ci/coverage
 gem 'simplecov', '~> 0.8'
 
