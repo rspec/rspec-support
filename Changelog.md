@@ -1,5 +1,5 @@
-### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.2...master)
+### 3.9.3 / 2020-05-02
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.2...v3.9.3)
 
 Bug Fixes:
 
