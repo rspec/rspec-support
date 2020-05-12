@@ -44,5 +44,44 @@ module RSpec::Support
         CODE
       end
     end
+
+    describe ".send_to" do
+      extend RubyFeatures
+
+      def run(object, *args, &block)
+        WithKeywordsWhenNeeded.send_to(object, :run, *args, &block)
+      end
+
+      it 'will pass through normal arguments' do
+        klass = Class.new { def run(arg); arg; end }
+        expect(run(klass.new, 42)).to eq 42
+      end
+
+      it 'will pass through a hash when there are no keyword arguments' do
+        klass = Class.new { def run(arg); arg; end }
+        expect(run(klass.new, "value" => 42)).to eq "value" => 42
+      end
+
+      it "will work with optional keyword arguments when none are provided", :if => kw_args_supported? do
+        binding.eval(<<-CODE, __FILE__, __LINE__)
+        klass = Class.new { def run(arg, val: nil); arg; end }
+        expect(run(klass.new, 42)).to eq 42
+        CODE
+      end
+
+      it "will pass through optional keyword arguments", :if => kw_args_supported? do
+        binding.eval(<<-CODE, __FILE__, __LINE__)
+        klass = Class.new { def run(val: nil); val; end }
+        expect(run(klass.new, val: 42)).to eq 42
+        CODE
+      end
+
+      it "will pass through required keywork arguments", :if => required_kw_args_supported? do
+        binding.eval(<<-CODE, __FILE__, __LINE__)
+        klass = Class.new { def run(val:); val; end }
+        expect(run(klass.new, val: 42)).to eq 42
+        CODE
+      end
+    end
   end
 end
