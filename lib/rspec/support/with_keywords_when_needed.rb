@@ -28,6 +28,27 @@ module RSpec
           klass.class_exec(*args, &block)
         end
       end
+
+      if RSpec::Support::RubyFeatures.kw_args_supported?
+        # Remove this in RSpec 4 in favour of explictly passed in kwargs where
+        # this is used. Works around a warning in Ruby 2.7
+
+        def send_to(object, name, *args, &block)
+          if MethodSignature.new(Support.method_handle_for(object, name)).has_kw_args_in?(args)
+            binding.eval(<<-CODE, __FILE__, __LINE__)
+            kwargs = args.pop
+            object.__send__(name, *args, **kwargs, &block)
+            CODE
+          else
+            object.__send__(name, *args, &block)
+          end
+        end
+        ruby2_keywords :send_to if respond_to?(:ruby2_keywords, true)
+      else
+        def send_to(object, name, *args, &block)
+          object.__send__(name, *args, &block)
+        end
+      end
     end
   end
 end
