@@ -53,21 +53,30 @@ module RSpec
         end
       end
 
+      LINES_TO_IGNORE =
+        [
+          # Ignore bundler warning.
+          %r{bundler/source/rubygems},
+          # Ignore bundler + rubygems warning.
+          %r{site_ruby/\d\.\d\.\d/rubygems},
+          %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/rubygems},
+          # This is required for windows for some reason
+          %r{lib/bundler/rubygems},
+          # This is a JRuby file that generates warnings on 9.0.3.0
+          %r{lib/ruby/stdlib/jar},
+          # This is a JRuby file that generates warnings on 9.1.7.0
+          %r{org/jruby/RubyKernel\.java},
+          # This is a JRuby gem that generates warnings on 9.1.7.0
+          %r{ffi-1\.13\.\d+-java},
+          %r{uninitialized constant FFI},
+          # These are related to the above, there is a warning about io from FFI
+          %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/io},
+          %r{io/console on JRuby shells out to stty for most operations},
+        ]
+
       def strip_known_warnings(input)
         input.split("\n").reject do |l|
-          # Ignore bundler warning.
-          l =~ %r{bundler/source/rubygems} ||
-          # Ignore bundler + rubygems warning.
-          l =~ %r{site_ruby/\d\.\d\.\d/rubygems} ||
-          l =~ %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/rubygems} ||
-          # This is required for windows for some reason
-          l =~ %r{lib/bundler/rubygems} ||
-          # This is a JRuby file that generates warnings on 9.0.3.0
-          l =~ %r{lib/ruby/stdlib/jar} ||
-          # This is a JRuby file that generates warnings on 9.1.7.0
-          l =~ %r{org/jruby/RubyKernel\.java} ||
-          # This is a JRuby gem that generates warnings on 9.1.7.0
-          l =~ %r{ffi-1\.13\.\d-java} ||
+          LINES_TO_IGNORE.any? { |to_ignore| l =~ to_ignore } ||
           # Remove blank lines
           l == "" || l.nil?
         end.join("\n")
