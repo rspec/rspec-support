@@ -68,6 +68,7 @@ module RSpec
           l =~ %r{org/jruby/RubyKernel\.java} ||
           # This is a JRuby gem that generates warnings on 9.1.7.0
           l =~ %r{ffi-1\.13\.\d+-java} ||
+          l =~ %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/io/console} ||
           l =~ %r{uninitialized constant FFI} ||
           l =~ %r{io/console on JRuby shells out to stty for most operations} ||
           # Remove blank lines
