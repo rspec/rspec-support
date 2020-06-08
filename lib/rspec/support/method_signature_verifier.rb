@@ -12,7 +12,7 @@ module RSpec
       attr_reader :min_non_kw_args, :max_non_kw_args, :optional_kw_args, :required_kw_args
 
       def initialize(method)
-        @method           = method
+        @method           = method_or_class_initialize(method)
         @optional_kw_args = []
         @required_kw_args = []
         classify_parameters
@@ -158,6 +158,15 @@ module RSpec
       end
 
       INFINITY = 1 / 0.0
+
+      private
+
+      def method_or_class_initialize(method)
+        # Support only not redefined Class.new
+        return method if !method.respond_to?(:owner) || method.owner != Class
+        return method if !method.respond_to?(:name) || method.name != :new
+        method.receiver.instance_method(:initialize)
+      end
     end
 
     if RSpec::Support::Ruby.jruby?

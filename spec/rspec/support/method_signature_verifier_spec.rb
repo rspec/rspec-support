@@ -817,6 +817,63 @@ module RSpec
           end
         end
 
+        describe 'an `.new` method' do
+          old_verbose, $VERBOSE = $VERBOSE, false
+          class TestInitializeClass; def initialize(arg1, arg2); end; end
+          class TestNewClass; def self.new(arg1, arg2, arg3); super; end; end
+          $VERBOSE = old_verbose
+
+          describe 'for pure Class' do
+            let(:test_method) { Class.method(:new) }
+
+            it 'match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(true)
+            end
+
+            it 'validates against 2 arguments' do
+              expect(valid_non_kw_args?(2)).to eq true
+            end
+
+            it 'validates against 2 arguments' do
+              expect(valid_non_kw_args?(3)).to eq true
+            end
+          end
+
+          describe 'for class with initialize method' do
+
+
+            let(:test_method) { TestInitializeClass.method(:new) }
+
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
+            end
+
+            it 'validates against 2 arguments' do
+              expect(valid_non_kw_args?(2)).to eq true
+            end
+
+            it 'fails validation against 3 arguments' do
+              expect(valid_non_kw_args?(3)).to eq false
+            end
+          end
+
+          describe 'for class with owerwritten new method' do
+            let(:test_method) { TestNewClass.method(:new) }
+
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
+            end
+
+            it 'fails validation against 2 arguments' do
+              expect(valid_non_kw_args?(2)).to eq false
+            end
+
+            it 'validates against 3 arguments' do
+              expect(valid_non_kw_args?(3)).to eq true
+            end
+          end
+        end
+
         if Ruby.jruby?
           describe 'a single-argument Java method' do
             let(:test_method) { Java::JavaLang::String.instance_method(:char_at) }
