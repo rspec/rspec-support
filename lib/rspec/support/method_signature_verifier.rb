@@ -162,9 +162,9 @@ module RSpec
       private
 
       def method_or_class_initialize(method)
-        # Support only not redefined Class.new
-        return method if !method.respond_to?(:owner) || method.owner != Class
-        return method if !method.respond_to?(:name) || method.name.to_s != 'new'
+        return method if method.is_a? Proc # included shared examples
+        # Special treatment for stubbing `Class.new`
+        return method unless method.owner == Class && method.name == :new
         method.receiver.instance_method(:initialize)
       end
     end
