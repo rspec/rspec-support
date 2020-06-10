@@ -7,8 +7,7 @@ module RSpec
 
         # Useful as a way to isolate a global change to a subprocess.
 
-        # rubocop:disable MethodLength
-        def in_sub_process(prevent_warnings=true)
+        def in_sub_process(prevent_warnings=true) # rubocop:disable MethodLength, Metrics/AbcSize
           exception_reader, exception_writer = IO.pipe
           result_reader, result_writer = IO.pipe
 
@@ -46,7 +45,6 @@ module RSpec
           result_reader.close
           result
         end
-        # rubocop:enable MethodLength
         alias :in_sub_process_if_possible :in_sub_process
 
         def marshal_dump_with_unmarshable_object_handling(object)

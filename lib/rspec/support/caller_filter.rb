@@ -69,7 +69,7 @@ module RSpec
           return line.to_s if line
 
           skip_frames += increment
-          increment   *= 2 # The choice of two here is arbitrary.
+          increment *= 2 # The choice of two here is arbitrary.
         end
       end
     else
