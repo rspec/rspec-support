@@ -6,7 +6,7 @@ require 'rspec/support/spec/string_matcher'
 
 module RSpec
   module Support
-    describe Differ do
+    RSpec.describe Differ do
 
       # In the updated version of diff-lcs several diff headers change format slightly
       # compensate for this and change minimum version in RSpec 4
@@ -26,41 +26,43 @@ module RSpec
           actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
 
           if Diff::LCS::VERSION.to_f < 1.4
-            expected_diff = <<-'EOD'
-
-
-@@ -1,6 +1,6 @@
- foo
--zap
- bar
-+zap
- this
- is
- soo
-@@ -9,6 +9,5 @@
- equal
- insert
- a
--another
- line
-EOD
+            expected_diff = dedent(<<-'EOD')
+              |
+              |
+              |@@ -1,6 +1,6 @@
+              | foo
+              |-zap
+              | bar
+              |+zap
+              | this
+              | is
+              | soo
+              |@@ -9,6 +9,5 @@
+              | equal
+              | insert
+              | a
+              |-another
+              | line
+              |
+            EOD
           else
-            expected_diff = <<-'EOD'
-
-
-@@ -1,4 +1,6 @@
- foo
--zap
- bar
-+zap
- this
-@@ -9,6 +11,7 @@
- equal
- insert
- a
--another
- line
-EOD
+            expected_diff = dedent(<<-'EOD')
+              |
+              |
+              |@@ -1,4 +1,6 @@
+              | foo
+              |-zap
+              | bar
+              |+zap
+              | this
+              |@@ -9,6 +11,7 @@
+              | equal
+              | insert
+              | a
+              |-another
+              | line
+              |
+            EOD
           end
 
 
@@ -130,7 +132,6 @@ EOD
         end
 
         if String.method_defined?(:encoding)
-
           it "returns an empty string if strings are not multiline" do
             expected = "Tu avec carte {count} item has".encode('UTF-16LE')
             actual   = "Tu avec carté {count} itém has".encode('UTF-16LE')
@@ -143,12 +144,13 @@ EOD
           it 'copes with encoded strings', :skip => RSpec::Support::OS.windows? do
             expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expected_diff = <<-EOD.encode('UTF-16LE')
-
-@@ #{one_line_header} @@
--Tu avec carte {count} item has
-+Tu avec carté {count} itém has
-EOD
+            expected_diff = dedent(<<-EOD).encode('UTF-16LE')
+              |
+              |@@ #{one_line_header} @@
+              |-Tu avec carte {count} item has
+              |+Tu avec carté {count} itém has
+              |
+            EOD
 
             diff = differ.diff(actual, expected)
             expect(diff).to be_diffed_as(expected_diff)
@@ -186,16 +188,18 @@ EOD
 
         it "outputs unified diff message of two objects" do
           animal_class = Class.new do
+            include RSpec::Support::FormattingSupport
+
             def initialize(name, species)
               @name, @species = name, species
             end
 
             def inspect
-              <<-EOA
-<Animal
-  name=#{@name},
-  species=#{@species}
->
+              dedent(<<-EOA)
+                |<Animal
+                |  name=#{@name},
+                |  species=#{@species}
+                |>
               EOA
             end
           end
@@ -203,15 +207,16 @@ EOD
           expected = animal_class.new "bob", "giraffe"
           actual   = animal_class.new "bob", "tortoise"
 
-          expected_diff = <<'EOD'
-
-@@ -1,5 +1,5 @@
- <Animal
-   name=bob,
--  species=tortoise
-+  species=giraffe
- >
-EOD
+          expected_diff = dedent(<<-'EOD')
+            |
+            |@@ -1,5 +1,5 @@
+            | <Animal
+            |   name=bob,
+            |-  species=tortoise
+            |+  species=giraffe
+            | >
+            |
+          EOD
 
           diff = differ.diff(expected,actual)
           expect(diff).to be_diffed_as(expected_diff)
@@ -221,19 +226,20 @@ EOD
           expected = [ :foo, 'bar', :baz, 'quux', :metasyntactic, 'variable', :delta, 'charlie', :width, 'quite wide' ]
           actual   = [ :foo, 'bar', :baz, 'quux', :metasyntactic, 'variable', :delta, 'tango'  , :width, 'very wide'  ]
 
-          expected_diff = <<'EOD'
-
-
-@@ -5,7 +5,7 @@
-  :metasyntactic,
-  "variable",
-  :delta,
-- "tango",
-+ "charlie",
-  :width,
-- "very wide"]
-+ "quite wide"]
-EOD
+          expected_diff = dedent(<<-'EOD')
+            |
+            |
+            |@@ -5,7 +5,7 @@
+            |  :metasyntactic,
+            |  "variable",
+            |  :delta,
+            |- "tango",
+            |+ "charlie",
+            |  :width,
+            |- "very wide"]
+            |+ "quite wide"]
+            |
+          EOD
 
           diff = differ.diff(expected,actual)
           expect(diff).to be_diffed_as(expected_diff)
@@ -251,23 +257,25 @@ EOD
             diff = differ.diff [obj], []
           end
 
-          expected_diff = <<-EOD
-
-@@ #{one_line_header} @@
--[]
-+[<BrokenObject>]
-EOD
+          expected_diff = dedent(<<-EOD)
+            |
+            |@@ #{one_line_header} @@
+            |-[]
+            |+[<BrokenObject>]
+            |
+          EOD
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs unified diff message of strings in arrays' do
           diff = differ.diff(["a\r\nb"], ["a\r\nc"])
-          expected_diff = <<-EOD
-
-@@ #{one_line_header} @@
--a\\r\\nc
-+a\\r\\nb
-EOD
+          expected_diff = dedent(<<-EOD)
+            |
+            |@@ #{one_line_header} @@
+            |-a\\r\\nc
+            |+a\\r\\nb
+            |
+          EOD
           expect(diff).to be_diffed_as(expected_diff)
         end
 
@@ -275,16 +283,17 @@ EOD
           expected = { :foo => 'bar', :baz => 'quux', :metasyntactic => 'variable', :delta => 'charlie', :width =>'quite wide' }
           actual   = { :foo => 'bar', :metasyntactic => 'variable', :delta => 'charlotte', :width =>'quite wide' }
 
-          expected_diff = <<'EOD'
-
-@@ -1,4 +1,5 @@
--:delta => "charlotte",
-+:baz => "quux",
-+:delta => "charlie",
- :foo => "bar",
- :metasyntactic => "variable",
- :width => "quite wide",
-EOD
+          expected_diff = dedent(<<-'EOD')
+            |
+            |@@ -1,4 +1,5 @@
+            |-:delta => "charlotte",
+            |+:baz => "quux",
+            |+:delta => "charlie",
+            | :foo => "bar",
+            | :metasyntactic => "variable",
+            | :width => "quite wide",
+            |
+          EOD
 
           diff = differ.diff(expected,actual)
           expect(diff).to be_diffed_as(expected_diff)
@@ -295,16 +304,17 @@ EOD
             expected = [{ :foo => 'bar', :baz => 'quux', :metasyntactic => 'variable', :delta => 'charlie', :width =>'quite wide' }]
             actual   = [{ :metasyntactic => 'variable', :delta => 'charlotte', :width =>'quite wide', :foo => 'bar' }]
 
-            expected_diff = <<'EOD'
-
-@@ -1,4 +1,5 @@
--[{:delta=>"charlotte",
-+[{:baz=>"quux",
-+  :delta=>"charlie",
-   :foo=>"bar",
-   :metasyntactic=>"variable",
-   :width=>"quite wide"}]
-EOD
+            expected_diff = dedent(<<-'EOD')
+              |
+              |@@ -1,4 +1,5 @@
+              |-[{:delta=>"charlotte",
+              |+[{:baz=>"quux",
+              |+  :delta=>"charlie",
+              |   :foo=>"bar",
+              |   :metasyntactic=>"variable",
+              |   :width=>"quite wide"}]
+              |
+            EOD
 
             diff = differ.diff(expected,actual)
             expect(diff).to be_diffed_as(expected_diff)
@@ -312,33 +322,39 @@ EOD
         end
 
         it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--"a" => "a",
-#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+"ö" => "ö"} : '+"\303\266" => "\303\266"' },
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-"a" => "a",
+            |#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+"ö" => "ö"} : '+"\303\266" => "\303\266"' },
+            |
+          EOD
 
           diff = differ.diff({'ö' => 'ö'}, {'a' => 'a'})
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--:a => "a",
-#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+\"한글\" => \"한글2\"} : '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"' },
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-:a => "a",
+            |#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+\"한글\" => \"한글2\"} : '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"' },
+            |
+          EOD
 
           diff = differ.diff({ "한글" => "한글2"}, { :a => "a"})
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two hashes with object keys" do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--["a", "c"] => "b",
-+["d", "c"] => "b",
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-["a", "c"] => "b",
+            |+["d", "c"] => "b",
+            |
+          EOD
 
           diff = differ.diff({ ['d','c'] => 'b'}, { ['a','c'] => 'b' })
           expect(diff).to be_diffed_as(expected_diff)
@@ -349,22 +365,26 @@ EOD
         let(:formatted_time) { ObjectFormatter.format(time) }
 
         it "outputs unified diff message of two hashes with Time object keys" do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--#{formatted_time} => "b",
-+#{formatted_time} => "c",
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-#{formatted_time} => "b",
+            |+#{formatted_time} => "c",
+            |
+          EOD
 
           diff = differ.diff({ time => 'c'}, { time => 'b' })
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two hashes with hashes inside them" do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--"b" => {"key_1"=>#{formatted_time}},
-+"c" => {"key_1"=>#{formatted_time}},
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-"b" => {"key_1"=>#{formatted_time}},
+            |+"c" => {"key_1"=>#{formatted_time}},
+            |
+          EOD
 
           left_side_hash = {'c' => {'key_1' => time}}
           right_side_hash = {'b' => {'key_1' => time}}
@@ -378,22 +398,26 @@ EOD
         let(:formatted_time) { ObjectFormatter.format(time) }
 
         it "outputs unified diff message of two arrays with Time object keys" do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--[#{formatted_time}, "b"]
-+[#{formatted_time}, "c"]
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-[#{formatted_time}, "b"]
+            |+[#{formatted_time}, "c"]
+            |
+          EOD
 
           diff = differ.diff([time, 'c'], [time, 'b'])
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "outputs unified diff message of two arrays with hashes inside them" do
-          expected_diff = %Q{
-@@ #{one_line_header} @@
--[{"b"=>#{formatted_time}}, "c"]
-+[{"a"=>#{formatted_time}}, "c"]
-}
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{one_line_header} @@
+            |-[{"b"=>#{formatted_time}}, "c"]
+            |+[{"a"=>#{formatted_time}}, "c"]
+            |
+          EOD
 
           left_side_array = [{'a' => time}, 'c']
           right_side_array = [{'b' => time}, 'c']
@@ -406,37 +430,40 @@ EOD
           expected = "this is:\n  one string"
           actual   = "this is:\n  another string"
 
-          expected_diff = <<'EOD'
-
-@@ -1,3 +1,3 @@
- this is:
--  another string
-+  one string
-EOD
+          expected_diff = dedent(<<-'EOD')
+            |
+            |@@ -1,3 +1,3 @@
+            | this is:
+            |-  another string
+            |+  one string
+            |
+          EOD
 
           diff = differ.diff(expected,actual)
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "splits items with newlines" do
-          expected_diff = <<"EOD"
-
-@@ #{removing_two_line_header} @@
--a\\nb
--c\\nd
-EOD
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{removing_two_line_header} @@
+            |-a\\nb
+            |-c\\nd
+            |
+          EOD
 
           diff = differ.diff [], ["a\nb", "c\nd"]
           expect(diff).to be_diffed_as(expected_diff)
         end
 
         it "shows inner arrays on a single line" do
-          expected_diff = <<"EOD"
-
-@@ #{removing_two_line_header} @@
--a\\nb
--["c\\nd"]
-EOD
+          expected_diff = dedent(<<-"EOD")
+            |
+            |@@ #{removing_two_line_header} @@
+            |-a\\nb
+            |-["c\\nd"]
+            |
+          EOD
 
           diff = differ.diff [], ["a\nb", ["c\nd"]]
           expect(diff).to be_diffed_as(expected_diff)
