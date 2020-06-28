@@ -7,16 +7,7 @@ require 'rspec/support/spec/string_matcher'
 module RSpec
   module Support
     RSpec.describe Differ do
-
-      # In the updated version of diff-lcs several diff headers change format slightly
-      # compensate for this and change minimum version in RSpec 4
-      if Diff::LCS::VERSION.to_f < 1.4
-        one_line_header = "-1,2 +1,2"
-        removing_two_line_header = "-1,3 +1"
-      else
-        one_line_header = "-1 +1"
-        removing_two_line_header = "-1,3 +1,5"
-      end
+      include Spec::DiffHelpers
 
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
