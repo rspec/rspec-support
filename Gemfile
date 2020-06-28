@@ -21,6 +21,12 @@ else
   gem 'rake', '>= 12.3.3'
 end
 
+if ENV['DIFF_LCS_VERSION']
+  gem 'diff-lcs', ENV['DIFF_LCS_VERSION']
+else
+  gem 'diff-lcs', '~> 1.4', '>= 1.4.3'
+end
+
 if RUBY_VERSION < '2.2.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
   gem "childprocess", "< 1.0.0"
 elsif RUBY_VERSION < '2.3.0'
