@@ -26,7 +26,7 @@ if RUBY_VERSION.to_f < 2
 else
   default_diff_lcs_version = '~> 1.4'
 end
-gem 'diff-lcs', ENV.fetch('DIFF_LCS_VERSION', default_diff_lcs_version)
+gem 'diff-lcs', :git => "https://github.com/halostatue/diff-lcs.git", :branch => "fix-ruby-1.8-support"
 
 if RUBY_VERSION < '2.2.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
   gem "childprocess", "< 1.0.0"
