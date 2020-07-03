@@ -16,7 +16,7 @@ module RSpec
           expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
           actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
 
-          if Diff::LCS::VERSION.to_f < 1.4
+          if Diff::LCS::VERSION.to_f < 1.4 || Diff::LCS::VERSION >= "1.4.4"
             expected_diff = dedent(<<-'EOD')
               |
               |
@@ -40,7 +40,7 @@ module RSpec
             expected_diff = dedent(<<-'EOD')
               |
               |
-              |@@ -1,4 +1,6 @@
+              |@@ -1,6 +1,6 @@
               | foo
               |-zap
               | bar
@@ -65,7 +65,7 @@ module RSpec
           expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
           actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
 
-          if Diff::LCS::VERSION.to_f < 1.4
+          if Diff::LCS::VERSION.to_f < 1.4 || Diff::LCS::VERSION >= "1.4.4"
             expected_diff = dedent(<<-'EOS')
               |
               |
