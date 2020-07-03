@@ -40,7 +40,7 @@ module RSpec
             expected_diff = dedent(<<-'EOD')
               |
               |
-              |@@ -1,6 +1,6 @@
+              |@@ -1,4 +1,6 @@
               | foo
               |-zap
               | bar
