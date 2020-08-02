@@ -1,3 +1,5 @@
+warn "This branch is deprecated. Please use `main`."
+
 module RSpec
   module Support
     # @api private
