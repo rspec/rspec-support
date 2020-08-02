@@ -68,7 +68,7 @@ RSpec.shared_examples_for "library wide checks" do |lib, options|
       run_ruby_with_current_load_path(command, *options)
     end
 
-    [stdout, strip_known_warnings(stderr), status.exitstatus]
+    [stdout, stderr, status.exitstatus]
   end
 
   define_method :load_all_lib_files do

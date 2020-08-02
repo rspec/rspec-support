@@ -47,10 +47,12 @@ module RSpec
 
         # Unset these env vars because `ruby -w` will issue warnings whenever
         # they are set to non-default values.
-        with_env 'RUBY_GC_HEAP_FREE_SLOTS' => nil, 'RUBY_GC_MALLOC_LIMIT' => nil,
-                 'RUBY_FREE_MIN' => nil do
-          shell_out(*command)
-        end
+        stdout, stderr, status =
+          with_env 'RUBY_GC_HEAP_FREE_SLOTS' => nil, 'RUBY_GC_MALLOC_LIMIT' => nil,
+                   'RUBY_FREE_MIN' => nil do
+            shell_out(*command)
+          end
+        [stdout, strip_known_warnings(stderr), status]
       end
 
       LINES_TO_IGNORE =
