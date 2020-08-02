@@ -72,6 +72,7 @@ module RSpec
           # These are related to the above, there is a warning about io from FFI
           %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/io},
           %r{io/console on JRuby shells out to stty for most operations},
+          %r{This branch is deprecated\. Please use `main`\.},
         ]
 
       def strip_known_warnings(input)

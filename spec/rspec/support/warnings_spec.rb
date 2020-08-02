@@ -11,7 +11,7 @@ describe "rspec warnings and deprecations" do
   it 'works when required in isolation' do
     out, err, status = run_ruby_with_current_load_path("RSpec.deprecate('foo')", "-rrspec/support/warnings")
     expect(out).to eq("")
-    expect(err).to start_with("DEPRECATION: foo is deprecated")
+    expect(err).to include("DEPRECATION: foo is deprecated")
     expect(status.exitstatus).to eq(0)
   end
 
