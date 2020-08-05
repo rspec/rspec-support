@@ -40,6 +40,8 @@ gem 'simplecov', '~> 0.8'
 
 if RUBY_VERSION < '2.0.0' || RUBY_ENGINE == 'java'
   gem 'json', '< 2.0.0' # is a dependency of simplecov
+else
+  gem 'json', '> 2.3.0'
 end
 
 if RUBY_VERSION < '2.2.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
