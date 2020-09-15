@@ -12,6 +12,23 @@ module RSpec
       expect(RSpec::CallerFilter.first_non_rspec_line).to include("#{__FILE__}:#{__LINE__}")
     end
 
+    if defined?(RUBY_ENGINE) && ((RUBY_ENGINE == "ruby" && RUBY_VERSION >= '2.0') || RUBY_ENGINE == "truffleruby")
+      # Needs CRuby 3.0 or TruffleRuby to have <internal: entries
+      it 'returns the caller ignoring <internal: entries from the core library in the backtrace' do
+        # Skip locations inside the block of #tap as we want to test
+        # as if the beginning of the backtrace is in Kernel#tap
+        location = nil
+        skip = 0
+        line = __LINE__ + 2
+        begin
+          tap { location = RSpec::CallerFilter.first_non_rspec_line(skip) }
+          skip += 1
+        end while location.include?('block (3 levels)')
+        expect(location).to match(/#{Regexp.escape __FILE__}:#{line}:in `(tap'|block \(2 levels\))/)
+        expect(location).not_to include('<internal:')
+      end
+    end
+
     describe "the filtering regex" do
       def ruby_files_in_lib(lib)
         # http://rubular.com/r/HYpUMftlG2
@@ -41,6 +58,14 @@ module RSpec
         ]
 
         expect(unmatched_from files).to eq(files)
+      end
+
+      it "matches internal methods" do
+        files = [
+          "<internal:kernel>:90:in `tap'",
+          "<internal:core> core/kernel.rb:534:in `tap'"
+        ]
+        expect(unmatched_from files).to eq([])
       end
 
       def in_rspec_support_lib(name)
