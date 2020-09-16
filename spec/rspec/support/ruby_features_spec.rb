@@ -150,7 +150,7 @@ module RSpec
           in_sub_process_if_possible do
             require 'ripper'
             # It doesn't matter if keyword arguments don't exist.
-            if Ruby.mri? || Ruby.jruby?
+            if Ruby.mri? || Ruby.jruby? || Ruby.truffleruby?
               if RUBY_VERSION < '2.0'
                 true
               else
