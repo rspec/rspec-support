@@ -105,7 +105,7 @@ module RSpec
       end
       ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
 
-      ripper_requirements.push(false) if Ruby.rbx? || Ruby.truffleruby?
+      ripper_requirements.push(false) if Ruby.rbx?
 
       if Ruby.jruby?
         ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
