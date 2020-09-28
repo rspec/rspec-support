@@ -1,3 +1,11 @@
+### Development
+
+Bug Fixes:
+
+* Flag ripper as supported on Truffle Ruby. (Brandon Fish, #427)
+* Prevent stubbing `File.read` from breaking source extraction.
+  (Jon Rowe, #431)
+
 ### 3.9.3 / 2020-05-02
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.2...v3.9.3)
 
