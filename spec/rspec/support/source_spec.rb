@@ -41,6 +41,11 @@ module RSpec::Support
         expect(source.path).not_to eq(path)
         expect(source.path).to end_with(path)
       end
+
+      it 'continues to work if File.read is stubbed' do
+        allow(::File).to receive(:read).and_raise
+        expect(source.lines.first).to eq('2.times do')
+      end
     end
 
     describe '#lines' do
