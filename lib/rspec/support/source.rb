@@ -8,6 +8,16 @@ module RSpec
     class Source
       attr_reader :source, :path
 
+      # This class protects us against having File read and expand_path
+      # stubbed out within tests.
+      class File
+        class << self
+          [:read, :expand_path].each do |method_name|
+            define_method(method_name, &::File.method(method_name))
+          end
+        end
+      end
+
       def self.from_file(path)
         source = File.read(path)
         new(source, path)
