@@ -1,3 +1,7 @@
+### 3.10.0 / 2020-10-30
+
+No changes. Released to support other RSpec releases.
+
 ### 3.9.4 / 2020-10-23
 
 Bug Fixes:
