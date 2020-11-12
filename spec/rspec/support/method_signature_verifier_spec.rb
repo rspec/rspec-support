@@ -220,7 +220,7 @@ module RSpec
             expect(valid?(nil, :a => 1)).to eq(false)
           end
 
-          it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+          it 'mentions the invalid keyword args in the error' do
             expect(error_for(nil, :a => 0, :b => 1)).to \
               eq("Invalid keyword arguments provided: a, b")
           end
@@ -240,7 +240,7 @@ module RSpec
             expect(args).to eq([nil, { :y => 1 }])
           end
 
-          it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+          it 'mentions the arity and optional kw args in the description' do
             expect(signature_description).to eq("arity of 1 and optional keyword args (:y, :z)")
           end
 
@@ -321,7 +321,7 @@ module RSpec
             expect(valid?(nil, 'a' => 1, :b => 2, :z => 3)).to eq(false)
           end
 
-          it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+          it 'mentions the invalid keyword args in the error' do
             expect(error_for(1, 2, :a => 0)).to eq("Invalid keyword arguments provided: a")
             expect(error_for(1, :a => 0)).to eq("Invalid keyword arguments provided: a")
             expect(error_for(1, 'a' => 0, :b => 0)).to eq("Invalid keyword arguments provided: b")
@@ -342,7 +342,7 @@ module RSpec
             expect(args).to eq([nil, nil, { :y => 1 }])
           end
 
-          it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+          it 'mentions the arity and optional kw args in the description' do
             expect(signature_description).to eq("arity of 1 to 2 and optional keyword args (:z)")
           end
 
