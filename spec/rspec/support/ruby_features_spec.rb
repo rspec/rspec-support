@@ -73,10 +73,6 @@ module RSpec
         RubyFeatures.supports_exception_cause?
       end
 
-      specify "#required_kw_args_supported? exists" do
-        RubyFeatures.required_kw_args_supported?
-      end
-
       specify "#supports_taint?" do
         RubyFeatures.supports_taint?
       end

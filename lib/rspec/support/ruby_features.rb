@@ -102,26 +102,6 @@ module RSpec
         end
       end
 
-      if Ruby.mri?
-        def required_kw_args_supported?
-          RUBY_VERSION >= '2.1.0'
-        end
-      else
-        # RBX / JRuby et al support is unknown for keyword arguments
-        begin
-          eval("o = Object.new; def o.m(a: ); end;"\
-               "raise SyntaxError unless o.method(:m).parameters.include?([:keyreq, :a])")
-
-          def required_kw_args_supported?
-            true
-          end
-        rescue SyntaxError
-          def required_kw_args_supported?
-            false
-          end
-        end
-      end
-
       def module_refinement_supported?
         Module.method_defined?(:refine) || Module.private_method_defined?(:refine)
       end
