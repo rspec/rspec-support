@@ -95,16 +95,11 @@ module RSpec
         # Originally defined as a constant to avoid uneeded allocations, this hash must
         # be defined inline (without {}) to avoid warnings on Ruby 2.7
         #
-        # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
-        # see https://github.com/ruby/ruby/blob/v2_1_0/NEWS#L176
-        # https://www.ruby-forum.com/topic/6861247
-        # https://twitter.com/nalsh/status/553413844685438976
+        # 'invalid: :replace' also replaces an invalid byte sequence
         #
-        # For example, given:
-        #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a
-        #
-        # On MRI 2.1 or above: 63  # '?'
-        # else               : 128 # "\x80"
+        # For example:
+        #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a # => 
+        #   => 63  # '?'
         #
         string.encode(@encoding, :invalid => :replace, :undef => :replace, :replace => REPLACE)
       rescue Encoding::ConverterNotFoundError
