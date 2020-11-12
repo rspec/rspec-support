@@ -12,10 +12,8 @@ SPECS_HAVE_RUN_FILE=specs.out
 MAINTENANCE_BRANCH=`cat maintenance-branch`
 
 # Don't allow rubygems to pollute what's loaded. Also, things boot faster
-# without the extra load time of rubygems. Only works on MRI Ruby 1.9+
-if is_mri_192_plus; then
-  export RUBYOPT="--disable=gem"
-fi
+# without the extra load time of rubygems.
+export RUBYOPT="--disable=gem"
 
 function clone_repo {
   if [ ! -d $1 ]; then # don't clone if the dir is already there
@@ -38,21 +36,16 @@ function run_specs_and_record_done {
 
 function run_cukes {
   if [ -d features ]; then
-    # force jRuby to use client mode JVM or a compilation mode thats as close as possible,
-    # idea taken from https://github.com/jruby/jruby/wiki/Improving-startup-time
-    #
-    # Note that we delay setting this until we run the cukes because we've seen
-    # spec failures in our spec suite due to problems with this mode.
-    export JAVA_OPTS='-client -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
-
     echo "${PWD}/bin/cucumber"
 
-    if is_mri_192; then
-      # For some reason we get SystemStackError on 1.9.2 when using
-      # the bin/cucumber approach below. That approach is faster
-      # (as it avoids the bundler tax), so we use it on rubies where we can.
-      bundle exec cucumber --strict
-    elif is_jruby; then
+    if is_jruby; then
+      # Force JRuby to use client mode JVM or a compilation mode thats as close as possible,
+      # idea taken from https://github.com/jruby/jruby/wiki/Improving-startup-time
+      #
+      # Note that we delay setting this until we run the cukes because we've seen
+      # spec failures in our spec suite due to problems with this mode.
+      export JAVA_OPTS='-client -XX:+TieredCompilation -XX:TieredStopAtLevel=1'
+
       # For some reason JRuby doesn't like our improved bundler setup
       RUBYOPT="-I${PWD}/../bundle -rbundler/setup" \
          PATH="${PWD}/bin:$PATH" \
@@ -191,7 +184,5 @@ function run_all_spec_suites {
     fold "rspec-rails specs" run_spec_suite_for "rspec-rails"
   fi
 
-  if rspec_support_compatible; then
-    fold "rspec-support specs" run_spec_suite_for "rspec-support"
-  fi
+  fold "rspec-support specs" run_spec_suite_for "rspec-support"
 }
