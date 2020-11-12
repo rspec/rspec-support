@@ -60,16 +60,6 @@ module RSpec
         Process.respond_to?(:fork)
       end
 
-      if Exception.method_defined?(:cause)
-        def supports_exception_cause?
-          true
-        end
-      else
-        def supports_exception_cause?
-          false
-        end
-      end
-
       if RUBY_VERSION.to_f >= 2.7
         def supports_taint?
           false
