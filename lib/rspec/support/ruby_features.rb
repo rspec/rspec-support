@@ -91,25 +91,14 @@ module RSpec
           true
         end
       end
-      ripper_requirements = [ComparableVersion.new(RUBY_VERSION) >= '1.9.2']
 
-      ripper_requirements.push(false) if Ruby.rbx?
-
-      if Ruby.jruby?
-        ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
-        # Ripper on JRuby 9.0.0.0.rc1 - 9.1.8.0 reports wrong line number
-        # or cannot parse source including `:if`.
-        # Ripper on JRuby 9.x.x.x < 9.2.1.0 can't handle keyword arguments.
-        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.2.0.0'))
-      end
-
-      if ripper_requirements.all?
+      if Ruby.rbx?
         def ripper_supported?
-          true
+          false
         end
       else
         def ripper_supported?
-          false
+          true
         end
       end
 
