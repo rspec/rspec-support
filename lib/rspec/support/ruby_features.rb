@@ -83,10 +83,6 @@ module RSpec
           true
         end
       end
-
-      def module_prepends_supported?
-        Module.method_defined?(:prepend) || Module.private_method_defined?(:prepend)
-      end
     end
   end
 end
