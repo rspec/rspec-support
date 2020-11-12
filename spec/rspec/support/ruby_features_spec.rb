@@ -99,13 +99,6 @@ module RSpec
         RubyFeatures.supports_taint?
       end
 
-      specify "#caller_locations_supported? exists" do
-        RubyFeatures.caller_locations_supported?
-        if Ruby.mri?
-          expect(RubyFeatures.caller_locations_supported?).to eq(RUBY_VERSION >= '2.0.0')
-        end
-      end
-
       describe "#ripper_supported?" do
         def ripper_is_implemented?
           in_sub_process_if_possible do
