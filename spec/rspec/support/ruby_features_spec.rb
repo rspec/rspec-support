@@ -48,16 +48,6 @@ module RSpec
         expect(Ruby).to_not be_rbx
       end
 
-      specify "jruby_9000? reflects the state of RUBY_PLATFORM and JRUBY_VERSION" do
-        stub_const("RUBY_PLATFORM", "java")
-        stub_const("JRUBY_VERSION", "")
-        expect(Ruby).to_not be_jruby_9000
-        stub_const("JRUBY_VERSION", "9.0.3.0")
-        expect(Ruby).to be_jruby_9000
-        stub_const("RUBY_PLATFORM", "")
-        expect(Ruby).to_not be_jruby_9000
-      end
-
       specify "rbx? reflects the state of RUBY_ENGINE" do
         hide_const("RUBY_ENGINE")
         expect(Ruby).to be_mri
