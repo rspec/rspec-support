@@ -77,10 +77,6 @@ module RSpec
         RubyFeatures.required_kw_args_supported?
       end
 
-      specify "#supports_rebinding_module_methods? exists" do
-        RubyFeatures.supports_rebinding_module_methods?
-      end
-
       specify "#supports_taint?" do
         RubyFeatures.supports_taint?
       end

@@ -62,8 +62,7 @@ module RSpec::Support
             }.to raise_error(Encoding::InvalidByteSequenceError)
           end
 
-          # See JRuby issue https://github.com/jruby/jruby/issues/2580
-          it 'replaces invalid byte sequences with the REPLACE string', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+          it 'replaces invalid byte sequences with the REPLACE string' do
             resulting_string = build_encoded_string(string, target_encoding).to_s
             replacement = EncodedString::REPLACE * 3
             expected_string = forced_encoding("I have a bad byt#{replacement}", target_encoding)
