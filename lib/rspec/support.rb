@@ -19,7 +19,6 @@ module RSpec
 
     define_optimized_require_for_rspec(:support) { |f| require_relative(f) }
     require_rspec_support "version"
-    require_rspec_support "ruby_features"
 
     # @api private
     KERNEL_METHOD_METHOD = ::Kernel.instance_method(:method)
