@@ -45,13 +45,6 @@ module RSpec
           %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/rubygems},
           # This is required for windows for some reason
           %r{lib/bundler/rubygems},
-          # This is a JRuby file that generates warnings on 9.0.3.0
-          %r{lib/ruby/stdlib/jar},
-          # This is a JRuby file that generates warnings on 9.1.7.0
-          %r{org/jruby/RubyKernel\.java},
-          # This is a JRuby gem that generates warnings on 9.1.7.0
-          %r{ffi-1\.13\.\d+-java},
-          %r{uninitialized constant FFI},
           # These are related to the above, there is a warning about io from FFI
           %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/io},
           %r{io/console on JRuby shells out to stty for most operations},
