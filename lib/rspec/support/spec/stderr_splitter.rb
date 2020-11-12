@@ -36,7 +36,7 @@ module RSpec
       # To work around JRuby error:
       # TypeError: $stderr must have write method, RSpec::StdErrSplitter given
       def write(line)
-        return if line =~ %r{^\S+/gems/\S+:\d+: warning:} # http://rubular.com/r/kqeUIZOfPG
+        return if line.match?(%r{^\S+/gems/\S+:\d+: warning:}) # http://rubular.com/r/kqeUIZOfPG
 
         # Ruby 2.7.0 warnings from keyword argments span multiple lines, extend check above
         # to look for the next line.
@@ -45,7 +45,7 @@ module RSpec
 
         # Ruby 2.7.0 complains about hashes used in place of keyword arguments
         # Aruba 0.14.2 uses this internally triggering that here
-        return if line =~ %r{lib/ruby/2\.7\.0/fileutils\.rb:622: warning:}
+        return if line.match?(%r{lib/ruby/2\.7\.0/fileutils\.rb:622: warning:})
 
         @orig_stderr.write(line)
         @output_tracker.write(line)

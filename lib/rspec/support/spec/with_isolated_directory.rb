@@ -9,5 +9,5 @@ RSpec.shared_context "isolated directory" do
 end
 
 RSpec.configure do |c|
-  c.include_context "isolated directory", :isolated_directory => true
+  c.include_context "isolated directory", isolated_directory: true
 end

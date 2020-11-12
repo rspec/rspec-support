@@ -66,7 +66,7 @@ module RSpec
 
       def initialize(opts={})
         @color = opts.fetch(:color, false)
-        @object_preparer = opts.fetch(:object_preparer, lambda { |string| string })
+        @object_preparer = opts.fetch(:object_preparer, ->(string) { string })
       end
 
     private
@@ -177,7 +177,7 @@ module RSpec
         when Array
           PP.pp(ObjectFormatter.prepare_for_inspection(object), "".dup)
         when String
-          object =~ /\n/ ? object : object.inspect
+          object.match?(/\n/) ? object : object.inspect
         else
           PP.pp(object, "".dup)
         end

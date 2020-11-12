@@ -73,10 +73,9 @@ module RSpec
 
       def prepare_hash(input_hash)
         with_entering_structure(input_hash) do
-          sort_hash_keys(input_hash).inject({}) do |output_hash, key_and_value|
+          sort_hash_keys(input_hash).each_with_object({}) do |key_and_value, output_hash|
             key, value = key_and_value.map { |element| prepare_element(element) }
             output_hash[key] = value
-            output_hash
           end
         end
       end

@@ -67,7 +67,7 @@ module RSpec
     end
 
     # @private
-    DEFAULT_FAILURE_NOTIFIER = lambda { |failure, _opts| raise failure }
+    DEFAULT_FAILURE_NOTIFIER = ->(failure, _opts) { raise failure }
 
     # @api private
     def self.failure_notifier
@@ -94,7 +94,7 @@ module RSpec
     end
 
     # @private
-    DEFAULT_WARNING_NOTIFIER = lambda { |warning| ::Kernel.warn warning }
+    DEFAULT_WARNING_NOTIFIER = ->(warning) { ::Kernel.warn warning }
 
     # @api private
     def self.warning_notifier

@@ -26,3 +26,11 @@ Metrics/AbcSize:
 # Over time we'd like to get this down, but this is what we're at now.
 Metrics/PerceivedComplexity:
   Max: 9
+
+# TODO: turn on cops below sometimes later
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Performance/UnfreezeString:
+  Enabled: false

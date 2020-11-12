@@ -7,10 +7,10 @@ module RSpec
       # A wrapper for Ripper token which is generated with `Ripper.lex`.
       class Token
         CLOSING_TYPES_BY_OPENING_TYPE = {
-          :on_lbracket    => :on_rbracket,
-          :on_lparen      => :on_rparen,
-          :on_lbrace      => :on_rbrace,
-          :on_heredoc_beg => :on_heredoc_end
+          on_lbracket: :on_rbracket,
+          on_lparen: :on_rparen,
+          on_lbrace: :on_rbrace,
+          on_heredoc_beg: :on_heredoc_end
         }.freeze
 
         CLOSING_KEYWORDS_BY_OPENING_KEYWORD = {
