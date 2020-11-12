@@ -1,5 +1,4 @@
 require 'rbconfig'
-RSpec::Support.require_rspec_support "comparable_version"
 
 module RSpec
   module Support
@@ -26,10 +25,6 @@ module RSpec
 
       def jruby?
         RUBY_PLATFORM == 'java'
-      end
-
-      def jruby_version
-        @jruby_version ||= ComparableVersion.new(JRUBY_VERSION)
       end
 
       def jruby_9000?
