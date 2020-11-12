@@ -122,59 +122,56 @@ module RSpec
           end ]
         end
 
-        if String.method_defined?(:encoding)
-          it "returns an empty string if strings are not multiline" do
-            expected = "Tu avec carte {count} item has".encode('UTF-16LE')
-            actual   = "Tu avec carté {count} itém has".encode('UTF-16LE')
+        it "returns an empty string if strings are not multiline" do
+          expected = "Tu avec carte {count} item has".encode('UTF-16LE')
+          actual   = "Tu avec carté {count} itém has".encode('UTF-16LE')
 
+          diff = differ.diff(actual, expected)
+          expect(diff).to be_empty
+        end
 
-            diff = differ.diff(actual, expected)
-            expect(diff).to be_empty
-          end
+        it 'copes with encoded strings', :skip => RSpec::Support::OS.windows? do
+          expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
+          actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
+          expected_diff = dedent(<<-EOD).encode('UTF-16LE')
+            |
+            |@@ #{one_line_header} @@
+            |-Tu avec carte {count} item has
+            |+Tu avec carté {count} itém has
+            |
+          EOD
 
-          it 'copes with encoded strings', :skip => RSpec::Support::OS.windows? do
-            expected = "Tu avec carte {count} item has\n".encode('UTF-16LE')
-            actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expected_diff = dedent(<<-EOD).encode('UTF-16LE')
-              |
-              |@@ #{one_line_header} @@
-              |-Tu avec carte {count} item has
-              |+Tu avec carté {count} itém has
-              |
-            EOD
+          diff = differ.diff(actual, expected)
+          expect(diff).to be_diffed_as(expected_diff)
+        end
 
-            diff = differ.diff(actual, expected)
-            expect(diff).to be_diffed_as(expected_diff)
-          end
+        it 'handles differently encoded strings that are compatible' do
+          expected = "abc\n".encode('us-ascii')
+          actual   = "강인철\n".encode('UTF-8')
+          expected_diff = "\n@@ #{one_line_header} @@\n-abc\n+강인철\n"
+          diff = differ.diff(actual, expected)
+          expect(diff).to be_diffed_as(expected_diff)
+        end
 
-          it 'handles differently encoded strings that are compatible' do
-            expected = "abc\n".encode('us-ascii')
-            actual   = "강인철\n".encode('UTF-8')
-            expected_diff = "\n@@ #{one_line_header} @@\n-abc\n+강인철\n"
-            diff = differ.diff(actual, expected)
-            expect(diff).to be_diffed_as(expected_diff)
-          end
+        it 'uses the default external encoding when the two strings have incompatible encodings' do
+          expected = "Tu avec carte {count} item has\n"
+          actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
+          expected_diff = "\n@@ #{one_line_header} @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
 
-          it 'uses the default external encoding when the two strings have incompatible encodings' do
-            expected = "Tu avec carte {count} item has\n"
-            actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-            expected_diff = "\n@@ #{one_line_header} @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
+          diff = differ.diff(actual, expected)
+          expect(diff).to be_diffed_as(expected_diff)
+          expect(diff.encoding).to eq(Encoding.default_external)
+        end
 
-            diff = differ.diff(actual, expected)
-            expect(diff).to be_diffed_as(expected_diff)
-            expect(diff.encoding).to eq(Encoding.default_external)
-          end
-
-          it 'handles any encoding error that occurs with a helpful error message' do
-            expect(RSpec::Support::HunkGenerator).to receive(:new).
-              and_raise(Encoding::CompatibilityError)
-            expected = "Tu avec carte {count} item has\n".encode('us-ascii')
-            actual   = "Tu avec carté {count} itém has\n"
-            diff = differ.diff(actual, expected)
-            expect(diff).to match(/Could not produce a diff/)
-            expect(diff).to match(/actual string \(UTF-8\)/)
-            expect(diff).to match(/expected string \(US-ASCII\)/)
-          end
+        it 'handles any encoding error that occurs with a helpful error message' do
+          expect(RSpec::Support::HunkGenerator).to receive(:new).
+            and_raise(Encoding::CompatibilityError)
+          expected = "Tu avec carte {count} item has\n".encode('us-ascii')
+          actual   = "Tu avec carté {count} itém has\n"
+          diff = differ.diff(actual, expected)
+          expect(diff).to match(/Could not produce a diff/)
+          expect(diff).to match(/actual string \(UTF-8\)/)
+          expect(diff).to match(/expected string \(US-ASCII\)/)
         end
 
         it "outputs unified diff message of two objects" do
