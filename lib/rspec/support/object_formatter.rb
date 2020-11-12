@@ -143,14 +143,8 @@ module RSpec
           Time === object
         end
 
-        if Time.method_defined?(:nsec)
-          def inspect
-            object.strftime("#{FORMAT}.#{"%09d" % object.nsec} %z")
-          end
-        else # for 1.8.7
-          def inspect
-            object.strftime("#{FORMAT}.#{"%06d" % object.usec} %z")
-          end
+        def inspect
+          object.strftime("#{FORMAT}.#{"%09d" % object.nsec} %z")
         end
       end
 
