@@ -287,26 +287,24 @@ module RSpec
           expect(diff).to be_diffed_as(expected_diff)
         end
 
-        unless RUBY_VERSION == '1.8.7' # We can't count on the ordering of the hash on 1.8.7...
-          it "outputs unified diff message for hashes inside arrays with differing key orders" do
-            expected = [{ :foo => 'bar', :baz => 'quux', :metasyntactic => 'variable', :delta => 'charlie', :width =>'quite wide' }]
-            actual   = [{ :metasyntactic => 'variable', :delta => 'charlotte', :width =>'quite wide', :foo => 'bar' }]
+        it "outputs unified diff message for hashes inside arrays with differing key orders" do
+          expected = [{ :foo => 'bar', :baz => 'quux', :metasyntactic => 'variable', :delta => 'charlie', :width =>'quite wide' }]
+          actual   = [{ :metasyntactic => 'variable', :delta => 'charlotte', :width =>'quite wide', :foo => 'bar' }]
 
-            expected_diff = dedent(<<-'EOD')
-              |
-              |@@ -1,4 +1,5 @@
-              |-[{:delta=>"charlotte",
-              |+[{:baz=>"quux",
-              |+  :delta=>"charlie",
-              |   :foo=>"bar",
-              |   :metasyntactic=>"variable",
-              |   :width=>"quite wide"}]
-              |
-            EOD
+          expected_diff = dedent(<<-'EOD')
+            |
+            |@@ -1,4 +1,5 @@
+            |-[{:delta=>"charlotte",
+            |+[{:baz=>"quux",
+            |+  :delta=>"charlie",
+            |   :foo=>"bar",
+            |   :metasyntactic=>"variable",
+            |   :width=>"quite wide"}]
+            |
+          EOD
 
-            diff = differ.diff(expected,actual)
-            expect(diff).to be_diffed_as(expected_diff)
-          end
+          diff = differ.diff(expected,actual)
+          expect(diff).to be_diffed_as(expected_diff)
         end
 
         it 'outputs unified diff message of two hashes with differing encoding' do
@@ -314,7 +312,7 @@ module RSpec
             |
             |@@ #{one_line_header} @@
             |-"a" => "a",
-            |#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+"ö" => "ö"} : '+"\303\266" => "\303\266"' },
+            |+"ö" => "ö",
             |
           EOD
 
@@ -327,7 +325,7 @@ module RSpec
             |
             |@@ #{one_line_header} @@
             |-:a => "a",
-            |#{ (RUBY_VERSION.to_f > 1.8) ?  %Q{+\"한글\" => \"한글2\"} : '+"\355\225\234\352\270\200" => "\355\225\234\352\270\2002"' },
+            |+\"한글\" => \"한글2\",
             |
           EOD
 

@@ -72,26 +72,16 @@ module RSpec::Support
           }.to raise_error(Encoding::ConverterNotFoundError)
         end
 
-        # See comment above ENCODE_UNCONVERTABLE_BYTES in encoded_string.rb
-        # for why the behavior differs by (MRI) Ruby version.
-        if RUBY_VERSION < '2.1'
-          it 'does nothing' do
-            resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-            expected_string  = forced_encoding("\x80", no_converter_encoding)
-            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
-          end
-        else
-          it 'forces the encoding and replaces invalid characters with the REPLACE string' do
-            resulting_string = build_encoded_string(string, no_converter_encoding).to_s
-            expected_string  = forced_encoding(EncodedString::REPLACE, no_converter_encoding)
-            expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
-          end
+        it 'forces the encoding and replaces invalid characters with the REPLACE string' do
+          resulting_string = build_encoded_string(string, no_converter_encoding).to_s
+          expected_string  = forced_encoding(EncodedString::REPLACE, no_converter_encoding)
+          expect(resulting_string).to be_identical_string(expected_string).with_same_encoding
+        end
 
-          it 'does not mutate the input string' do
-            expect {
-              build_encoded_string(string, no_converter_encoding)
-            }.not_to change { [string, string.encoding] }
-          end
+        it 'does not mutate the input string' do
+          expect {
+            build_encoded_string(string, no_converter_encoding)
+          }.not_to change { [string, string.encoding] }
         end
       end
 

@@ -112,14 +112,10 @@ module RSpec
             require 'ripper'
             # It doesn't matter if keyword arguments don't exist.
             if Ruby.mri? || Ruby.jruby? || Ruby.truffleruby?
-              if RUBY_VERSION < '2.0'
-                true
-              else
-                begin
-                  !::Ripper.sexp('def a(**kw_args); end').nil?
-                rescue NoMethodError
-                  false
-                end
+              begin
+                !::Ripper.sexp('def a(**kw_args); end').nil?
+              rescue NoMethodError
+                false
               end
             end
           end

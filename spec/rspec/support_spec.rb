@@ -65,7 +65,7 @@ module RSpec
         }.to raise_error(NameError)
       end
 
-      context "for a BasicObject subclass", :if => RUBY_VERSION.to_f > 1.8 do
+      context "for a BasicObject subclass" do
         let(:basic_class) do
           Class.new(BasicObject) do
             def foo
