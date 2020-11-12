@@ -75,10 +75,6 @@ module RSpec
         end
       end
 
-      def module_refinement_supported?
-        Module.method_defined?(:refine) || Module.private_method_defined?(:refine)
-      end
-
       def module_prepends_supported?
         Module.method_defined?(:prepend) || Module.private_method_defined?(:prepend)
       end

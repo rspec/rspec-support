@@ -59,12 +59,6 @@ module RSpec
     end
 
     describe RubyFeatures do
-      specify "#module_refinement_supported? reflects refinement support" do
-        if Ruby.mri? && RUBY_VERSION >= '2.1.0'
-          expect(RubyFeatures.module_refinement_supported?).to eq true
-        end
-      end
-
       specify "#fork_supported? exists" do
         RubyFeatures.fork_supported?
       end
