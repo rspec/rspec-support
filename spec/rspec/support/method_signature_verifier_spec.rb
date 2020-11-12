@@ -140,18 +140,10 @@ module RSpec
               expect(validate_expectation 1, 2 ** 31).to eq(true)
             end
 
-            if RubyFeatures.optional_and_splat_args_supported?
-              it 'matches unlimited arguments with the minimum arity' do
-                expect(validate_expectation :unlimited_args).to eq(false)
+            it 'matches unlimited arguments with the minimum arity' do
+              expect(validate_expectation :unlimited_args).to eq(false)
 
-                expect(validate_expectation 1, :unlimited_args).to eq(true)
-              end
-            else
-              it 'ignores unlimited arguments expectations' do
-                expect(validate_expectation :unlimited_args).to eq(false)
-
-                expect(validate_expectation 1, :unlimited_args).to eq(true)
-              end
+              expect(validate_expectation 1, :unlimited_args).to eq(true)
             end
 
             it 'does not match keywords' do
@@ -175,22 +167,11 @@ module RSpec
             expect(valid_non_kw_args?(1)).to eq(false)
             expect(valid_non_kw_args?(2)).to eq(true)
             expect(valid_non_kw_args?(3)).to eq(true)
-
-            if RubyFeatures.optional_and_splat_args_supported?
-              expect(valid_non_kw_args?(4)).to eq(false)
-            else
-              expect(valid_non_kw_args?(4)).to eq(true)
-            end
+            expect(valid_non_kw_args?(4)).to eq(false)
           end
 
-          if RubyFeatures.optional_and_splat_args_supported?
-            it 'describes the arity as a range' do
-              expect(error_description).to eq("2 to 3")
-            end
-          else
-            it 'describes the arity with no upper bound' do
-              expect(error_description).to eq("2 or more")
-            end
+          it 'describes the arity as a range' do
+            expect(error_description).to eq("2 to 3")
           end
 
           describe 'with an expectation object' do
@@ -198,24 +179,14 @@ module RSpec
               expect(validate_expectation 1).to eq(false)
               expect(validate_expectation 2).to eq(true)
               expect(validate_expectation 3).to eq(true)
-
-              if RubyFeatures.optional_and_splat_args_supported?
-                expect(validate_expectation 4).to eq(false)
-              else
-                expect(validate_expectation 4).to eq(true)
-              end
+              expect(validate_expectation 4).to eq(false)
             end
 
             it 'matches a range from the lower bound upwards' do
               expect(validate_expectation 1, 2).to eq(false)
               expect(validate_expectation 2, 2).to eq(true)
               expect(validate_expectation 2, 3).to eq(true)
-
-              if RubyFeatures.optional_and_splat_args_supported?
-                expect(validate_expectation 2, 4).to eq(false)
-              else
-                expect(validate_expectation 2, 4).to eq(true)
-              end
+              expect(validate_expectation 2, 4).to eq(false)
             end
 
             it 'does not match unlimited arguments' do

@@ -60,10 +60,6 @@ module RSpec
         Process.respond_to?(:fork)
       end
 
-      def optional_and_splat_args_supported?
-        Method.method_defined?(:parameters)
-      end
-
       def caller_locations_supported?
         respond_to?(:caller_locations, true)
       end
