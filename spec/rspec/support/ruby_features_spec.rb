@@ -69,10 +69,6 @@ module RSpec
         RubyFeatures.fork_supported?
       end
 
-      specify "#supports_exception_cause? exists" do
-        RubyFeatures.supports_exception_cause?
-      end
-
       specify "#supports_taint?" do
         RubyFeatures.supports_taint?
       end
