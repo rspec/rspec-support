@@ -12,9 +12,7 @@ module RSpec
     # hand, does a linear O(N) search over the dirs in the $LOAD_PATH until
     # it can resolve the file relative to one of the dirs.
     def self.define_optimized_require_for_rspec(lib, &require_relative)
-      name = "require_rspec_#{lib}"
-
-      (class << self; self; end).__send__(:define_method, name) do |f|
+      define_singleton_method("require_rspec_#{lib}") do |f|
         require_relative.call("#{lib}/#{f}")
       end
     end
