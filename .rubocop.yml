@@ -19,11 +19,6 @@ Style/EvalWithLocation:
     # eval is only used here to check syntax
     - 'lib/rspec/support/ruby_features.rb'
 
-Lint/AssignmentInCondition:
-  Exclude:
-    # The pattern makes sense here
-    - 'lib/rspec/support/mutex.rb'
-
 # Over time we'd like to get this down, but this is what we're at now.
 Metrics/AbcSize:
   Max: 22
