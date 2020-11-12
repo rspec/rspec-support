@@ -36,10 +36,6 @@ module RSpec
         defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
       end
 
-      def non_mri?
-        !mri?
-      end
-
       def mri?
         !defined?(RUBY_ENGINE) || RUBY_ENGINE == 'ruby'
       end
