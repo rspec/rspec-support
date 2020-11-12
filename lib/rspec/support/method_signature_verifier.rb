@@ -301,13 +301,8 @@ module RSpec
             @unlimited_args = false
           end
 
-          if RubyFeatures.kw_args_supported?
-            @kw_args           = expectation.keywords
-            @arbitrary_kw_args = expectation.expect_arbitrary_keywords
-          else
-            @kw_args           = []
-            @arbitrary_kw_args = false
-          end
+          @kw_args           = expectation.keywords
+          @arbitrary_kw_args = expectation.expect_arbitrary_keywords
         end
 
         self

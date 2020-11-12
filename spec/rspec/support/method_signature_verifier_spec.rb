@@ -93,25 +93,13 @@ module RSpec
               expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            if RubyFeatures.kw_args_supported?
-              it 'does not match keywords' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(false)
-              end
+            it 'does not match keywords' do
+              expect(validate_expectation :optional_keyword).to eq(false)
+              expect(validate_expectation 2, :optional_keyword).to eq(false)
+            end
 
-              it 'does not match arbitrary keywords' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-              end
-            else
-              it 'ignores keyword expectations' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
-              end
-
-              it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
-              end
+            it 'does not match arbitrary keywords' do
+              expect(validate_expectation :arbitrary_kw_args).to eq(false)
             end
           end
         end
@@ -166,26 +154,14 @@ module RSpec
               end
             end
 
-            if RubyFeatures.kw_args_supported?
-              it 'does not match keywords' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(false)
-              end
+            it 'does not match keywords' do
+              expect(validate_expectation :optional_keyword).to eq(false)
+              expect(validate_expectation 2, :optional_keyword).to eq(false)
+            end
 
-              it 'does not match arbitrary keywords' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-                expect(validate_expectation 2, :arbitrary_kw_args).to eq(false)
-              end
-            else
-              it 'ignores keyword expectations' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
-              end
-
-              it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
-              end
+            it 'does not match arbitrary keywords' do
+              expect(validate_expectation :arbitrary_kw_args).to eq(false)
+              expect(validate_expectation 2, :arbitrary_kw_args).to eq(false)
             end
           end
         end
@@ -246,218 +222,200 @@ module RSpec
               expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            if RubyFeatures.kw_args_supported?
-              it 'does not match keywords' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-                expect(validate_expectation 2, :optional_keyword).to eq(false)
-              end
+            it 'does not match keywords' do
+              expect(validate_expectation :optional_keyword).to eq(false)
+              expect(validate_expectation 2, :optional_keyword).to eq(false)
+            end
 
-              it 'does not match arbitrary keywords' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-              end
-            else
-              it 'ignores keyword expectations' do
-                expect(validate_expectation :optional_keyword).to eq(false)
-
-                expect(validate_expectation 2, :optional_keyword).to eq(true)
-              end
-
-              it 'ignores arbitrary keyword expectations' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-
-                expect(validate_expectation 2, :arbitrary_kw_args).to eq(true)
-              end
+            it 'does not match arbitrary keywords' do
+              expect(validate_expectation :arbitrary_kw_args).to eq(false)
             end
           end
         end
 
-        if RubyFeatures.kw_args_supported?
-          describe 'a method with optional keyword arguments' do
-            eval <<-RUBY
-              def arity_kw(x, y:1, z:2); end
-            RUBY
+        describe 'a method with optional keyword arguments' do
+          eval <<-RUBY
+            def arity_kw(x, y:1, z:2); end
+          RUBY
 
-            let(:test_method) { method(:arity_kw) }
+          let(:test_method) { method(:arity_kw) }
 
-            it 'does not require any of the arguments' do
-              expect(valid?(nil)).to eq(true)
-              expect(valid?(nil, nil)).to eq(false)
+          it 'does not require any of the arguments' do
+            expect(valid?(nil)).to eq(true)
+            expect(valid?(nil, nil)).to eq(false)
+          end
+
+          it 'does not allow an invalid keyword arguments' do
+            expect(valid?(nil, :a => 1)).to eq(false)
+          end
+
+          it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+            expect(error_for(nil, :a => 0, :b => 1)).to \
+              eq("Invalid keyword arguments provided: a, b")
+          end
+
+          it 'describes invalid arity precisely' do
+            expect(error_for()).to \
+              eq("Wrong number of arguments. Expected 1, got 0.")
+          end
+
+          it 'does not blow up when given a BasicObject as the last arg' do
+            expect(valid?(BasicObject.new)).to eq(true)
+          end
+
+          it 'does not mutate the provided args array' do
+            args = [nil, { :y => 1 }]
+            described_class.new(signature, args).valid?
+            expect(args).to eq([nil, { :y => 1 }])
+          end
+
+          it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+            expect(signature_description).to eq("arity of 1 and optional keyword args (:y, :z)")
+          end
+
+          it "indicates the optional keyword args" do
+            expect(signature.optional_kw_args).to contain_exactly(:y, :z)
+          end
+
+          it "indicates it has no required keyword args" do
+            expect(signature.required_kw_args).to eq([])
+          end
+
+          describe 'with an expectation object' do
+            it 'matches the exact arity' do
+              expect(validate_expectation 0).to eq(false)
+              expect(validate_expectation 1).to eq(true)
+              expect(validate_expectation 2).to eq(false)
             end
 
-            it 'does not allow an invalid keyword arguments' do
-              expect(valid?(nil, :a => 1)).to eq(false)
+            it 'matches the exact range' do
+              expect(validate_expectation 0, 1).to eq(false)
+              expect(validate_expectation 1, 1).to eq(true)
+              expect(validate_expectation 1, 2).to eq(false)
             end
 
-            it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
-              expect(error_for(nil, :a => 0, :b => 1)).to \
-                eq("Invalid keyword arguments provided: a, b")
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            it 'describes invalid arity precisely' do
-              expect(error_for()).to \
-                eq("Wrong number of arguments. Expected 1, got 0.")
+            it 'matches optional keywords with the correct arity' do
+              expect(validate_expectation :y).to eq(false)
+              expect(validate_expectation :z).to eq(false)
+              expect(validate_expectation :y, :z).to eq(false)
+
+              expect(validate_expectation 1, :y).to eq(true)
+              expect(validate_expectation 1, :z).to eq(true)
+              expect(validate_expectation 1, :y, :z).to eq(true)
+
+              expect(validate_expectation 2, :y).to eq(false)
+              expect(validate_expectation 2, :z).to eq(false)
+              expect(validate_expectation 2, :y, :z).to eq(false)
             end
 
-            it 'does not blow up when given a BasicObject as the last arg' do
-              expect(valid?(BasicObject.new)).to eq(true)
+            it 'does not match invalid keywords' do
+              expect(validate_expectation :w).to eq(false)
+              expect(validate_expectation :w, :z).to eq(false)
+
+              expect(validate_expectation 1, :w).to eq(false)
+              expect(validate_expectation 1, :w, :z).to eq(false)
             end
 
-            it 'does not mutate the provided args array' do
-              args = [nil, { :y => 1 }]
-              described_class.new(signature, args).valid?
-              expect(args).to eq([nil, { :y => 1 }])
-            end
-
-            it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
-              expect(signature_description).to eq("arity of 1 and optional keyword args (:y, :z)")
-            end
-
-            it "indicates the optional keyword args" do
-              expect(signature.optional_kw_args).to contain_exactly(:y, :z)
-            end
-
-            it "indicates it has no required keyword args" do
-              expect(signature.required_kw_args).to eq([])
-            end
-
-            describe 'with an expectation object' do
-              it 'matches the exact arity' do
-                expect(validate_expectation 0).to eq(false)
-                expect(validate_expectation 1).to eq(true)
-                expect(validate_expectation 2).to eq(false)
-              end
-
-              it 'matches the exact range' do
-                expect(validate_expectation 0, 1).to eq(false)
-                expect(validate_expectation 1, 1).to eq(true)
-                expect(validate_expectation 1, 2).to eq(false)
-              end
-
-              it 'does not match unlimited arguments' do
-                expect(validate_expectation :unlimited_args).to eq(false)
-              end
-
-              it 'matches optional keywords with the correct arity' do
-                expect(validate_expectation :y).to eq(false)
-                expect(validate_expectation :z).to eq(false)
-                expect(validate_expectation :y, :z).to eq(false)
-
-                expect(validate_expectation 1, :y).to eq(true)
-                expect(validate_expectation 1, :z).to eq(true)
-                expect(validate_expectation 1, :y, :z).to eq(true)
-
-                expect(validate_expectation 2, :y).to eq(false)
-                expect(validate_expectation 2, :z).to eq(false)
-                expect(validate_expectation 2, :y, :z).to eq(false)
-              end
-
-              it 'does not match invalid keywords' do
-                expect(validate_expectation :w).to eq(false)
-                expect(validate_expectation :w, :z).to eq(false)
-
-                expect(validate_expectation 1, :w).to eq(false)
-                expect(validate_expectation 1, :w, :z).to eq(false)
-              end
-
-              it 'does not match arbitrary keywords' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-              end
+            it 'does not match arbitrary keywords' do
+              expect(validate_expectation :arbitrary_kw_args).to eq(false)
             end
           end
         end
 
-        if RubyFeatures.kw_args_supported?
-          describe 'a method with optional argument and keyword arguments' do
-            eval <<-RUBY
-              def arity_kw(x, y = {}, z:2); end
-            RUBY
+        describe 'a method with optional argument and keyword arguments' do
+          eval <<-RUBY
+            def arity_kw(x, y = {}, z:2); end
+          RUBY
 
-            let(:test_method) { method(:arity_kw) }
+          let(:test_method) { method(:arity_kw) }
 
-            it 'does not require any of the arguments' do
-              expect(valid?(nil)).to eq(true)
-              expect(valid?(nil, nil)).to eq(true)
+          it 'does not require any of the arguments' do
+            expect(valid?(nil)).to eq(true)
+            expect(valid?(nil, nil)).to eq(true)
+          end
+
+          it 'does not allow an invalid keyword arguments' do
+            expect(valid?(nil, nil, :a => 1)).to eq(false)
+            expect(valid?(nil, :a => 1)).to eq(false)
+          end
+
+          it 'treats symbols as keyword arguments and the rest as optional argument' do
+            expect(valid?(nil, 'a' => 1)).to eq(true)
+            expect(valid?(nil, 'a' => 1, :z => 3)).to eq(true)
+            expect(valid?(nil, 'a' => 1, :b => 3)).to eq(false)
+            expect(valid?(nil, 'a' => 1, :b => 2, :z => 3)).to eq(false)
+          end
+
+          it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+            expect(error_for(1, 2, :a => 0)).to eq("Invalid keyword arguments provided: a")
+            expect(error_for(1, :a => 0)).to eq("Invalid keyword arguments provided: a")
+            expect(error_for(1, 'a' => 0, :b => 0)).to eq("Invalid keyword arguments provided: b")
+          end
+
+          it 'describes invalid arity precisely' do
+            expect(error_for()).to \
+              eq("Wrong number of arguments. Expected 1 to 2, got 0.")
+          end
+
+          it 'does not blow up when given a BasicObject as the last arg' do
+            expect(valid?(BasicObject.new)).to eq(true)
+          end
+
+          it 'does not mutate the provided args array' do
+            args = [nil, nil, { :y => 1 }]
+            described_class.new(signature, args).valid?
+            expect(args).to eq([nil, nil, { :y => 1 }])
+          end
+
+          it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
+            expect(signature_description).to eq("arity of 1 to 2 and optional keyword args (:z)")
+          end
+
+          it "indicates the optional keyword args" do
+            expect(signature.optional_kw_args).to contain_exactly(:z)
+          end
+
+          it "indicates it has no required keyword args" do
+            expect(signature.required_kw_args).to eq([])
+          end
+
+          describe 'with an expectation object' do
+            it 'matches the exact arity' do
+              expect(validate_expectation 0).to eq(false)
+              expect(validate_expectation 1).to eq(true)
+              expect(validate_expectation 2).to eq(true)
             end
 
-            it 'does not allow an invalid keyword arguments' do
-              expect(valid?(nil, nil, :a => 1)).to eq(false)
-              expect(valid?(nil, :a => 1)).to eq(false)
+            it 'matches the exact range' do
+              expect(validate_expectation 0, 1).to eq(false)
+              expect(validate_expectation 1, 1).to eq(true)
+              expect(validate_expectation 1, 2).to eq(true)
+              expect(validate_expectation 1, 3).to eq(false)
             end
 
-            it 'treats symbols as keyword arguments and the rest as optional argument' do
-              expect(valid?(nil, 'a' => 1)).to eq(true)
-              expect(valid?(nil, 'a' => 1, :z => 3)).to eq(true)
-              expect(valid?(nil, 'a' => 1, :b => 3)).to eq(false)
-              expect(valid?(nil, 'a' => 1, :b => 2, :z => 3)).to eq(false)
+            it 'does not match unlimited arguments' do
+              expect(validate_expectation :unlimited_args).to eq(false)
             end
 
-            it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
-              expect(error_for(1, 2, :a => 0)).to eq("Invalid keyword arguments provided: a")
-              expect(error_for(1, :a => 0)).to eq("Invalid keyword arguments provided: a")
-              expect(error_for(1, 'a' => 0, :b => 0)).to eq("Invalid keyword arguments provided: b")
+            it 'matches optional keywords with the correct arity' do
+              expect(validate_expectation :z).to eq(false)
+              expect(validate_expectation 1, :z).to eq(true) # Are we OK with that?
+              expect(validate_expectation 1, 2, :z).to eq(true)
+              expect(validate_expectation 1, 2, :y).to eq(false)
             end
 
-            it 'describes invalid arity precisely' do
-              expect(error_for()).to \
-                eq("Wrong number of arguments. Expected 1 to 2, got 0.")
+            it 'does not match invalid keywords' do
+              expect(validate_expectation :w).to eq(false)
+
+              expect(validate_expectation 2, :w).to eq(false)
             end
 
-            it 'does not blow up when given a BasicObject as the last arg' do
-              expect(valid?(BasicObject.new)).to eq(true)
-            end
-
-            it 'does not mutate the provided args array' do
-              args = [nil, nil, { :y => 1 }]
-              described_class.new(signature, args).valid?
-              expect(args).to eq([nil, nil, { :y => 1 }])
-            end
-
-            it 'mentions the arity and optional kw args in the description', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
-              expect(signature_description).to eq("arity of 1 to 2 and optional keyword args (:z)")
-            end
-
-            it "indicates the optional keyword args" do
-              expect(signature.optional_kw_args).to contain_exactly(:z)
-            end
-
-            it "indicates it has no required keyword args" do
-              expect(signature.required_kw_args).to eq([])
-            end
-
-            describe 'with an expectation object' do
-              it 'matches the exact arity' do
-                expect(validate_expectation 0).to eq(false)
-                expect(validate_expectation 1).to eq(true)
-                expect(validate_expectation 2).to eq(true)
-              end
-
-              it 'matches the exact range' do
-                expect(validate_expectation 0, 1).to eq(false)
-                expect(validate_expectation 1, 1).to eq(true)
-                expect(validate_expectation 1, 2).to eq(true)
-                expect(validate_expectation 1, 3).to eq(false)
-              end
-
-              it 'does not match unlimited arguments' do
-                expect(validate_expectation :unlimited_args).to eq(false)
-              end
-
-              it 'matches optional keywords with the correct arity' do
-                expect(validate_expectation :z).to eq(false)
-                expect(validate_expectation 1, :z).to eq(true) # Are we OK with that?
-                expect(validate_expectation 1, 2, :z).to eq(true)
-                expect(validate_expectation 1, 2, :y).to eq(false)
-              end
-
-              it 'does not match invalid keywords' do
-                expect(validate_expectation :w).to eq(false)
-
-                expect(validate_expectation 2, :w).to eq(false)
-              end
-
-              it 'does not match arbitrary keywords' do
-                expect(validate_expectation :arbitrary_kw_args).to eq(false)
-              end
+            it 'does not match arbitrary keywords' do
+              expect(validate_expectation :arbitrary_kw_args).to eq(false)
             end
           end
         end
@@ -996,17 +954,15 @@ module RSpec
       describe StrictSignatureVerifier do
         it_behaves_like 'a method verifier'
 
-        if RubyFeatures.kw_args_supported?
-          describe 'providing a matcher for optional keyword arguments' do
-            eval <<-RUBY
-              def arity_kw(x, y:1); end
-            RUBY
+        describe 'providing a matcher for optional keyword arguments' do
+          eval <<-RUBY
+            def arity_kw(x, y:1); end
+          RUBY
 
-            let(:test_method) { method(:arity_kw) }
+          let(:test_method) { method(:arity_kw) }
 
-            it 'is not allowed' do
-              expect(valid?(nil, fake_matcher)).to eq(false)
-            end
+          it 'is not allowed' do
+            expect(valid?(nil, fake_matcher)).to eq(false)
           end
         end
 
@@ -1028,21 +984,19 @@ module RSpec
       describe LooseSignatureVerifier do
         it_behaves_like 'a method verifier'
 
-        if RubyFeatures.kw_args_supported?
-          describe 'for optional keyword arguments' do
-            eval <<-RUBY
-              def arity_kw(x, y:1, z:2); end
-            RUBY
+        describe 'for optional keyword arguments' do
+          eval <<-RUBY
+            def arity_kw(x, y:1, z:2); end
+          RUBY
 
-            let(:test_method) { method(:arity_kw) }
+          let(:test_method) { method(:arity_kw) }
 
-            it 'allows a matcher' do
-              expect(valid?(nil, fake_matcher)).to eq(true)
-            end
+          it 'allows a matcher' do
+            expect(valid?(nil, fake_matcher)).to eq(true)
+          end
 
-            it 'allows a matcher only for positional arguments' do
-              expect(valid?(fake_matcher)).to eq(true)
-            end
+          it 'allows a matcher only for positional arguments' do
+            expect(valid?(fake_matcher)).to eq(true)
           end
         end
 
