@@ -96,19 +96,14 @@ module RSpec
           end
         end
 
-        it 'still works', :if => supports_rebinding_module_methods? do
+        it 'still works' do
           object = basic_class.new
           expect(Support.method_handle_for(object, :foo).call).to eq :bar
         end
 
-        it 'works when `method` has been overriden', :if => supports_rebinding_module_methods? do
+        it 'works when `method` has been overriden' do
           object = basic_class_with_method_override.new
           expect(Support.method_handle_for(object, :foo).call).to eq :bar
-        end
-
-        it 'allows `method` to be proxied', :unless => supports_rebinding_module_methods? do
-          object = basic_class_with_proxying.new
-          expect(Support.method_handle_for(object, :reverse).call).to eq "oof"
         end
 
         it 'still works when Kernel has been mixed in' do

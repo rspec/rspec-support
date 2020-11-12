@@ -43,33 +43,15 @@ module RSpec
     #   - BasicObject subclasses that mixin a Kernel dup (e.g. SimpleDelegator)
     #   - Objects that undefine method and delegate everything to another
     #     object (e.g. Mongoid association objects)
-    if RubyFeatures.supports_rebinding_module_methods?
-      def self.method_handle_for(object, method_name)
-        KERNEL_METHOD_METHOD.bind(object).call(method_name)
-      rescue NameError => original
-        begin
-          handle = object.method(method_name)
-          raise original unless handle.is_a? Method
-          handle
-        rescue Support::AllExceptionsExceptOnesWeMustNotRescue
-          raise original
-        end
-      end
-    else
-      def self.method_handle_for(object, method_name)
-        if ::Kernel === object
-          KERNEL_METHOD_METHOD.bind(object).call(method_name)
-        else
-          object.method(method_name)
-        end
-      rescue NameError => original
-        begin
-          handle = object.method(method_name)
-          raise original unless handle.is_a? Method
-          handle
-        rescue Support::AllExceptionsExceptOnesWeMustNotRescue
-          raise original
-        end
+    def self.method_handle_for(object, method_name)
+      KERNEL_METHOD_METHOD.bind(object).call(method_name)
+    rescue NameError => original
+      begin
+        handle = object.method(method_name)
+        raise original unless handle.is_a? Method
+        handle
+      rescue Support::AllExceptionsExceptOnesWeMustNotRescue
+        raise original
       end
     end
 

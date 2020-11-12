@@ -106,10 +106,6 @@ module RSpec
         def required_kw_args_supported?
           RUBY_VERSION >= '2.1.0'
         end
-
-        def supports_rebinding_module_methods?
-          RUBY_VERSION.to_i >= 2
-        end
       else
         # RBX / JRuby et al support is unknown for keyword arguments
         begin
@@ -121,18 +117,6 @@ module RSpec
           end
         rescue SyntaxError
           def required_kw_args_supported?
-            false
-          end
-        end
-
-        begin
-          Module.new { def foo; end }.instance_method(:foo).bind(Object.new)
-
-          def supports_rebinding_module_methods?
-            true
-          end
-        rescue TypeError
-          def supports_rebinding_module_methods?
             false
           end
         end
