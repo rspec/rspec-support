@@ -207,9 +207,6 @@ module RSpec
         # http://stackoverflow.com/a/2818916
         def native_object_id
           OBJECT_ID_FORMAT % (object.__id__ << 1)
-        rescue NoMethodError
-          # In Ruby 1.9.2, BasicObject responds to none of #__id__, #object_id, #id...
-          '-'
         end
       end
 
