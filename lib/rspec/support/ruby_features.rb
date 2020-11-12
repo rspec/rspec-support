@@ -60,10 +60,6 @@ module RSpec
         Process.respond_to?(:fork)
       end
 
-      def caller_locations_supported?
-        respond_to?(:caller_locations, true)
-      end
-
       if Exception.method_defined?(:cause)
         def supports_exception_cause?
           true
