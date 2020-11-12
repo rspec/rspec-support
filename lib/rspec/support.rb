@@ -14,14 +14,8 @@ module RSpec
     def self.define_optimized_require_for_rspec(lib, &require_relative)
       name = "require_rspec_#{lib}"
 
-      if Kernel.respond_to?(:require_relative)
-        (class << self; self; end).__send__(:define_method, name) do |f|
-          require_relative.call("#{lib}/#{f}")
-        end
-      else
-        (class << self; self; end).__send__(:define_method, name) do |f|
-          require "rspec/#{lib}/#{f}"
-        end
+      (class << self; self; end).__send__(:define_method, name) do |f|
+        require_relative.call("#{lib}/#{f}")
       end
     end
 
