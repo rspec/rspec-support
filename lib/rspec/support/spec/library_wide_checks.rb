@@ -1,4 +1,5 @@
 require 'rspec/support/spec/shell_out'
+RSpec::Support.require_rspec_support 'ruby_features'
 
 module RSpec
   module Support

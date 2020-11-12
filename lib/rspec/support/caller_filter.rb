@@ -1,5 +1,3 @@
-RSpec::Support.require_rspec_support "ruby_features"
-
 module RSpec
   # Consistent implementation for "cleaning" the caller method to strip out
   # non-rspec lines. This enables errors to be reported at the call site in
