@@ -1,3 +1,9 @@
+### Development (unreleased)
+
+Breaking Changes:
+
+* Ruby < 2.3 is no longer supported. (Phil Pirozhkov, #436)
+
 ### 3.10.0 / 2020-10-30
 
 No changes. Released to support other RSpec releases.
