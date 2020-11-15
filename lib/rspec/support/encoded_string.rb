@@ -48,6 +48,10 @@ module RSpec
       end
       alias :to_str :to_s
 
+      def self.pick_encoding(source_a, source_b)
+        Encoding.compatible?(source_a, source_b) || Encoding.default_external
+      end
+
       private
 
       # Encoding Exceptions:
@@ -98,7 +102,7 @@ module RSpec
         # 'invalid: :replace' also replaces an invalid byte sequence
         #
         # For example:
-        #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a # => 
+        #   "\x80".force_encoding("Emacs-Mule").encode(:invalid => :replace).bytes.to_a # =>
         #   => 63  # '?'
         #
         string.encode(@encoding, :invalid => :replace, :undef => :replace, :replace => REPLACE)
@@ -114,10 +118,6 @@ module RSpec
 
       def detect_source_encoding(string)
         string.encoding
-      end
-
-      def self.pick_encoding(source_a, source_b)
-        Encoding.compatible?(source_a, source_b) || Encoding.default_external
       end
     end
   end

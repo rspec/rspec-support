@@ -8,7 +8,7 @@ module RSpec
     # keyword args of a given method.
     #
     # @private
-    class MethodSignature # rubocop:disable ClassLength
+    class MethodSignature
       attr_reader :min_non_kw_args, :max_non_kw_args, :optional_kw_args, :required_kw_args
 
       def initialize(method)
@@ -219,7 +219,7 @@ module RSpec
         @arbitrary_kw_args = @unlimited_args = false
       end
 
-      def with_expectation(expectation) # rubocop:disable MethodLength, Metrics/PerceivedComplexity
+      def with_expectation(expectation)
         return self unless MethodSignatureExpectation === expectation
 
         if expectation.empty?
