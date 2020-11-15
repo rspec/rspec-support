@@ -205,9 +205,7 @@ module RSpec
         end
 
         describe 'a method with optional keyword arguments' do
-          eval <<-RUBY
-            def arity_kw(x, y:1, z:2); end
-          RUBY
+          def arity_kw(x, y:1, z:2); end
 
           let(:test_method) { method(:arity_kw) }
 
@@ -298,9 +296,7 @@ module RSpec
         end
 
         describe 'a method with optional argument and keyword arguments' do
-          eval <<-RUBY
-            def arity_kw(x, y = {}, z:2); end
-          RUBY
+          def arity_kw(x, y = {}, z:2); end
 
           let(:test_method) { method(:arity_kw) }
 
@@ -392,9 +388,7 @@ module RSpec
         end
 
         describe 'a method with required keyword arguments' do
-          eval <<-RUBY
-            def arity_required_kw(x, y:, z:, a: 'default'); end
-          RUBY
+          def arity_required_kw(x, y:, z:, a: 'default'); end
 
           let(:test_method) { method(:arity_required_kw) }
 
@@ -492,9 +486,7 @@ module RSpec
         end
 
         describe 'a method with required keyword arguments and a splat' do
-          eval <<-RUBY
-            def arity_required_kw_splat(w, *x, y:, z:, a: 'default'); end
-          RUBY
+          def arity_required_kw_splat(w, *x, y:, z:, a: 'default'); end
 
           let(:test_method) { method(:arity_required_kw_splat) }
 
@@ -585,9 +577,7 @@ module RSpec
         end
 
         describe 'a method with required keyword arguments and a keyword arg splat' do
-          eval <<-RUBY
-            def arity_kw_arg_splat(x:, **rest); end
-          RUBY
+          def arity_kw_arg_splat(x:, **rest); end
 
           let(:test_method) { method(:arity_kw_arg_splat) }
 
@@ -649,9 +639,7 @@ module RSpec
         end
 
         describe 'a method with a required arg and a keyword arg splat' do
-          eval <<-RUBY
-            def arity_kw_arg_splat(x, **rest); end
-          RUBY
+          def arity_kw_arg_splat(x, **rest); end
 
           let(:test_method) { method(:arity_kw_arg_splat) }
 
@@ -924,9 +912,7 @@ module RSpec
         it_behaves_like 'a method verifier'
 
         describe 'providing a matcher for optional keyword arguments' do
-          eval <<-RUBY
-            def arity_kw(x, y:1); end
-          RUBY
+          def arity_kw(x, y:1); end
 
           let(:test_method) { method(:arity_kw) }
 
@@ -936,9 +922,7 @@ module RSpec
         end
 
         describe 'providing a matcher for required keyword arguments' do
-          eval <<-RUBY
-            def arity_kw_required(x, y:); end
-          RUBY
+          def arity_kw_required(x, y:); end
 
           let(:test_method) { method(:arity_kw_required) }
 
@@ -952,9 +936,7 @@ module RSpec
         it_behaves_like 'a method verifier'
 
         describe 'for optional keyword arguments' do
-          eval <<-RUBY
-            def arity_kw(x, y:1, z:2); end
-          RUBY
+          def arity_kw(x, y:1, z:2); end
 
           let(:test_method) { method(:arity_kw) }
 
@@ -968,9 +950,7 @@ module RSpec
         end
 
         describe 'providing a matcher for required keyword arguments' do
-          eval <<-RUBY
-            def arity_kw_required(x, y:); end
-          RUBY
+          def arity_kw_required(x, y:); end
 
           let(:test_method) { method(:arity_kw_required) }
 

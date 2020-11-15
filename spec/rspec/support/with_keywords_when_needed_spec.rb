@@ -27,21 +27,15 @@ module RSpec::Support
       end
 
       it "will run a block with optional keyword arguments when none are provided" do
-        binding.eval(<<-CODE, __FILE__, __LINE__)
         run(klass, 42) { |arg, val: nil| check_argument(arg) }
-        CODE
       end
 
       it "will run a block with optional keyword arguments when they are provided" do
-        binding.eval(<<-CODE, __FILE__, __LINE__)
         run(klass, val: 42) { |val: nil| check_argument(val) }
-        CODE
       end
 
       it "will run a block with required keyword arguments" do
-        binding.eval(<<-CODE, __FILE__, __LINE__)
         run(klass, val: 42) { |val:| check_argument(val) }
-        CODE
       end
     end
   end
