@@ -27,15 +27,8 @@ module RSpec
         @orig_stderr.reopen(*args)
       end
 
-      # To work around JRuby error:
-      # can't convert RSpec::Support::StdErrSplitter into String
-      def to_io
-        @orig_stderr.to_io
-      end
-
-      # To work around JRuby error:
-      # TypeError: $stderr must have write method, RSpec::StdErrSplitter given
       def write(line)
+        # Ignore warnings coming from gems, specifically Rails on Ruby 2.5+
         return if line =~ %r{^\S+/gems/\S+:\d+: warning:} # http://rubular.com/r/kqeUIZOfPG
 
         # Ruby 2.7.0 warnings from keyword argments span multiple lines, extend check above
