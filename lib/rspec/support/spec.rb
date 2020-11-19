@@ -36,9 +36,9 @@ RSpec.configure do |c|
 
   c.example_status_persistence_file_path = "./spec/examples.txt"
 
-  c.define_derived_metadata :failing_on_appveyor do |meta|
-    meta[:pending] ||= "This spec fails on AppVeyor and needs someone to fix it."
-  end if ENV['APPVEYOR']
+  c.define_derived_metadata :failing_on_windows_ci do |meta|
+    meta[:pending] ||= "This spec fails on Windows CI and needs someone to fix it."
+  end if RSpec::Support::OS.windows? && ENV['CI']
 end
 
 module RSpec

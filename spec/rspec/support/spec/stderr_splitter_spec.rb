@@ -32,7 +32,7 @@ describe 'RSpec::Support::StdErrSplitter' do
     stderr_methods -= [:birthtime] if RUBY_VERSION =~ /^2\.2/
 
     # No idea why, but on our AppVeyor windows builds it doesn't respond to these...
-    stderr_methods -= [:close_on_exec?, :close_on_exec=] if RSpec::Support::OS.windows?
+    stderr_methods -= [:close_on_exec?, :close_on_exec=] if RSpec::Support::OS.windows? && ENV['CI']
 
     expect(splitter).to respond_to(*stderr_methods)
   end
