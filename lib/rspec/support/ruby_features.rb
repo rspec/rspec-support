@@ -111,8 +111,10 @@ module RSpec
         ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
         # Ripper on JRuby 9.0.0.0.rc1 - 9.1.8.0 reports wrong line number
         # or cannot parse source including `:if`.
-        # Ripper on JRuby 9.x.x.x < 9.2.1.0 can't handle keyword arguments.
-        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.2.0.0'))
+        # Ripper on JRuby 9.x.x.x < 9.1.17.0 can't handle keyword arguments
+        # Neither can JRuby 9.2, e.g. < 9.2.1.0
+        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.1.16.0'))
+        ripper_requirements.push(!Ruby.jruby_version.between?('9.1.999.0', '9.1.999.0'))
       end
 
       if ripper_requirements.all?
