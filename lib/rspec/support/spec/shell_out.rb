@@ -59,7 +59,7 @@ module RSpec
           %r{bundler/source/rubygems},
           # Ignore bundler + rubygems warning.
           %r{site_ruby/\d\.\d\.\d/rubygems},
-          %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/rubygems},
+          %r{jruby-\d\.\d\.\d+\.\d/lib/ruby/stdlib/rubygems},
           # This is required for windows for some reason
           %r{lib/bundler/rubygems},
           # This is a JRuby file that generates warnings on 9.0.3.0
@@ -70,8 +70,10 @@ module RSpec
           %r{ffi-1\.13\.\d+-java},
           %r{uninitialized constant FFI},
           # These are related to the above, there is a warning about io from FFI
-          %r{jruby-\d\.\d\.\d\.\d/lib/ruby/stdlib/io},
+          %r{jruby-\d\.\d\.\d+\.\d/lib/ruby/stdlib/io},
           %r{io/console on JRuby shells out to stty for most operations},
+          # This is a JRuby 9.1.17.0 error on Github Actions
+          %r{io/console not supported; tty will not be manipulated},
         ]
 
       def strip_known_warnings(input)
