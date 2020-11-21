@@ -74,6 +74,9 @@ module RSpec
           %r{io/console on JRuby shells out to stty for most operations},
           # This is a JRuby 9.1.17.0 error on Github Actions
           %r{io/console not supported; tty will not be manipulated},
+          # This is a JRuby 9.2.1.x error
+          %r{jruby/kernel/gem_prelude},
+          %r{lib/jruby\.jar!/jruby/preludes},
         ]
 
       def strip_known_warnings(input)
