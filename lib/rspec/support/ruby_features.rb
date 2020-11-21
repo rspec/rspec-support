@@ -60,7 +60,7 @@ module RSpec
     module RubyFeatures
     module_function
 
-      if Ruby.jruby?
+      if Ruby.jruby? && RUBY_VERSION.to_f < 1.9
         # On JRuby 1.7 `--1.8` mode, `Process.respond_to?(:fork)` returns true,
         # but when you try to fork, it raises an error:
         #   NotImplementedError: fork is not available on this platform
@@ -111,8 +111,10 @@ module RSpec
         ripper_requirements.push(Ruby.jruby_version >= '1.7.5')
         # Ripper on JRuby 9.0.0.0.rc1 - 9.1.8.0 reports wrong line number
         # or cannot parse source including `:if`.
-        # Ripper on JRuby 9.x.x.x < 9.2.1.0 can't handle keyword arguments.
-        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.2.0.0'))
+        # Ripper on JRuby 9.x.x.x < 9.1.17.0 can't handle keyword arguments
+        # Neither can JRuby 9.2, e.g. < 9.2.1.0
+        ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.1.16.0'))
+        ripper_requirements.push(!Ruby.jruby_version.between?('9.1.999.0', '9.1.999.0'))
       end
 
       if ripper_requirements.all?
