@@ -14,7 +14,7 @@ on:
 jobs:
   test:
     name: Ruby ${{ matrix.ruby }} ${{ matrix.name_extra || '' }}
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os || 'ubuntu-20.04' }}
     strategy:
       matrix:
         ruby:
@@ -36,6 +36,7 @@ jobs:
               JRUBY_OPTS: "--dev"
           - ruby: jruby-9.1.17.0
             bundler: 1
+            os: ubuntu-18.04
             env:
               JRUBY_OPTS: "--dev"
           - ruby: 2.7
