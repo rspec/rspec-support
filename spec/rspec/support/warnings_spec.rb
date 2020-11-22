@@ -1,4 +1,3 @@
-require "spec_helper"
 require "rspec/support/warnings"
 require 'rspec/support/spec/shell_out'
 

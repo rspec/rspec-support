@@ -1,4 +1,3 @@
-require 'spec_helper'
 require 'fileutils'
 require 'rspec/support/caller_filter'
 

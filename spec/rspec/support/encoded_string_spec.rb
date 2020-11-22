@@ -1,5 +1,3 @@
-# encoding: utf-8
-require 'spec_helper'
 require 'rspec/support/encoded_string'
 require 'rspec/support/spec/string_matcher'
 
