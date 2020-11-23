@@ -128,24 +128,10 @@ module RSpec
 
       context 'with a BasicObject instance' do
         let(:object) do
-          basic_object_class.new
+          BasicObject.new
         end
 
-        let(:basic_object_class) do
-          defined?(BasicObject) ? BasicObject : fake_basic_object_class
-        end
-
-        let(:fake_basic_object_class) do
-          Class.new do
-            def self.to_s
-              'BasicObject'
-            end
-
-            undef class, inspect, respond_to?
-          end
-        end
-
-        it { should equal(basic_object_class) }
+        it { should equal(BasicObject) }
       end
 
       context 'with nil' do
