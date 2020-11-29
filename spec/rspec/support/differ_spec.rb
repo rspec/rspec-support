@@ -155,7 +155,7 @@ module RSpec
             expect(diff).to be_diffed_as(expected_diff)
           end
 
-          it 'uses the default external encoding when the two strings have incompatible encodings', :failing_on_appveyor do
+          it 'uses the default external encoding when the two strings have incompatible encodings' do
             expected = "Tu avec carte {count} item has\n"
             actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
             expected_diff = "\n@@ #{one_line_header} @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
@@ -312,7 +312,7 @@ module RSpec
           end
         end
 
-        it 'outputs unified diff message of two hashes with differing encoding', :failing_on_appveyor do
+        it 'outputs unified diff message of two hashes with differing encoding' do
           expected_diff = dedent(<<-"EOD")
             |
             |@@ #{one_line_header} @@
@@ -325,7 +325,7 @@ module RSpec
           expect(diff).to be_diffed_as(expected_diff)
         end
 
-        it 'outputs unified diff message of two hashes with encoding different to key encoding', :failing_on_appveyor do
+        it 'outputs unified diff message of two hashes with encoding different to key encoding' do
           expected_diff = dedent(<<-"EOD")
             |
             |@@ #{one_line_header} @@
