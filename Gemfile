@@ -20,7 +20,7 @@ else
 end
 
 gem "childprocess", ">= 3.0.0"
-gem 'ffi', '~> 1.13.0'
+gem 'ffi', '~> 1.12.0'
 
 ### dep for ci/coverage
 gem 'simplecov', '~> 0.8'
