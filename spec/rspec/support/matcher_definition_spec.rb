@@ -1,5 +1,3 @@
-require "spec_helper"
-
 module RSpec
   module Support
     RSpec.describe "matcher definitions" do

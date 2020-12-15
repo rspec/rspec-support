@@ -1,4 +1,3 @@
-require "spec_helper"
 require "fileutils"
 
 RSpec::Support.require_rspec_support("directory_maker")

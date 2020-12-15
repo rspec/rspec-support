@@ -1,4 +1,3 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rspec/support/version'
@@ -33,8 +32,8 @@ Gem::Specification.new do |spec|
     spec.cert_chain = [File.expand_path('~/.gem/rspec-gem-public_cert.pem')]
   end
 
-  spec.required_ruby_version = '>= 1.8.7'
+  spec.required_ruby_version = '>= 2.3.0'
 
-  spec.add_development_dependency "rake",         "> 10.0.0"
+  spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "thread_order", "~> 1.1.0"
 end
