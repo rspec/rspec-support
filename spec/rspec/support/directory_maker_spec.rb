@@ -3,7 +3,7 @@ require "fileutils"
 RSpec::Support.require_rspec_support("directory_maker")
 
 module RSpec::Support
-  describe DirectoryMaker do
+  RSpec.describe DirectoryMaker do
     shared_examples_for "an mkdir_p implementation" do
       include_context "isolated directory"
 
