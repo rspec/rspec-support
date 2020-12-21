@@ -1,7 +1,7 @@
 require 'rspec/support/comparable_version'
 
 module RSpec::Support
-  describe ComparableVersion do
+  RSpec.describe ComparableVersion do
     describe '#<=>' do
       [
         ['1.2.3',        '1.2.3',        0],
