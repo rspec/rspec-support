@@ -85,7 +85,7 @@ describe 'RSpec::Support::StdErrSplitter' do
 
   unless defined?(RUBY_ENGINE) && RUBY_ENGINE == 'rbx'
     it 'will fail an example which generates a warning' do
-      true unless @undefined
+      true unless $undefined
       expect { splitter.verify_no_warnings! }.to raise_error(/Warnings were generated:/)
     end
   end
