@@ -4,7 +4,7 @@ require 'rspec/support/encoded_string'
 require 'rspec/support/spec/string_matcher'
 
 module RSpec::Support
-  describe EncodedString do
+  RSpec.describe EncodedString do
     let(:utf8_encoding) { 'UTF-8' }
 
     delegated_methods = String.instance_methods.map(&:to_s) & %w[eql? lines == encoding empty?]
