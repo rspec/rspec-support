@@ -2,7 +2,7 @@ require 'rspec/support/ruby_features'
 
 module RSpec
   module Support
-    describe OS do
+    RSpec.describe OS do
 
       describe ".windows?" do
         %w[cygwin mswin mingw bccwin wince emx].each do |fragment|
@@ -33,7 +33,7 @@ module RSpec
       end
     end
 
-    describe Ruby do
+    RSpec.describe Ruby do
       specify "jruby? reflects the state of RUBY_PLATFORM" do
         stub_const("RUBY_PLATFORM", "java")
         expect(Ruby).to be_jruby
@@ -58,7 +58,7 @@ module RSpec
       end
     end
 
-    describe RubyFeatures do
+    RSpec.describe RubyFeatures do
       specify "#fork_supported? exists" do
         RubyFeatures.fork_supported?
       end

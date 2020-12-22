@@ -2,7 +2,7 @@ require 'rspec/support/recursive_const_methods'
 
 module RSpec
   module Support
-    describe RecursiveConstMethods do
+    RSpec.describe RecursiveConstMethods do
       include described_class
 
       module Foo

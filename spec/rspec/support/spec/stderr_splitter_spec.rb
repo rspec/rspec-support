@@ -2,7 +2,7 @@ require 'rspec/support/spec/stderr_splitter'
 require 'tempfile'
 require 'rspec/support/spec/in_sub_process'
 
-describe 'RSpec::Support::StdErrSplitter' do
+RSpec.describe 'RSpec::Support::StdErrSplitter' do
   include RSpec::Support::InSubProcess
 
   let(:splitter) { RSpec::Support::StdErrSplitter.new stderr }

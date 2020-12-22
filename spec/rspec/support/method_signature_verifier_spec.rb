@@ -3,7 +3,7 @@ require 'rspec/support/method_signature_verifier'
 
 module RSpec
   module Support
-    describe 'verifying methods' do
+    RSpec.describe 'verifying methods' do
       let(:signature) { MethodSignature.new(test_method) }
 
       def valid_non_kw_args?(arity)

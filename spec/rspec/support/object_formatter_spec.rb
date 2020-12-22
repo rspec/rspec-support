@@ -3,7 +3,7 @@ require 'rspec/matchers/fail_matchers'
 
 module RSpec
   module Support
-    describe ObjectFormatter, ".format" do
+    RSpec.describe ObjectFormatter, ".format" do
       context 'with an array object containing other objects for which we have custom formatting' do
         let(:time)  { Time.utc(1969, 12, 31, 19, 01, 40, 101) }
         let(:formatted_time) { ObjectFormatter.format(time) }

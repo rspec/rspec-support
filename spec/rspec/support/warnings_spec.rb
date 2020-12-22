@@ -1,7 +1,7 @@
 require "rspec/support/warnings"
 require 'rspec/support/spec/shell_out'
 
-describe "rspec warnings and deprecations" do
+RSpec.describe "rspec warnings and deprecations" do
   include RSpec::Support::ShellOut
   let(:warning_object) do
     Object.new.tap { |o| o.extend(RSpec::Support::Warnings) }
