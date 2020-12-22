@@ -3,7 +3,7 @@ require 'rspec/support/fuzzy_matcher'
 
 module RSpec
   module Support
-    describe FuzzyMatcher, ".values_match?" do
+    RSpec.describe FuzzyMatcher, ".values_match?" do
       matcher :match_against do |actual|
         match { |expected| FuzzyMatcher.values_match?(expected, actual) }
       end
