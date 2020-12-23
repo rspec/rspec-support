@@ -128,7 +128,7 @@ module RSpec
           'foo'
         end
 
-        it { should equal(String) }
+        it { is_expected.to equal(String) }
       end
 
       context 'with a BasicObject instance' do
@@ -150,7 +150,7 @@ module RSpec
           end
         end
 
-        it { should equal(basic_object_class) }
+        it { is_expected.to equal(basic_object_class) }
       end
 
       context 'with nil' do
@@ -158,7 +158,7 @@ module RSpec
           nil
         end
 
-        it { should equal(NilClass) }
+        it { is_expected.to equal(NilClass) }
       end
 
       context 'with an object having a singleton class' do
@@ -181,7 +181,7 @@ module RSpec
           String
         end
 
-        it { should equal(Class) }
+        it { is_expected.to equal(Class) }
       end
     end
 
