@@ -31,7 +31,7 @@ module RSpec::Support
             ComparableVersion.new(subject_string) <=> ComparableVersion.new(other_string)
           end
 
-          it { should eq(expected) }
+          it { is_expected.to eq(expected) }
         end
       end
     end
