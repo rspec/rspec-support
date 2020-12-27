@@ -1,3 +1,10 @@
+### 3.10.1 / 2020-12-27
+
+Bug Fixes:
+
+* Fix deprecation expectations to fail correctly when
+  asserting on messages. (Phil Pirozhkov, #453)
+
 ### 3.10.0 / 2020-10-30
 
 No changes. Released to support other RSpec releases.
