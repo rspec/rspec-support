@@ -1,8 +1,18 @@
+### 3.10.1 / 2020-12-27
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.0...v3.10.1)
+
+Bug Fixes:
+
+* Fix deprecation expectations to fail correctly when
+  asserting on messages. (Phil Pirozhkov, #453)
+
 ### 3.10.0 / 2020-10-30
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.4...v3.10.0)
 
 No changes. Released to support other RSpec releases.
 
 ### 3.9.4 / 2020-10-23
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.9.3...v3.9.4)
 
 Bug Fixes:
 
