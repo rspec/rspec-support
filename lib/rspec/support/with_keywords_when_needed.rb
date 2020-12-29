@@ -19,6 +19,16 @@ module RSpec
         end
       end
       ruby2_keywords :class_exec if respond_to?(:ruby2_keywords, true)
+
+      def call(method, *args, &block)
+        if MethodSignature.new(method).has_kw_args_in?(args)
+          kwargs = args.pop
+          method.call(*args, **kwargs, &block)
+        else
+          method.call(*args, &block)
+        end
+      end
+      ruby2_keywords :call if respond_to?(:ruby2_keywords, true)
     end
   end
 end
