@@ -13,12 +13,6 @@ branch = File.read(File.expand_path("../maintenance-branch", __FILE__)).chomp
   end
 end
 
-if ENV['DIFF_LCS_VERSION']
-  gem 'diff-lcs', ENV['DIFF_LCS_VERSION']
-else
-  gem 'diff-lcs', '~> 1.4', '>= 1.4.3'
-end
-
 gem "childprocess", ">= 3.0.0"
 gem 'ffi', '~> 1.12.0'
 

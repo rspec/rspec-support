@@ -5,8 +5,6 @@ require 'rspec/support/spec/string_matcher'
 module RSpec
   module Support
     RSpec.describe Differ do
-      include Spec::DiffHelpers
-
       describe '#diff' do
         let(:differ) { RSpec::Support::Differ.new }
 
@@ -14,46 +12,25 @@ module RSpec
           expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
           actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
 
-          if Diff::LCS::VERSION.to_f < 1.4 || Diff::LCS::VERSION >= "1.4.4"
-            expected_diff = dedent(<<-'EOD')
-              |
-              |
-              |@@ -1,6 +1,6 @@
-              | foo
-              |-zap
-              | bar
-              |+zap
-              | this
-              | is
-              | soo
-              |@@ -9,6 +9,5 @@
-              | equal
-              | insert
-              | a
-              |-another
-              | line
-              |
-            EOD
-          else
-            expected_diff = dedent(<<-'EOD')
-              |
-              |
-              |@@ -1,4 +1,6 @@
-              | foo
-              |-zap
-              | bar
-              |+zap
-              | this
-              |@@ -9,6 +11,7 @@
-              | equal
-              | insert
-              | a
-              |-another
-              | line
-              |
-            EOD
-          end
-
+          expected_diff = dedent(<<-'EOD')
+            |
+            |
+            |@@ -1,6 +1,6 @@
+            | foo
+            |-zap
+            | bar
+            |+zap
+            | this
+            | is
+            | soo
+            |@@ -9,6 +9,5 @@
+            | equal
+            | insert
+            | a
+            |-another
+            | line
+            |
+          EOD
 
           diff = differ.diff(actual, expected)
           expect(diff).to be_diffed_as(expected_diff)
@@ -63,45 +40,25 @@ module RSpec
           expected = "foo\nzap\nbar\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nanother\nline\n"
           actual   = "foo\nbar\nzap\nthis\nis\nsoo\nvery\nvery\nequal\ninsert\na\nline\n"
 
-          if Diff::LCS::VERSION.to_f < 1.4 || Diff::LCS::VERSION >= "1.4.4"
-            expected_diff = dedent(<<-'EOS')
-              |
-              |
-              |@@ -1,6 +1,6 @@
-              | foo
-              |-zap
-              | bar
-              |+zap
-              | this
-              | is
-              | soo
-              |@@ -9,6 +9,5 @@
-              | equal
-              | insert
-              | a
-              |-another
-              | line
-              |
-            EOS
-          else
-            expected_diff = dedent(<<-'EOS')
-              |
-              |
-              |@@ -1,4 +1,6 @@
-              | foo
-              |-zap
-              | bar
-              |+zap
-              | this
-              |@@ -9,6 +11,7 @@
-              | equal
-              | insert
-              | a
-              |-another
-              | line
-              |
-            EOS
-          end
+          expected_diff = dedent(<<-'EOS')
+            |
+            |
+            |@@ -1,6 +1,6 @@
+            | foo
+            |-zap
+            | bar
+            |+zap
+            | this
+            | is
+            | soo
+            |@@ -9,6 +9,5 @@
+            | equal
+            | insert
+            | a
+            |-another
+            | line
+            |
+          EOS
 
           diff = differ.diff(actual, expected)
           expect(diff).to be_diffed_as(expected_diff)
@@ -133,7 +90,7 @@ module RSpec
           actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
           expected_diff = dedent(<<-EOD).encode('UTF-16LE')
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-Tu avec carte {count} item has
             |+Tu avec carté {count} itém has
             |
@@ -146,7 +103,7 @@ module RSpec
         it 'handles differently encoded strings that are compatible' do
           expected = "abc\n".encode('us-ascii')
           actual   = "강인철\n".encode('UTF-8')
-          expected_diff = "\n@@ #{one_line_header} @@\n-abc\n+강인철\n"
+          expected_diff = "\n@@ -1 +1 @@\n-abc\n+강인철\n"
           diff = differ.diff(actual, expected)
           expect(diff).to be_diffed_as(expected_diff)
         end
@@ -154,7 +111,7 @@ module RSpec
         it 'uses the default external encoding when the two strings have incompatible encodings' do
           expected = "Tu avec carte {count} item has\n"
           actual   = "Tu avec carté {count} itém has\n".encode('UTF-16LE')
-          expected_diff = "\n@@ #{one_line_header} @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
+          expected_diff = "\n@@ -1 +1 @@\n-Tu avec carte {count} item has\n+Tu avec carté {count} itém has\n"
 
           diff = differ.diff(actual, expected)
           expect(diff).to be_diffed_as(expected_diff)
@@ -245,7 +202,7 @@ module RSpec
 
           expected_diff = dedent(<<-EOD)
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-[]
             |+[<BrokenObject>]
             |
@@ -257,7 +214,7 @@ module RSpec
           diff = differ.diff(["a\r\nb"], ["a\r\nc"])
           expected_diff = dedent(<<-EOD)
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-a\\r\\nc
             |+a\\r\\nb
             |
@@ -308,7 +265,7 @@ module RSpec
         it 'outputs unified diff message of two hashes with differing encoding' do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-"a" => "a",
             |+"ö" => "ö",
             |
@@ -321,7 +278,7 @@ module RSpec
         it 'outputs unified diff message of two hashes with encoding different to key encoding' do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-:a => "a",
             |+\"한글\" => \"한글2\",
             |
@@ -334,7 +291,7 @@ module RSpec
         it "outputs unified diff message of two hashes with object keys" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-["a", "c"] => "b",
             |+["d", "c"] => "b",
             |
@@ -351,7 +308,7 @@ module RSpec
         it "outputs unified diff message of two hashes with Time object keys" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-#{formatted_time} => "b",
             |+#{formatted_time} => "c",
             |
@@ -364,7 +321,7 @@ module RSpec
         it "outputs unified diff message of two hashes with hashes inside them" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-"b" => {"key_1"=>#{formatted_time}},
             |+"c" => {"key_1"=>#{formatted_time}},
             |
@@ -384,7 +341,7 @@ module RSpec
         it "outputs unified diff message of two arrays with Time object keys" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-[#{formatted_time}, "b"]
             |+[#{formatted_time}, "c"]
             |
@@ -397,7 +354,7 @@ module RSpec
         it "outputs unified diff message of two arrays with hashes inside them" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{one_line_header} @@
+            |@@ -1 +1 @@
             |-[{"b"=>#{formatted_time}}, "c"]
             |+[{"a"=>#{formatted_time}}, "c"]
             |
@@ -430,7 +387,7 @@ module RSpec
         it "splits items with newlines" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{removing_two_line_header} @@
+            |@@ -1,3 +1 @@
             |-a\\nb
             |-c\\nd
             |
@@ -443,7 +400,7 @@ module RSpec
         it "shows inner arrays on a single line" do
           expected_diff = dedent(<<-"EOD")
             |
-            |@@ #{removing_two_line_header} @@
+            |@@ -1,3 +1 @@
             |-a\\nb
             |-["c\\nd"]
             |
@@ -496,7 +453,7 @@ module RSpec
 
             expected_diff = dedent(<<-EOS)
               |
-              |@@ #{one_line_header} @@
+              |@@ -1 +1 @@
               |-[#<SimpleDelegator(#{object.inspect})>]
               |+[#{object.inspect}]
               |
@@ -518,7 +475,7 @@ module RSpec
 
             expected_diff = dedent(<<-EOS)
               |
-              |@@ #{one_line_header} @@
+              |@@ -1 +1 @@
               |-"oop"
               |+"oof"
               |
@@ -535,7 +492,7 @@ module RSpec
           it "outputs colored diffs" do
             expected = "foo bar baz\n"
             actual = "foo bang baz\n"
-            expected_diff = "\e[0m\n\e[0m\e[34m@@ #{one_line_header} @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
+            expected_diff = "\e[0m\n\e[0m\e[34m@@ -1 +1 @@\n\e[0m\e[31m-foo bang baz\n\e[0m\e[32m+foo bar baz\n\e[0m"
 
             diff = differ.diff(expected,actual)
             expect(diff).to be_diffed_as(expected_diff)
