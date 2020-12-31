@@ -64,8 +64,8 @@ module RSpec
 
       def self.start_simplecov(&block)
         SimpleCov.start do
-          add_filter "./bundle/"
-          add_filter "./tmp/"
+          add_filter "bundle/"
+          add_filter "tmp/"
           add_filter do |source_file|
             # Filter out `spec` directory except when it is under `lib`
             # (as is the case in rspec-support)
