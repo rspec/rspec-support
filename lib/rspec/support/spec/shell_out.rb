@@ -92,7 +92,7 @@ module RSpec
       if Ruby.jruby?
         def filter(output)
           output.each_line.reject do |line|
-            line.include?("lib/ruby/shared/rubygems/defaults/jruby")
+            line.include?("lib/ruby/shared/rubygems")
           end.join($/)
         end
       else
