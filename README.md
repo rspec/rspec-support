@@ -1,4 +1,4 @@
-# RSpec::Support
+# RSpec::Support [![Build Status](https://github.com/rspec/rspec-support/workflows/RSpec%20CI/badge.svg?branch=4-0-dev)](https://github.com/rspec/rspec-support/actions)
 
 `RSpec::Support` provides common functionality to `RSpec::Core`,
 `RSpec::Expectations` and `RSpec::Mocks`. It is considered
