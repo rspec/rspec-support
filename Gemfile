@@ -37,8 +37,10 @@ else
   gem "childprocess", ">= 3.0.0"
 end
 
-### dep for ci/coverage
-gem 'simplecov', '~> 0.8'
+group :coverage do
+  ### dep for ci/coverage
+  gem 'simplecov', '~> 0.8'
+end
 
 if RUBY_VERSION < '2.0.0' || RUBY_ENGINE == 'java'
   gem 'json', '< 2.0.0' # is a dependency of simplecov
