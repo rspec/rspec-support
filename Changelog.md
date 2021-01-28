@@ -1,3 +1,11 @@
+### 3.10.2 / 2021-01-28
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.1...v3.10.2)
+
+Bug Fixes:
+
+* Fix issue with `RSpec::Support.define_optimized_require_for_rspec` on JRuby
+  9.1.17.0 (Jon Rowe, #492)
+
 ### 3.10.1 / 2020-12-27
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.0...v3.10.1)
 
