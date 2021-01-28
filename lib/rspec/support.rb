@@ -14,7 +14,12 @@ module RSpec
     def self.define_optimized_require_for_rspec(lib, &require_relative)
       name = "require_rspec_#{lib}"
 
-      if Kernel.respond_to?(:require_relative)
+      if RUBY_PLATFORM == 'java' && !Kernel.respond_to?(:require)
+        # JRuby 9.1.17.0 has developed a regression for require
+        (class << self; self; end).__send__(:define_method, name) do |f|
+          Kernel.send(:require, "rspec/#{lib}/#{f}")
+        end
+      elsif Kernel.respond_to?(:require_relative)
         (class << self; self; end).__send__(:define_method, name) do |f|
           require_relative.call("#{lib}/#{f}")
         end
