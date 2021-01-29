@@ -12,8 +12,15 @@ module RSpec
     # hand, does a linear O(N) search over the dirs in the $LOAD_PATH until
     # it can resolve the file relative to one of the dirs.
     def self.define_optimized_require_for_rspec(lib, &require_relative)
-      define_singleton_method("require_rspec_#{lib}") do |f|
-        require_relative.call("#{lib}/#{f}")
+      if RUBY_PLATFORM == 'java' && !Kernel.respond_to?(:require)
+        # JRuby 9.1.17.0 has developed a regression for require
+        (class << self; self; end).__send__(:define_method, "require_rspec_#{lib}") do |f|
+          Kernel.send(:require, "rspec/#{lib}/#{f}")
+        end
+      else
+        define_singleton_method("require_rspec_#{lib}") do |f|
+          require_relative.call("#{lib}/#{f}")
+        end
       end
     end
 
