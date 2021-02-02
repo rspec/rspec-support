@@ -12,7 +12,7 @@ module RSpec
 
         class Bar < Parent
           VAL = 10
-          def to_str
+          def self.to_str
             "Bar"
           end
         end
