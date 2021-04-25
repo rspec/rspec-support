@@ -28,8 +28,8 @@ module RSpec
     private
 
       def enter
-        @mutex.lock if @owner != Thread.current
-        @owner = Thread.current
+        @mutex.lock if @owner != Fiber.current
+        @owner = Fiber.current
         @count += 1
       end
 
