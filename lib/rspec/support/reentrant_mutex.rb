@@ -17,7 +17,6 @@ module RSpec
     # @private
     class ReentrantMutex
       def initialize
-        @owner = nil
         @count = 0
         @mutex = Mutex.new
       end
@@ -32,16 +31,16 @@ module RSpec
     private
 
       def enter
-        @mutex.lock if @owner != Thread.current
-        @owner = Thread.current
+        @mutex.lock unless @mutex.owned?
         @count += 1
       end
 
       def exit
+        unless @mutex.owned?
+          raise ThreadError, "Attempt to unlock a mutex which is locked by another thread/fiber"
+        end
         @count -= 1
-        return unless @count == 0
-        @owner = nil
-        @mutex.unlock
+        @mutex.unlock if @count == 0
       end
     end
   end
