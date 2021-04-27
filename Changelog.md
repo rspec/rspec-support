@@ -1,3 +1,8 @@
+### Development
+
+Bug Fixes:
+* Fix reentrant mutex for Ruby 3.0. (Benoit Daloze, #504)
+
 ### 3.10.2 / 2021-01-28
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.1...v3.10.2)
 

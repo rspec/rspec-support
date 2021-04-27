@@ -27,4 +27,28 @@ RSpec.describe RSpec::Support::ReentrantMutex do
     mutex.synchronize { order.pass_to :thread, :resume_on => :sleep }
     order.join_all
   end
+
+  if RUBY_VERSION >= '3.0'
+    it 'waits when trying to lock from another Fiber' do
+      mutex.synchronize do
+        ready = false
+        f = Fiber.new do
+          expect {
+            ready = true
+            mutex.send(:enter)
+            raise 'should reach here: mutex is already locked on different Fiber'
+          }.to raise_error(Exception, 'waited correctly')
+        end
+
+        main_thread = Thread.current
+
+        t = Thread.new do
+          Thread.pass until ready && main_thread.stop?
+          main_thread.raise Exception, 'waited correctly'
+        end
+        f.resume
+        t.join
+      end
+    end
+  end
 end
