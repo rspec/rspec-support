@@ -5,7 +5,8 @@ Breaking Changes:
 * Ruby < 2.3 is no longer supported. (Phil Pirozhkov, #436)
 
 Bug Fixes:
-* Fix reentrant mutex for Ruby 3.0. (Benoit Daloze, #503)
+* Use `Mutex#owned?` to allow `RSpec::Support::ReentrantMutex` to work in
+  nested Fibers on Ruby 3.0 and later. (Benoit Daloze, #503)
 
 ### 3.10.0 / 2020-10-30
 
