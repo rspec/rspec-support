@@ -370,6 +370,61 @@ module RSpec
           expect(formatter.format('Test String Of A Longer Length')).to eq('"Test String Of A Longer Length"')
         end
       end
+
+      context 'with a custom registered inspector' do
+        class TimeObjectTest
+          SECONDS_PER_MINUTE = 60
+
+          def initialize(minutes, seconds)
+            @minutes = minutes
+            @seconds = seconds
+          end
+
+          def to_i
+            (@minutes * SECONDS_PER_MINUTE) + @seconds
+          end
+
+          def inspect
+            "#{@minutes} minutes and #{@seconds} seconds"
+          end
+
+          def ==(other)
+            self.to_i == other.to_i
+          end
+
+          alias_method :eql?, :==
+
+          def hash
+            [@minutes, @seconds].hash
+          end
+        end
+
+        class CustomInspector < ObjectFormatter::BaseInspector
+          def self.can_inspect?(object)
+            TimeObjectTest === object
+          end
+
+          def inspect
+            object.to_i.inspect
+          end
+        end
+
+        before do
+          ObjectFormatter.inspectors.register(CustomInspector)
+        end
+
+        subject(:output) do
+          ObjectFormatter.format(input)
+        end
+
+        let(:input) do
+          { :key1 => TimeObjectTest.new(1, 30), :key2 => TimeObjectTest.new(0, 90) }
+        end
+
+        it "uses the custom inspector" do
+          expect(output).to eq('{:key1=>90, :key2=>90}')
+        end
+      end
     end
   end
 end

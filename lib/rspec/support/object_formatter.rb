@@ -9,6 +9,7 @@ module RSpec
       ELLIPSIS = "..."
 
       attr_accessor :max_formatted_output_length
+      attr_reader :inspectors
 
       # Methods are deferred to a default instance of the class to maintain the interface
       # For example, calling ObjectFormatter.format is still possible
@@ -24,9 +25,14 @@ module RSpec
         default_instance.prepare_for_inspection(object)
       end
 
+      def self.inspectors
+        default_instance.inspectors
+      end
+
       def initialize(max_formatted_output_length=200)
         @max_formatted_output_length = max_formatted_output_length
         @current_structure_stack = []
+        @inspectors = Inspectors.new(INSPECTOR_CLASSES.dup)
       end
 
       def format(object)
@@ -60,7 +66,7 @@ module RSpec
         when Hash
           prepare_hash(object)
         else
-          inspector_class = INSPECTOR_CLASSES.find { |inspector| inspector.can_inspect?(object) }
+          inspector_class = inspectors.find_for(object)
           inspector_class.new(object, self)
         end
       end
@@ -255,6 +261,27 @@ module RSpec
         # to provide our own.
         # https://github.com/ruby/bigdecimal/pull/42
         classes.delete(BigDecimalInspector) if RUBY_VERSION >= '2.4'
+      end
+
+      # A simple container for inspector classes, so that inspector classes can be registered.
+      # Inspectors registered later will take precedence over previously registered ones.
+      # @api private
+      class Inspectors
+        def initialize(inspectors)
+          @inspectors = inspectors
+        end
+
+        def register(inspector)
+          unless inspector.respond_to?(:can_inspect?)
+            raise ArgumentError, 'provided inspector does not respond to can_inspect?'
+          end
+
+          @inspectors.prepend(inspector)
+        end
+
+        def find_for(object)
+          @inspectors.find { |inspector| inspector.can_inspect?(object) }
+        end
       end
 
     private
