@@ -418,11 +418,14 @@ module RSpec
         end
 
         let(:input) do
-          { :key1 => TimeObjectTest.new(1, 30), :key2 => TimeObjectTest.new(0, 90) }
+          [
+            { :key => TimeObjectTest.new(1, 30) },
+            { :key => TimeObjectTest.new(0, 90) }
+          ]
         end
 
         it "uses the custom inspector" do
-          expect(output).to eq('{:key1=>90, :key2=>90}')
+          expect(output).to eq('[{:key=>90}, {:key=>90}]')
         end
       end
     end
