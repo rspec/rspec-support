@@ -276,7 +276,7 @@ module RSpec
             raise ArgumentError, 'provided inspector does not respond to can_inspect?'
           end
 
-          @inspectors.prepend(inspector)
+          @inspectors.unshift(inspector)
         end
 
         def find_for(object)
