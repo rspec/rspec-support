@@ -24,4 +24,7 @@ if RUBY_VERSION >= '2.4' && RUBY_ENGINE == 'ruby'
   gem "rubocop", "~> 0.52.1"
 end
 
+gem "rake", ">= 12.3.3"
+gem "thread_order", "~> 1.1.0"
+
 eval_gemfile 'Gemfile-custom' if File.exist?('Gemfile-custom')
