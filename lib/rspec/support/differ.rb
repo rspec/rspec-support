@@ -13,7 +13,7 @@ module RSpec
 
         unless actual.nil? || expected.nil?
           if all_strings?(actual, expected)
-            if any_multiline_strings?(actual, expected)
+            if all_arrays?(actual, expected) || any_multiline_strings?(actual, expected)
               diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
             end
           elsif no_procs?(actual, expected) && no_numbers?(actual, expected)
@@ -70,6 +70,10 @@ module RSpec
       end
 
     private
+
+      def all_arrays?(*args)
+        args.all? { |a| Array === a }
+      end
 
       def no_procs?(*args)
         safely_flatten(args).none? { |a| Proc === a }
