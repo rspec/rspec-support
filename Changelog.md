@@ -1,4 +1,5 @@
-### Development
+### 3.10.3 / 2021-11-03
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.2...v3.10.3)
 
 Bug Fixes:
 
