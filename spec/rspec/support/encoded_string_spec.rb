@@ -25,7 +25,7 @@ module RSpec::Support
           expect(EncodedString.pick_encoding(str1, str2)).to eq(Encoding.default_external)
         end
 
-        # https://github.com/rubyspec/rubyspec/blob/91ce9f6549/core/encoding/compatible_spec.rb#L31
+        # https://github.com/ruby/spec/blob/91ce9f6549/core/encoding/compatible_spec.rb#L31
         it "picks a compatible encoding" do
           str1 = forced_encoding "abc", Encoding::US_ASCII
           str2 = "\u3042".encode("utf-8")
