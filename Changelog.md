@@ -1,3 +1,11 @@
+### Development
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.11.0...main)
+
+### 3.11.0 / 2022-02-09
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.3...v3.11.0)
+
+No changes. Released to support other RSpec releases.
+
 ### 3.10.3 / 2021-11-03
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.2...v3.10.3)
 
