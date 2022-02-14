@@ -86,7 +86,7 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
     splitter.verify_no_warnings!
   end
 
-  unless Ruby.rbx? || Ruby.truffleruby?
+  unless Ruby.rbx?
     # TruffleRuby doesn't support warnings for now
     # https://github.com/oracle/truffleruby/issues/2595 
     it 'will fail an example which generates a warning' do
