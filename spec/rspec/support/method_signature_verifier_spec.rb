@@ -391,6 +391,10 @@ module RSpec
               expect(valid?(nil, 'a' => 1, :b => 2, :z => 3)).to eq(false)
             end
 
+            it 'treats the final positional argument as a hash' do
+              expect(valid?(1, { foo: 'bar', baz: 'eggs'})).to eq(true)
+            end
+
             it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
               expect(error_for(1, 2, :a => 0)).to eq("Invalid keyword arguments provided: a")
               expect(error_for(1, :a => 0)).to eq("Invalid keyword arguments provided: a")
