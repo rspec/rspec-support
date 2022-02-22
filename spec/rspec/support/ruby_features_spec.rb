@@ -91,6 +91,10 @@ module RSpec
         RubyFeatures.required_kw_args_supported?
       end
 
+      specify "distincts_kw_args_from_positional_hash?" do
+        RubyFeatures.distincts_kw_args_from_positional_hash?
+      end
+
       specify "#supports_rebinding_module_methods? exists" do
         RubyFeatures.supports_rebinding_module_methods?
       end
