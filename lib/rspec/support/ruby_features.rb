@@ -57,7 +57,7 @@ module RSpec
     #
     # Provides query methods for ruby features that differ among
     # implementations.
-    module RubyFeatures # rubocop:disable Metrics/ModuleLength
+    module RubyFeatures
     module_function
 
       if Ruby.jruby? && RUBY_VERSION.to_f < 1.9
