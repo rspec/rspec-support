@@ -116,6 +116,9 @@ module RSpec
         ripper_requirements.push(!Ruby.jruby_version.between?('9.0.0.0.rc1', '9.2.0.0'))
       end
 
+      # TruffleRuby disables ripper due to low perforamnce
+      ripper_requirements.push(false) if Ruby.truffleruby?
+
       if ripper_requirements.all?
         def ripper_supported?
           true
