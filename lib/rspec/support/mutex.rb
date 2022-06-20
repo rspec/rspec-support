@@ -9,7 +9,7 @@ module RSpec
     # Some methods we don't need are deleted. Anything I don't
     # understand (there's quite a bit, actually) is left in.
     #
-    # Some formating changes are made to appease the robot overlord:
+    # Some formatting changes are made to appease the robot overlord:
     #   https://travis-ci.org/rspec/rspec-core/jobs/54410874
     # @private
     class Mutex
