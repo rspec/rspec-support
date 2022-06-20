@@ -60,7 +60,7 @@ module RSpec
         #     vs "\x80".encode('UTF-8','ASCII-8BIT', undef: :replace, replace: '<undef>')
         #     # => '<undef>'
         #   Encoding::CompatibilityError
-        #     when Encoding.compatibile?(str1, str2) is nil
+        #     when Encoding.compatible?(str1, str2) is nil
         #     e.g. utf_16le_emoji_string.split("\n")
         #     e.g. valid_unicode_string.encode(utf8_encoding) << ascii_string
         #   Encoding::InvalidByteSequenceError:
