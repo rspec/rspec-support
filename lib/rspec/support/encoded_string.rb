@@ -92,7 +92,7 @@ module RSpec
           string = remove_invalid_bytes(string)
           string.encode(@encoding)
         rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError
-          # Originally defined as a constant to avoid uneeded allocations, this hash must
+          # Originally defined as a constant to avoid unneeded allocations, this hash must
           # be defined inline (without {}) to avoid warnings on Ruby 2.7
           #
           # In MRI 2.1 'invalid: :replace' changed to also replace an invalid byte sequence
@@ -108,7 +108,7 @@ module RSpec
           #
           string.encode(@encoding, :invalid => :replace, :undef => :replace, :replace => REPLACE)
         rescue Encoding::ConverterNotFoundError
-          # Originally defined as a constant to avoid uneeded allocations, this hash must
+          # Originally defined as a constant to avoid unneeded allocations, this hash must
           # be defined inline (without {}) to avoid warnings on Ruby 2.7
           string.dup.force_encoding(@encoding).encode(:invalid => :replace, :replace => REPLACE)
         end
