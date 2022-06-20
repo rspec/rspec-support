@@ -9,7 +9,7 @@ module RSpec
       module_function
 
       if RSpec::Support::RubyFeatures.kw_args_supported?
-        # Remove this in RSpec 4 in favour of explictly passed in kwargs where
+        # Remove this in RSpec 4 in favour of explicitly passed in kwargs where
         # this is used. Works around a warning in Ruby 2.7
 
         def class_exec(klass, *args, &block)
