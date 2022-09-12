@@ -1,6 +1,10 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.11.0...3-11-maintenance)
 
+Bug Fixes:
+
+* Fix ripper detection on TruffleRuby. (Brandon Fish, #541)
+
 ### 3.11.0 / 2022-02-09
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.10.3...v3.11.0)
 
