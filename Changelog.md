@@ -1,6 +1,8 @@
 ### Development
-[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.11.1...main)
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.12.0...main)
 
+### 3.12.0 / 2022-10-26
+[Full Changelog](http://github.com/rspec/rspec-support/compare/v3.11.1...v3.12.0)
 Enhancements:
 
 * Add `RSpec::Support::RubyFeatures.distincts_kw_args_from_positional_hash?`
