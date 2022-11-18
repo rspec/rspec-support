@@ -28,7 +28,18 @@ RSpec.describe RSpec::Support::ReentrantMutex do
     order.join_all
   end
 
-  if RUBY_VERSION >= '3.0'
+  if RUBY_VERSION >= '3.2'
+    it 'raises an error when trying to lock from another Fiber' do
+      mutex.synchronize do
+        Fiber.new do
+          expect {
+            mutex.send(:enter)
+            raise 'should not reach here: mutex is already locked on different Fiber'
+          }.to raise_error(ThreadError, 'deadlock; lock already owned by another fiber belonging to the same thread')
+        end.resume
+      end
+    end
+  elsif RUBY_VERSION >= '3.0'
     it 'waits when trying to lock from another Fiber' do
       mutex.synchronize do
         ready = false
@@ -36,7 +47,7 @@ RSpec.describe RSpec::Support::ReentrantMutex do
           expect {
             ready = true
             mutex.send(:enter)
-            raise 'should reach here: mutex is already locked on different Fiber'
+            raise 'should not reach here: mutex is already locked on different Fiber'
           }.to raise_error(Exception, 'waited correctly')
         end
 
