@@ -78,8 +78,8 @@ module RSpec
           %r{jruby/kernel/gem_prelude},
           %r{lib/jruby\.jar!/jruby/preludes},
           # Ignore some JRuby errors for gems
-          %r{jruby/\d\.\d\.\d/gems/aruba},
-          %r{jruby/\d\.\d\.\d/gems/ffi},
+          %r{jruby/\d\.\d(\.\d)?/gems/aruba},
+          %r{jruby/\d\.\d(\.\d)?/gems/ffi},
         ]
 
       def strip_known_warnings(input)
