@@ -28,13 +28,13 @@ RSpec.describe RSpec::Support::ReentrantMutex do
     order.join_all
   end
 
-  # On Ruby 3.1.3, 3.2.0 and RUBY_HEAD the raise in this spec can
+  # On Ruby 3.1.3+, 3.2.0 and RUBY_HEAD the raise in this spec can
   # bypass the `raise_error` capture and break this spec but
   # it is not sufficient to pend it as the raise can escape to the other
   # threads somehow therefore poisoning them so its skipped entirely.
   # This is a temporary work around to allow green cross project builds but
   # needs a fix.
-  if RUBY_VERSION >= '3.0' && RUBY_VERSION != '3.1.3' && RUBY_VERSION < '3.2.0' && !ENV['RUBY_HEAD']
+  if RUBY_VERSION >= '3.0' && RUBY_VERSION < '3.1.3' && !ENV['RUBY_HEAD']
     it 'waits when trying to lock from another Fiber' do
       mutex.synchronize do
         ready = false
