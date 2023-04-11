@@ -99,6 +99,10 @@ module RSpec
         RubyFeatures.supports_rebinding_module_methods?
       end
 
+      specify "#supports_syntax_suggest?" do
+        expect(RubyFeatures.supports_syntax_suggest?).to eq(RUBY_VERSION.to_f >= 3.2)
+      end
+
       specify "#supports_taint?" do
         RubyFeatures.supports_taint?
       end

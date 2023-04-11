@@ -94,6 +94,16 @@ module RSpec
         end
       end
 
+      if RUBY_VERSION.to_f >= 3.2
+        def supports_syntax_suggest?
+          true
+        end
+      else
+        def supports_syntax_suggest?
+          false
+        end
+      end
+
       if RUBY_VERSION.to_f >= 2.7
         def supports_taint?
           false
