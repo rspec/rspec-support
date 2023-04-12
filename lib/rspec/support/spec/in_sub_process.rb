@@ -11,6 +11,10 @@ module RSpec
           exception_reader, exception_writer = IO.pipe
           result_reader, result_writer = IO.pipe
 
+          # Set binary mode to avoid errors surrounding ascii-8bit to utf-8 conversion
+          # this happens with warnings on rspec-rails for example
+          [exception_reader, exception_writer, result_reader, result_writer].each { |io| io.binmode }
+
           pid = Process.fork do
             warning_preventer = $stderr = RSpec::Support::StdErrSplitter.new($stderr)
 
