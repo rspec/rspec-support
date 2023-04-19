@@ -26,6 +26,16 @@ RSpec.describe 'isolating code to a sub process' do
       }.to raise_error "An Internal Error"
     end
 
+    it 'captures results even if they have bad bytes' do
+      string = "\xEF \255 \xAD I have bad bytes".dup.force_encoding('UTF-8')
+      expect(in_sub_process { string }).to eq string
+    end
+
+    it 'captures errors even if they have bad bytes' do
+      string = "\xEF \255 \xAD I have bad bytes".dup.force_encoding('UTF-8')
+      expect(in_sub_process { raise string }).to raise_error(string)
+    end
+
     it 'captures and reraises test failures' do
       expect {
         in_sub_process { expect(true).to be false }
