@@ -1,6 +1,11 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.12.0...main)
 
+Bug Fixes:
+
+* Fix `RSpec::Support.thread_local_data` to be Thread local but not Fiber local.
+  (Jon Rowe, #581)
+
 ### 3.12.0 / 2022-10-26
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.11.1...v3.12.0)
 Enhancements:
