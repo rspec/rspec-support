@@ -186,6 +186,26 @@ module RSpec
       end
     end
 
+    describe ".thread_local_data" do
+      it "contains data local to the current thread" do
+        RSpec::Support.thread_local_data[:__for_test] = :oh_hai
+
+        Thread.new do
+          expect(RSpec::Support.thread_local_data).to eq({})
+        end.join
+      end
+
+      if defined?(Fiber) && RUBY_VERSION.to_f >= 2.0
+        it "shares data across fibres" do
+          RSpec::Support.thread_local_data[:__for_test] = :oh_hai
+
+          Fiber.new do
+            expect(RSpec::Support.thread_local_data[:__for_test]).to eq(:oh_hai)
+          end.resume
+        end
+      end
+    end
+
     describe "failure notification" do
       before { @failure_notifier = RSpec::Support.failure_notifier }
       after  { RSpec::Support.failure_notifier = @failure_notifier }
