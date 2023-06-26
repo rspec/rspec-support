@@ -89,8 +89,14 @@ module RSpec
     end
 
     # A single thread local variable so we don't excessively pollute that namespace.
-    def self.thread_local_data
-      Thread.current[:__rspec] ||= {}
+    if RUBY_VERSION.to_f >= 2
+      def self.thread_local_data
+        Thread.current.thread_variable_get(:__rspec) || Thread.current.thread_variable_set(:__rspec, {})
+      end
+    else
+      def self.thread_local_data
+        Thread.current[:__rspec] ||= {}
+      end
     end
 
     # @api private
