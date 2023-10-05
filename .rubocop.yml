@@ -31,3 +31,9 @@ Lint/AssignmentInCondition:
   Exclude:
     # The pattern makes sense here
     - 'lib/rspec/support/mutex.rb'
+
+Style/FrozenStringLiteralComment:
+  Include:
+    - lib/**/*.rb
+Layout/EmptyLineAfterMagicComment:
+  Enabled: true

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RSpec
   module Support
     # Provides recursive constant lookup methods useful for
