@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rbconfig'
 RSpec::Support.require_rspec_support "comparable_version"
 

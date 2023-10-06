@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec::Support.require_rspec_support("method_signature_verifier")
 
 module RSpec

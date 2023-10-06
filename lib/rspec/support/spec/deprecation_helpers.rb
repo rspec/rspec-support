@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RSpecHelpers
   def expect_deprecation_with_call_site(file, line, snippet=//)
     expect(RSpec.configuration.reporter).to receive(:deprecation).
