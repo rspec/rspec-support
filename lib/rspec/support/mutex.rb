@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RSpec
   module Support
     # On 1.8.7, it's in the stdlib.
