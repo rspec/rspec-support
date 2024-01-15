@@ -384,17 +384,21 @@ module RSpec
               expect(valid?(nil, :a => 1)).to eq(false)
             end
 
-            it 'treats symbols as keyword arguments and the rest as optional argument' do
-              expect(valid?(nil, 'a' => 1)).to eq(true)
-              expect(valid?(nil, 'a' => 1, :z => 3)).to eq(true)
-              expect(valid?(nil, 'a' => 1, :b => 3)).to eq(false)
-              expect(valid?(nil, 'a' => 1, :b => 2, :z => 3)).to eq(false)
+            it 'treats symbols as keyword arguments' do
+              expect(valid?(nil, :z => 3)).to eq(true)
+              expect(valid?(nil, :b => 3)).to eq(false)
+              expect(valid?(nil, :b => 2, :z => 3)).to eq(false)
+            end
+
+            it 'treats string keys as invalid keyword arguments' do
+              expect(valid?(nil, 'a' => 1)).to eq(false)
+              expect(valid?(nil, 'a' => 1, :z => 3)).to eq(false)
             end
 
             it 'mentions the invalid keyword args in the error', :pending => RSpec::Support::Ruby.jruby? && !RSpec::Support::Ruby.jruby_9000? do
               expect(error_for(1, 2, :a => 0)).to eq("Invalid keyword arguments provided: a")
               expect(error_for(1, :a => 0)).to eq("Invalid keyword arguments provided: a")
-              expect(error_for(1, 'a' => 0, :b => 0)).to eq("Invalid keyword arguments provided: b")
+              expect(error_for(1, 'a' => 0, :b => 0)).to eq("Invalid keyword arguments provided: a, b")
             end
 
             it 'describes invalid arity precisely' do
@@ -656,6 +660,41 @@ module RSpec
             end
           end
 
+          describe 'a method with only a keyword arg splat' do
+            eval <<-RUBY
+              def arity_kw_arg_splat(**rest); end
+            RUBY
+
+            let(:test_method) { method(:arity_kw_arg_splat) }
+
+            it 'allows undeclared keyword args' do
+              expect(valid?(:x => 1)).to eq(true)
+              expect(valid?(:x => 1, 'y' => 2)).to eq(true)
+            end
+
+            it 'mentions the required kw args and keyword splat in the description' do
+              expect(signature_description).to \
+                eq("any additional keyword args")
+            end
+
+            describe 'with an expectation object' do
+              it 'allows zero non-kw args' do
+                expect(validate_expectation 0).to eq(true)
+                expect(validate_expectation 1).to eq(false)
+                expect(validate_expectation 0, 0).to eq(true)
+                expect(validate_expectation 0, 1).to eq(false)
+              end
+
+              it 'does not match unlimited arguments' do
+                expect(validate_expectation :unlimited_args).to eq(false)
+              end
+
+              it 'matches arbitrary keywords' do
+                expect(validate_expectation :arbitrary_kw_args).to eq(true)
+              end
+            end
+          end
+
           describe 'a method with required keyword arguments and a keyword arg splat' do
             eval <<-RUBY
               def arity_kw_arg_splat(x:, **rest); end
@@ -666,6 +705,7 @@ module RSpec
             it 'allows extra undeclared keyword args' do
               expect(valid?(:x => 1)).to eq(true)
               expect(valid?(:x => 1, :y => 2)).to eq(true)
+              expect(valid?(:x => 1, :y => 2, 'z' => 3)).to eq(true)
             end
 
             it 'mentions missing required keyword args in the error' do
@@ -730,7 +770,9 @@ module RSpec
             it 'allows a single arg and any number of keyword args' do
               expect(valid?(nil)).to eq(true)
               expect(valid?(nil, :x => 1)).to eq(true)
+              expect(valid?(nil, 'x' => 1)).to eq(true)
               expect(valid?(nil, :x => 1, :y => 2)).to eq(true)
+              expect(valid?(nil, :x => 1, :y => 2, 'z' => 3)).to eq(true)
               expect(valid?(:x => 1)).to eq(true)
               expect(valid?(nil, {})).to eq(true)
 
