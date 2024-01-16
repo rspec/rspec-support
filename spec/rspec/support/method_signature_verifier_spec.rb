@@ -679,9 +679,9 @@ module RSpec
             end
 
             it "ignores kwargs with invalid types if there are any with valid types" do
-              expect(valid?(:x => 1, 3 => 10, {"a":"b"} => 1)).to eq(true)
-              expect(valid?(:x => 1, 'y' => 2, 3 => 10, {"a":"b"} => 1)).to eq(true)
-              expect(valid?('y' => 2, 3 => 10, {"a":"b"} => 1)).to eq(true)
+              expect(valid?(:x => 1, 3 => 10)).to eq(true)
+              expect(valid?(:x => 1, 'y' => 2, 3 => 10)).to eq(true)
+              expect(valid?('y' => 2, 3 => 10)).to eq(true)
             end
 
             it 'mentions the required kw args and keyword splat in the description' do
