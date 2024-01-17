@@ -84,7 +84,7 @@ module RSpec
         def has_kw_args_in?(args)
           Hash === args.last &&
             could_contain_kw_args?(args) &&
-            (args.last.empty? || args.last.keys.any? { |x| x.is_a?(Symbol) || x.is_a?(String) })
+            (args.last.empty? || args.last.keys.any? { |x| x.is_a?(Symbol) || RubyFeatures.kw_arg_separation? })
         end
 
         # Without considering what the last arg is, could it
@@ -364,7 +364,14 @@ module RSpec
 
       def split_args(*args)
         kw_args = if @signature.has_kw_args_in?(args)
-                    args.pop.select { |k, _| k.is_a?(Symbol) || k.is_a?(String) }.keys
+                    last = args.pop
+                    non_kw_args = last.reject { |k, _| k.is_a?(Symbol) || RubyFeatures.kw_arg_separation? }
+                    if non_kw_args.empty?
+                      last.keys
+                    else
+                      args << non_kw_args
+                      last.select { |k, _| k.is_a?(Symbol) || RubyFeatures.kw_arg_separation? }.keys
+                    end
                   else
                     []
                   end
