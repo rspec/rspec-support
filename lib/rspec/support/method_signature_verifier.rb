@@ -380,7 +380,7 @@ module RSpec
       end
     end
 
-    # Figures out wether a given method can accept various arguments.
+    # Figures out whether a given method can accept various arguments.
     # Surprisingly non-trivial.
     #
     # @private
