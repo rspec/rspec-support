@@ -130,7 +130,7 @@ Bug Fixes:
 Bug Fixes:
 
 * Ensure that inspecting a `SimpleDelegator` based object works regardless of
-  visibilty of the `__getobj__` method. (Jon Rowe, #369)
+  visibility of the `__getobj__` method. (Jon Rowe, #369)
 
 ### 3.8.0 / 2018-08-04
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.7.1...v3.8.0)
@@ -238,7 +238,7 @@ Changes:
 
 Enhancements:
 
-* Improve formatting of `Delegator` based objects (e.g. `SimpleDelgator`) in
+* Improve formatting of `Delegator` based objects (e.g. `SimpleDelegator`) in
   failure messages and diffs. (Andrew Horner, #215)
 * Add `ComparableVersion`. (Yuji Nakayama, #245)
 * Add `Ripper` support detection. (Yuji Nakayama, #245)

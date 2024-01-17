@@ -64,7 +64,7 @@ module RSpec
       # On 1.9 and up, this is in core, so we just use the real one
       class Mutex < ::Mutex
         # If you mock Mutex.new you break our usage of Mutex, so
-        # instead we capture the original method to return Mutexs.
+        # instead we capture the original method to return Mutexes.
         NEW_MUTEX_METHOD = Mutex.method(:new)
 
         def self.new
