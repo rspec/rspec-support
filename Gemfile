@@ -31,6 +31,11 @@ else
   gem 'diff-lcs', '~> 1.4', '>= 1.4.3'
 end
 
+if RUBY_VERSION >= '3.3.0'
+  # This is being extracted in Ruby 3.4 and issues a warning on 3.3
+  gem 'bigdecimal', :require => false
+end
+
 if RUBY_VERSION < '2.3.0' && !!(RbConfig::CONFIG['host_os'] =~ /cygwin|mswin|mingw|bccwin|wince|emx/)
   gem "childprocess", "< 1.0.0"
 elsif RUBY_VERSION < '2.0.0'
