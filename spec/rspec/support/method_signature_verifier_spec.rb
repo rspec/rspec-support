@@ -10,7 +10,7 @@ module RSpec
         described_class.new(signature, [nil] * arity).valid?
       end
 
-      def valid?(*args)
+      ruby2_keywords def valid?(*args)
         described_class.new(signature, args).valid?
       end
 
@@ -18,7 +18,7 @@ module RSpec
         described_class.new(signature).error_message[/Expected (.*),/, 1]
       end
 
-      def error_for(*args)
+      ruby2_keywords def error_for(*args)
         described_class.new(signature, args).error_message
       end
 
