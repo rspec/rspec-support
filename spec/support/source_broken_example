@@ -1,0 +1,8 @@
+Encoding.default_internal = Encoding::BINARY
+
+describe UndeclaredModule do
+  # the missing constant can be anything
+  it 'crashes and does not even parse this' do
+    'привет'
+  end
+end
