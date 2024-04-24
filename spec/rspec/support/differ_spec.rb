@@ -572,6 +572,54 @@ module RSpec
             EOD
             expect(diff).to be_diffed_as(expected_diff)
           end
+
+          context "with nested hash" do
+            it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
+              actual = { :an_key => "dummy", :fixed => "fixed", :nested => { :name => "foo", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" } }
+              expected = { :an_key => anything, :fixed => "fixed", :nested => { :name => "foo", :trigger => "wrong", :anything_key => anything } }
+              diff = differ.diff(actual, expected)
+              expected_diff = dedent(<<-'EOD')
+                |
+                |@@ -1,4 +1,4 @@
+                | :an_key => "dummy",
+                | :fixed => "fixed",
+                |-:nested => {:anything_key=>"bcdd0399-1cfe-4de1-a481-ca6b17d41ed8", :name=>"foo", :trigger=>"wrong"},
+                |+:nested => {:anything_key=>"bcdd0399-1cfe-4de1-a481-ca6b17d41ed8", :name=>"foo", :trigger=>"trigger"},
+                |
+              EOD
+              expect(diff).to be_diffed_as(expected_diff)
+            end
+          end
+
+          context "with nested hash and subnested hash" do
+            it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
+              actual = {
+                :an_key => "dummy", :fixed => "fixed",
+                :nested => {
+                  :nested_anything_key => "9930ddcb-1cfe-4de1-a481-ca6b17d41ed8",
+                  :subnested => { :name => "foo", :trigger => "trigger", :subnested_anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+                }
+              }
+              expected = {
+                :an_key => anything, :fixed => "fixed",
+                :nested => {
+                  :nested_anything_key => anything,
+                  :subnested => { :name => "foo", :trigger => "wrong", :subnested_anything_key => anything }
+                }
+              }
+              diff = differ.diff(actual, expected)
+              expected_diff = dedent(<<-'EOD')
+                |
+                |@@ -1,4 +1,4 @@
+                | :an_key => "dummy",
+                | :fixed => "fixed",
+                |-:nested => {:nested_anything_key=>"9930ddcb-1cfe-4de1-a481-ca6b17d41ed8", :subnested=>{:name=>"foo", :subnested_anything_key=>"bcdd0399-1cfe-4de1-a481-ca6b17d41ed8", :trigger=>"wrong"}},
+                |+:nested => {:nested_anything_key=>"9930ddcb-1cfe-4de1-a481-ca6b17d41ed8", :subnested=>{:name=>"foo", :subnested_anything_key=>"bcdd0399-1cfe-4de1-a481-ca6b17d41ed8", :trigger=>"trigger"}},
+                |
+              EOD
+              expect(diff).to be_diffed_as(expected_diff)
+            end
+          end
         end
       end
     end

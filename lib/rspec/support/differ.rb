@@ -61,8 +61,15 @@ module RSpec
       # rubocop:enable Metrics/MethodLength
 
       def diff_as_object_with_anything(actual, expected)
-        expected.select { |_, v| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === v }.each_key do |k|
-          expected[k] = actual[k]
+        @keys_with_anything.each do |keys|
+          pointer_expected = expected
+          pointer_actual = actual
+          final_key = keys.pop
+          keys.each do |k|
+            pointer_expected = pointer_expected[k]
+            pointer_actual = pointer_actual[k]
+          end
+          pointer_expected[final_key] = pointer_actual[final_key]
         end
         diff_as_object(actual, expected)
       end
@@ -85,7 +92,26 @@ module RSpec
     private
 
       def hash_with_anything?(arg)
-        safely_flatten(arg).any? { |a| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === a }
+        @keys_with_anything = recursive_get_keys(arg)
+        @keys_with_anything.any?
+      end
+
+      def recursive_get_keys(hash)
+        klass = RSpec::Mocks::ArgumentMatchers::AnyArgMatcher
+        hash.reduce([]) do |acc, pair|
+          if klass === pair[1]
+            acc << [pair[0]]
+          else
+            if Hash === pair[1]
+              keys = recursive_get_keys(pair[1])
+              keys.each do |key|
+                key.prepend pair[0]
+                acc << key
+              end
+            end
+          end
+          acc
+        end
       end
 
       def no_procs?(*args)
