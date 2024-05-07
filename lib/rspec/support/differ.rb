@@ -18,7 +18,7 @@ module RSpec
             if any_multiline_strings?(actual, expected)
               diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
             end
-          elsif Hash === expected && hash_with_anything?(expected)
+          elsif hash_with_anything?(expected)
             if no_procs?(actual, expected) && no_numbers?(actual, expected)
               diff = diff_as_object_with_anything(actual, expected)
             end
@@ -92,6 +92,8 @@ module RSpec
     private
 
       def hash_with_anything?(arg)
+        return false unless Hash === arg
+
         @keys_with_anything = recursive_get_keys(arg)
         @keys_with_anything.any?
       end
