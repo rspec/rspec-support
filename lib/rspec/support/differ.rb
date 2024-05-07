@@ -105,7 +105,7 @@ module RSpec
             if Hash === pair[1]
               keys = recursive_get_keys(pair[1])
               keys.each do |key|
-                key.prepend pair[0]
+                key.unshift pair[0]
                 acc << key
               end
             end
