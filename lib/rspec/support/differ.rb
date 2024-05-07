@@ -17,13 +17,9 @@ module RSpec
 
         unless actual.nil? || expected.nil?
           if all_strings?(actual, expected)
-            if any_multiline_strings?(actual, expected)
-              diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
-            end
+            diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected)) if any_multiline_strings?(actual, expected)
           elsif hash_with_anything?(expected)
-            if no_procs_no_numbers.call(actual, expected)
-              diff = diff_as_object_with_anything(actual, expected)
-            end
+            diff = diff_as_object_with_anything(actual, expected) if no_procs_no_numbers.call(actual, expected)
           elsif no_procs_no_numbers.call(actual, expected)
             diff = diff_as_object(actual, expected)
           end
