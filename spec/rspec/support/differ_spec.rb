@@ -575,8 +575,8 @@ module RSpec
 
           context "with nested hash" do
             it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
-              actual = { :an_key => "dummy", :fixed => "fixed", :nested => { :name => "foo", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" } }
-              expected = { :an_key => anything, :fixed => "fixed", :nested => { :name => "foo", :trigger => "wrong", :anything_key => anything } }
+              actual = { :an_key => "dummy", :fixed => "fixed", :nested => { :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8", :name => "foo", :trigger => "trigger" } }
+              expected = { :an_key => anything, :fixed => "fixed", :nested => { :anything_key => anything, :name => "foo", :trigger => "wrong" } }
               diff = differ.diff(actual, expected)
               expected_diff = dedent(<<-'EOD')
                 |
@@ -596,15 +596,15 @@ module RSpec
               actual = {
                 :an_key => "dummy", :fixed => "fixed",
                 :nested => {
-                  :nested_anything_key => "9930ddcb-1cfe-4de1-a481-ca6b17d41ed8",
-                  :subnested => { :name => "foo", :trigger => "trigger", :subnested_anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+                  :subnested => { :name => "foo", :trigger => "trigger", :subnested_anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" },
+                  :nested_anything_key => "9930ddcb-1cfe-4de1-a481-ca6b17d41ed8"
                 }
               }
               expected = {
                 :an_key => anything, :fixed => "fixed",
                 :nested => {
-                  :nested_anything_key => anything,
-                  :subnested => { :name => "foo", :trigger => "wrong", :subnested_anything_key => anything }
+                  :subnested => { :name => "foo", :trigger => "wrong", :subnested_anything_key => anything },
+                  :nested_anything_key => anything
                 }
               }
               diff = differ.diff(actual, expected)
