@@ -13,11 +13,9 @@ module RSpec
       def diff(actual, expected)
         diff = ""
 
-        unless actual.nil? || expected.nil?
+        unless actual.nil? || expected.nil? || pointless_diff?(actual, expected)
           if all_strings?(actual, expected)
-            if any_multiline_strings?(actual, expected)
-              diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
-            end
+            diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
           elsif no_procs?(actual, expected) && no_numbers?(actual, expected)
             diff = diff_as_object(actual, expected)
           end
@@ -81,8 +79,8 @@ module RSpec
         safely_flatten(args).all? { |a| String === a }
       end
 
-      def any_multiline_strings?(*args)
-        all_strings?(*args) && safely_flatten(args).any? { |a| multiline?(a) }
+      def pointless_diff?(actual, expected)
+        String === actual && String === expected && !multiline?(actual) && !multiline?(expected)
       end
 
       def no_numbers?(*args)
