@@ -116,6 +116,36 @@ module RSpec
           expect { differ.diff(actual, expected) }.not_to change { differ_ivars }
         end
 
+        it 'returns the expected diff for arrays of single-line strings' do
+          expected = ["foo"]
+          actual   = ["foo", "bar"]
+
+          expected_diff = dedent(<<-'EOS')
+            |
+            |@@ -1,2 +1,3 @@
+            | foo
+            |+bar
+            |
+          EOS
+          diff = differ.diff(actual, expected)
+          expect(diff).to eq(expected_diff)
+        end
+
+        it 'does not give an empty string for single-element arrays of single-line strings' do
+          expected = ["foo"]
+          actual   = ["bar"]
+
+          expected_diff = dedent(<<-'EOS')
+            |
+            |@@ -1 +1 @@
+            |-foo
+            |+bar
+            |
+          EOS
+          diff = differ.diff(actual, expected)
+          expect(diff).to eq(expected_diff)
+        end
+
         def differ_ivars
           Hash[ differ.instance_variables.map do |ivar|
             [ivar, differ.instance_variable_get(ivar)]
