@@ -97,9 +97,10 @@ module RSpec
       end
 
       def recursive_get_keys(hash)
-        klass = RSpec::Mocks::ArgumentMatchers::AnyArgMatcher
+        return [] unless defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+
         hash.reduce([]) do |acc, pair|
-          if klass === pair[1]
+          if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === pair[1]
             acc << [pair[0]]
           else
             if Hash === pair[1]
