@@ -18,8 +18,8 @@ module RSpec
         unless actual.nil? || expected.nil?
           if all_strings?(actual, expected)
             diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected)) if any_multiline_strings?(actual, expected)
-          elsif hash_with_anything?(expected)
-            diff = diff_as_object_with_anything(actual, expected) if no_procs_no_numbers.call(actual, expected)
+          elsif (keys = all_keys_from_hash(expected)) && keys.any?
+            diff = diff_as_object_with_anything(keys, actual, expected) if no_procs_no_numbers.call(actual, expected)
           elsif no_procs_no_numbers.call(actual, expected)
             diff = diff_as_object(actual, expected)
           end
@@ -58,8 +58,8 @@ module RSpec
       end
       # rubocop:enable Metrics/MethodLength
 
-      def diff_as_object_with_anything(actual, expected)
-        @keys_with_anything.each do |keys|
+      def diff_as_object_with_anything(total_keys, actual, expected)
+        total_keys.each do |keys|
           pointer_expected = expected
           pointer_actual = actual
           final_key = keys.pop
@@ -89,11 +89,10 @@ module RSpec
 
     private
 
-      def hash_with_anything?(arg)
+      def all_keys_from_hash(arg)
         return false unless Hash === arg
 
-        @keys_with_anything = recursive_get_keys(arg)
-        @keys_with_anything.any?
+        recursive_get_keys(arg)
       end
 
       def recursive_get_keys(hash)
