@@ -11,21 +11,9 @@ module RSpec
     # rubocop:disable Metrics/ClassLength
     class Differ
       def diff(actual, expected)
-        diff = ""
+        return "" if actual.nil? && expected.nil?
 
-        no_procs_no_numbers = lambda {|var1, var2| no_procs?(var1, var2) && no_numbers?(var1, var2)}
-
-        unless actual.nil? || expected.nil?
-          if all_strings?(actual, expected)
-            diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected)) if any_multiline_strings?(actual, expected)
-          elsif (keys = all_keys_from_hash(expected)) && keys.any?
-            diff = diff_as_object_with_anything(keys, actual, expected) if no_procs_no_numbers.call(actual, expected)
-          elsif no_procs_no_numbers.call(actual, expected)
-            diff = diff_as_object(actual, expected)
-          end
-        end
-
-        diff.to_s
+        run(actual, expected)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -88,6 +76,21 @@ module RSpec
       end
 
     private
+      def run(actual, expected)
+        diff = ""
+
+        no_procs_no_numbers = lambda {|var1, var2| no_procs?(var1, var2) && no_numbers?(var1, var2)}
+
+        if all_strings?(actual, expected)
+          diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected)) if any_multiline_strings?(actual, expected)
+        elsif (keys = all_keys_from_hash(expected)) && keys.any?
+          diff = diff_as_object_with_anything(keys, actual, expected) if no_procs_no_numbers.call(actual, expected)
+        elsif no_procs_no_numbers.call(actual, expected)
+          diff = diff_as_object(actual, expected)
+        end
+
+        diff.to_s
+      end
 
       def all_keys_from_hash(arg)
         return false unless Hash === arg
