@@ -95,4 +95,8 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
     end
   end
 
+  # Otherwise, Splitter#reopen _also_ reopens the clone, unlike with actual STDERR
+  it 'does not reuse the stream when cloned' do
+    expect(splitter.to_io).not_to eq(splitter.clone.to_io)
+  end
 end
