@@ -95,8 +95,25 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
     end
   end
 
-  # Otherwise, Splitter#reopen _also_ reopens the clone, unlike with actual STDERR
   it 'does not reuse the stream when cloned' do
     expect(splitter.to_io).not_to eq(splitter.clone.to_io)
+  end
+
+  # This is essentially what the `to_stderr_from_any_process` matcher attempts
+  # to do in CaptureStreamToTempfile.
+  it 'is able to restore the stream from a cloned StdErrSplitter' do
+    cloned = $stderr.clone
+    expect($stderr.to_io).not_to be_a(File)
+
+    tempfile = Tempfile.new("foo")
+    begin
+      $stderr.reopen(tempfile)
+      expect($stderr.to_io).to be_a(File)
+    ensure
+      $stderr.reopen(cloned)
+      tempfile.close
+      tempfile.unlink
+    end
+    expect($stderr.to_io).not_to be_a(File)
   end
 end
