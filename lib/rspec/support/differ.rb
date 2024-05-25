@@ -19,7 +19,7 @@ module RSpec
               diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
             end
           elsif no_procs_and_no_numbers?(actual, expected)
-            if Hash === expected && hash_with_anything?(expected)
+            if (RUBY_VERSION.to_f > 1.8) && hash_with_anything?(expected)
               diff = diff_as_object_with_anything(actual, expected)
             else
               diff = diff_as_object(actual, expected)
@@ -85,7 +85,7 @@ module RSpec
     private
 
       def hash_with_anything?(arg)
-        safely_flatten(arg).any? { |a| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === a }
+        Hash === arg && safely_flatten(arg).any? { |a| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === a }
       end
 
       def no_procs_and_no_numbers?(*args)

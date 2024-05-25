@@ -556,21 +556,24 @@ module RSpec
           end
         end
 
-        describe "fuzzy matcher anything" do
-          it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
-            actual = { :fixed => "fixed", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
-            expected = { :fixed => "fixed", :trigger => "wrong", :anything_key => anything }
-            diff = differ.diff(actual, expected)
-            expected_diff = dedent(<<-'EOD')
-              |
-              |@@ -1,4 +1,4 @@
-              | :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8",
-              | :fixed => "fixed",
-              |-:trigger => "wrong",
-              |+:trigger => "trigger",
-              |
-            EOD
-            expect(diff).to be_diffed_as(expected_diff)
+        unless RUBY_VERSION == '1.8.7'
+          describe "fuzzy matcher anything" do
+            it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
+              actual = { :fixed => "fixed", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+              expected = { :fixed => "fixed", :trigger => "wrong", :anything_key => anything }
+              diff = differ.diff(actual, expected)
+              expected_diff = dedent(<<-'EOD')
+                |
+                |@@ -1,4 +1,4 @@
+                | :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8",
+                | :fixed => "fixed",
+                |-:trigger => "wrong",
+                |+:trigger => "trigger",
+                |
+              EOD
+              # puts diff
+              expect(diff).to be_diffed_as(expected_diff)
+            end
           end
         end
       end
