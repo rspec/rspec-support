@@ -92,7 +92,7 @@ module RSpec
         no_procs?(args) && no_numbers?(args)
       end
 
-      def no_procs?(*args)
+      def no_procs?(args)
         safely_flatten(args).none? { |a| Proc === a }
       end
 
@@ -104,7 +104,7 @@ module RSpec
         all_strings?(*args) && safely_flatten(args).any? { |a| multiline?(a) }
       end
 
-      def no_numbers?(*args)
+      def no_numbers?(args)
         safely_flatten(args).none? { |a| Numeric === a }
       end
 
