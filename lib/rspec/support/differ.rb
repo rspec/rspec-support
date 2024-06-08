@@ -18,12 +18,10 @@ module RSpec
             if any_multiline_strings?(actual, expected)
               diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
             end
-          elsif no_procs_and_no_numbers?(actual, expected)
-            if (RUBY_VERSION.to_f > 1.8) && hash_with_anything?(expected)
-              diff = diff_as_object_with_anything(actual, expected)
-            else
-              diff = diff_as_object(actual, expected)
-            end
+          elsif all_hashes?(actual, expected)
+            diff = diff_hashes_as_object(actual, expected)
+          elsif no_procs?(actual, expected) && no_numbers?(actual, expected)
+            diff = diff_as_object(actual, expected)
           end
         end
 
@@ -60,7 +58,7 @@ module RSpec
       end
       # rubocop:enable Metrics/MethodLength
 
-      def diff_as_object_with_anything(actual, expected)
+      def diff_hashes_as_object(actual, expected)
         expected.select { |_, v| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === v }.each_key do |k|
           expected[k] = actual[k]
         end
@@ -84,16 +82,12 @@ module RSpec
 
     private
 
-      def hash_with_anything?(arg)
-        Hash === arg && safely_flatten(arg).any? { |a| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === a }
-      end
-
-      def no_procs_and_no_numbers?(*args)
-        no_procs?(args) && no_numbers?(args)
-      end
-
-      def no_procs?(args)
+      def no_procs?(*args)
         safely_flatten(args).none? { |a| Proc === a }
+      end
+
+      def all_hashes?(actual, expected)
+        defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher) && (Hash === actual) && (Hash === expected)
       end
 
       def all_strings?(*args)
@@ -104,7 +98,7 @@ module RSpec
         all_strings?(*args) && safely_flatten(args).any? { |a| multiline?(a) }
       end
 
-      def no_numbers?(args)
+      def no_numbers?(*args)
         safely_flatten(args).none? { |a| Numeric === a }
       end
 
