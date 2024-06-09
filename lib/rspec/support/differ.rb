@@ -59,10 +59,25 @@ module RSpec
       # rubocop:enable Metrics/MethodLength
 
       def diff_hashes_as_object(actual, expected)
-        expected.select { |_, v| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === v }.each_key do |k|
-          expected[k] = actual[k]
+        if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+          anything_hash = expected.select { |_, v| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === v }
+
+          anything_hash.each_key do |k|
+            expected[k] = actual[k]
+          end
+
+          diff_string = diff_as_object(actual, expected)
+
+          if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+            anything_hash.each do |k, v|
+              expected[k] = v
+            end
+          end
+
+          diff_string
+        else
+          diff_as_object(actual, expected)
         end
-        diff_as_object(actual, expected)
       end
 
       def diff_as_object(actual, expected)

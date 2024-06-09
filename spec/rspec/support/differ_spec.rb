@@ -572,6 +572,12 @@ module RSpec
             EOD
             expect(diff).to be_diffed_as(expected_diff)
           end
+          it "checks the 'expected' var continues having the 'anything' fuzzy matcher, it has not mutated" do
+            actual = { :fixed => "fixed", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+            expected = { :fixed => "fixed", :trigger => "wrong", :anything_key => anything }
+            differ.diff(actual, expected)
+            expect(expected).to eq({ :fixed => "fixed", :trigger => "wrong", :anything_key => anything })
+          end
         end
       end
     end
