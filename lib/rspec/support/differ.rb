@@ -68,10 +68,8 @@ module RSpec
 
           diff_string = diff_as_object(actual, expected)
 
-          if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
-            anything_hash.each do |k, v|
-              expected[k] = v
-            end
+          anything_hash.each do |k, v|
+            expected[k] = v
           end
 
           diff_string
