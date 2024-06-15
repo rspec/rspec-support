@@ -58,8 +58,8 @@ module RSpec
       end
       # rubocop:enable Metrics/MethodLength
 
-      def diff_hashes_as_object(actual, expected)
-        if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+      if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+        def diff_hashes_as_object(actual, expected)
           expected_to_diff =
             expected.reduce({}) do |hash, (key, value)|
               if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === value
@@ -71,7 +71,9 @@ module RSpec
             end
 
           diff_as_object(actual, expected_to_diff)
-        else
+        end
+      else
+        def diff_hashes_as_object(actual, expected)
           diff_as_object(actual, expected)
         end
       end
