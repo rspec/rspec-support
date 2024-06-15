@@ -60,19 +60,17 @@ module RSpec
 
       def diff_hashes_as_object(actual, expected)
         if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
-          anything_hash = expected.select { |_, v| RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === v }
+          expected_to_diff =
+            expected.reduce({}) do |hash, (key, value)|
+              if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === value
+                hash[key] = actual[key]
+              else
+                hash[key] = expected[key]
+              end
+              hash
+            end
 
-          anything_hash.each_key do |k|
-            expected[k] = actual[k]
-          end
-
-          diff_string = diff_as_object(actual, expected)
-
-          anything_hash.each do |k, v|
-            expected[k] = v
-          end
-
-          diff_string
+          diff_as_object(actual, expected_to_diff)
         else
           diff_as_object(actual, expected)
         end
@@ -100,7 +98,7 @@ module RSpec
       end
 
       def all_hashes?(actual, expected)
-        defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher) && (Hash === actual) && (Hash === expected)
+        (Hash === actual) && (Hash === expected)
       end
 
       def all_strings?(*args)
