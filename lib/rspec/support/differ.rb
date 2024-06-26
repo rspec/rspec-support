@@ -11,19 +11,9 @@ module RSpec
     # rubocop:disable Metrics/ClassLength
     class Differ
       def diff(actual, expected)
-        diff = ""
+        return "" if actual.nil? && expected.nil?
 
-        unless actual.nil? || expected.nil?
-          if all_strings?(actual, expected)
-            if any_multiline_strings?(actual, expected)
-              diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected))
-            end
-          elsif no_procs?(actual, expected) && no_numbers?(actual, expected)
-            diff = diff_as_object(actual, expected)
-          end
-        end
-
-        diff.to_s
+        run(actual, expected)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -56,6 +46,20 @@ module RSpec
       end
       # rubocop:enable Metrics/MethodLength
 
+      def diff_as_object_with_anything(total_keys, actual, expected)
+        total_keys.each do |keys|
+          pointer_expected = expected
+          pointer_actual = actual
+          final_key = keys.pop
+          keys.each do |k|
+            pointer_expected = pointer_expected[k]
+            pointer_actual = pointer_actual[k]
+          end
+          pointer_expected[final_key] = pointer_actual[final_key]
+        end
+        diff_as_object(actual, expected)
+      end
+
       def diff_as_object(actual, expected)
         actual_as_string = object_to_string(actual)
         expected_as_string = object_to_string(expected)
@@ -72,6 +76,46 @@ module RSpec
       end
 
     private
+      def run(actual, expected)
+        diff = ""
+
+        no_procs_no_numbers = lambda {|var1, var2| no_procs?(var1, var2) && no_numbers?(var1, var2)}
+
+        if all_strings?(actual, expected)
+          diff = diff_as_string(coerce_to_string(actual), coerce_to_string(expected)) if any_multiline_strings?(actual, expected)
+        elsif (keys = all_keys_from_hash(expected)) && keys.any?
+          diff = diff_as_object_with_anything(keys, actual, expected) if no_procs_no_numbers.call(actual, expected)
+        elsif no_procs_no_numbers.call(actual, expected)
+          diff = diff_as_object(actual, expected)
+        end
+
+        diff.to_s
+      end
+
+      def all_keys_from_hash(arg)
+        return false unless Hash === arg
+
+        recursive_get_keys(arg)
+      end
+
+      def recursive_get_keys(hash)
+        return [] unless defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
+
+        hash.reduce([]) do |acc, pair|
+          if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === pair[1]
+            acc << [pair[0]]
+          else
+            if Hash === pair[1]
+              keys = recursive_get_keys(pair[1])
+              keys.each do |key|
+                key.unshift pair[0]
+                acc << key
+              end
+            end
+          end
+          acc
+        end
+      end
 
       def no_procs?(*args)
         safely_flatten(args).none? { |a| Proc === a }
