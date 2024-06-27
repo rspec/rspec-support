@@ -60,17 +60,16 @@ module RSpec
 
       if defined?(RSpec::Mocks::ArgumentMatchers::AnyArgMatcher)
         def diff_hashes_as_object(actual, expected)
-          expected_to_diff =
-            expected.reduce({}) do |hash, (key, value)|
-              if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === value
-                hash[key] = actual[key]
-              else
+          actual_to_diff =
+            actual.reduce({}) do |hash, (key, value)|
+              if RSpec::Mocks::ArgumentMatchers::AnyArgMatcher === expected[key]
                 hash[key] = expected[key]
+              else
+                hash[key] = actual[key]
               end
               hash
             end
-
-          diff_as_object(actual, expected_to_diff)
+          diff_as_object(actual_to_diff, expected)
         end
       else
         def diff_hashes_as_object(actual, expected)

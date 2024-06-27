@@ -564,7 +564,7 @@ module RSpec
             expected_diff = dedent(<<-'EOD')
               |
               |@@ -1,4 +1,4 @@
-              | :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8",
+              | :anything_key => anything,
               | :fixed => "fixed",
               |-:trigger => "wrong",
               |+:trigger => "trigger",
