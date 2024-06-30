@@ -6,7 +6,7 @@ require 'rspec/support/spec/string_matcher'
 
 module RSpec
   module Support
-    RSpec.describe Differ do
+    RSpec.describe "Differ" do
       include Spec::DiffHelpers
 
       describe '#diff' do
@@ -553,6 +553,31 @@ module RSpec
           it 'generates a diff' do
             expect(differ.diff(true, false)).to_not be_empty
             expect(differ.diff(false, true)).to_not be_empty
+          end
+        end
+
+        describe "fuzzy matcher anything" do
+          it "outputs only key value pair that triggered diff, anything_key should absorb actual value" do
+            actual = { :fixed => "fixed", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+            expected = { :fixed => "fixed", :trigger => "wrong", :anything_key => anything }
+            diff = differ.diff(actual, expected)
+            expected_diff = dedent(<<-'EOD')
+              |
+              |@@ -1,4 +1,4 @@
+              | :anything_key => anything,
+              | :fixed => "fixed",
+              |-:trigger => "wrong",
+              |+:trigger => "trigger",
+              |
+            EOD
+            expect(diff).to be_diffed_as(expected_diff)
+          end
+
+          it "checks the 'expected' var continues having the 'anything' fuzzy matcher, it has not mutated" do
+            actual = { :fixed => "fixed", :trigger => "trigger", :anything_key => "bcdd0399-1cfe-4de1-a481-ca6b17d41ed8" }
+            expected = { :fixed => "fixed", :trigger => "wrong", :anything_key => anything }
+            differ.diff(actual, expected)
+            expect(expected).to eq({ :fixed => "fixed", :trigger => "wrong", :anything_key => anything })
           end
         end
       end
