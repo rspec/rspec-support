@@ -1,6 +1,11 @@
 ### Development
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.13.1...main)
 
+Enchancements
+
+* Improve diff for `anything` matchers by hiding the value "anything" is matched
+  against. (Karl Heitmann, #599)
+
 ### 3.13.1 / 2024-02-23
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.13.0...v3.13.1)
 
