@@ -90,14 +90,23 @@ module RSpec
       singleton_class.ancestors.find { |ancestor| !ancestor.equal?(singleton_class) }
     end
 
-    # A single thread local variable so we don't excessively pollute that namespace.
+    # Stash original methods to allow the user to mock them.
     if RUBY_VERSION.to_f >= 2
+      THREAD_VARIABLE_GET = Thread.instance_method(:thread_variable_get)
+      THREAD_VARIABLE_SET = Thread.instance_method(:thread_variable_set)
+    else
+      THREAD_VARIABLE_GET = Thread.instance_method(:[])
+      THREAD_VARIABLE_SET = Thread.instance_method(:[]=)
+    end
+
+    # A single thread local variable so we don't excessively pollute that namespace.
+    if RUBY_VERSION >= '2.7'
       def self.thread_local_data
-        Thread.current.thread_variable_get(:__rspec) || Thread.current.thread_variable_set(:__rspec, {})
+        THREAD_VARIABLE_GET.bind_call(Thread.current, :__rspec) || THREAD_VARIABLE_SET.bind_call(Thread.current, :__rspec, {})
       end
     else
       def self.thread_local_data
-        Thread.current[:__rspec] ||= {}
+        THREAD_VARIABLE_GET.bind(Thread.current).call(:__rspec) || THREAD_VARIABLE_SET.bind(Thread.current).call(:__rspec, {})
       end
     end
 
