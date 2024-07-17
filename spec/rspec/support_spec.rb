@@ -204,6 +204,17 @@ module RSpec
           end.resume
         end
       end
+
+      it "works when Thread#thread_variable_get and Thread#thread_variable_set are mocked" do
+        expect(Thread.current).to receive(:thread_variable_set).with(:test, true).once.and_return(true)
+        expect(Thread.current).to receive(:thread_variable_get).with(:test).once.and_return(true)
+
+        Thread.current.thread_variable_set(:test, true)
+        expect(Thread.current.thread_variable_get(:test)).to eq true
+
+        RSpec::Support.thread_local_data[:__for_test] = :oh_hai
+        expect(RSpec::Support.thread_local_data[:__for_test]).to eq :oh_hai
+      end
     end
 
     describe "failure notification" do
