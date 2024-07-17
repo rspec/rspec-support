@@ -2,6 +2,10 @@
 
 class Thread
   attr_accessor :__rspec_local_data
+
+  class << self
+    alias __rspec_current_thread current
+  end
 end
 
 module RSpec
@@ -96,7 +100,7 @@ module RSpec
 
     # A single thread local variable so we don't excessively pollute that namespace.
     def self.thread_local_data
-      Thread.current.__rspec_local_data ||= {}
+      Thread.__rspec_current_thread.__rspec_local_data ||= {}
     end
 
     # @api private
