@@ -21,6 +21,10 @@ module RSpec
         @orig_stderr.__send__(name, *args, &block)
       end
 
+      def clone
+        StdErrSplitter.new(@orig_stderr.clone)
+      end
+
       def ==(other)
         @orig_stderr == other
       end
