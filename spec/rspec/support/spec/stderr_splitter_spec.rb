@@ -109,18 +109,18 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
       """
     end
 
-    cloned = $stderr.clone
-    expect($stderr.to_io).not_to be_a(File)
+    cloned = splitter.clone
+    expect(splitter.to_io).not_to be_a(File)
 
     tempfile = Tempfile.new("foo")
     begin
-      $stderr.reopen(tempfile)
-      expect($stderr.to_io).to be_a(File)
+      splitter.reopen(tempfile)
+      expect(splitter.to_io).to be_a(File)
     ensure
-      $stderr.reopen(cloned)
+      splitter.reopen(cloned)
       tempfile.close
       tempfile.unlink
     end
-    expect($stderr.to_io).not_to be_a(File)
+    expect(splitter.to_io).not_to be_a(File)
   end
 end
