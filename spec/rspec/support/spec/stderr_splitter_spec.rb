@@ -99,21 +99,28 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
     expect(splitter.to_io).not_to eq(splitter.clone.to_io)
   end
 
-  # This is essentially what the `to_stderr_from_any_process` matcher attempts
-  # to do in CaptureStreamToTempfile.
-  it 'is able to restore the stream from a cloned StdErrSplitter', :pending => RSpec::Support::Ruby.jruby? do
-    cloned = $stderr.clone
-    expect($stderr.to_io).not_to be_a(File)
+  # This spec replicates what matchers do when capturing stderr, e.g `to_stderr_from_any_process`
+  it 'is able to restore the stream from a cloned StdErrSplitter' do
+    if RSpec::Support::Ruby.jruby?
+      skip """
+      This spec is currently unsupported on JRuby on CI due to tempfiles not being
+      a file, this situtation was discussed here https://github.com/rspec/rspec-support/pull/598#issuecomment-2200779633
+      """
+    end
+
+    cloned = splitter.clone
+    expect(splitter.to_io).not_to be_a(File)
 
     tempfile = Tempfile.new("foo")
     begin
-      $stderr.reopen(tempfile)
-      expect($stderr.to_io).to be_a(File)
+      splitter.reopen(tempfile)
+      expect(splitter.to_io).to be_a(File)
     ensure
-      $stderr.reopen(cloned)
+      splitter.reopen(cloned)
       tempfile.close
       tempfile.unlink
     end
-    expect($stderr.to_io).not_to be_a(File)
+    # This is the important part of the test that would fail without proper cloning hygeine
+    expect(splitter.to_io).not_to be_a(File)
   end
 end
