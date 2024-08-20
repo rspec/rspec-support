@@ -99,8 +99,7 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
     expect(splitter.to_io).not_to eq(splitter.clone.to_io)
   end
 
-  # This is essentially what the `to_stderr_from_any_process` matcher attempts
-  # to do in CaptureStreamToTempfile.
+  # This spec replicates what matchers do when capturing stderr, e.g `to_stderr_from_any_process`
   it 'is able to restore the stream from a cloned StdErrSplitter' do
     if RSpec::Support::Ruby.jruby?
       skip """
@@ -121,6 +120,7 @@ RSpec.describe 'RSpec::Support::StdErrSplitter' do
       tempfile.close
       tempfile.unlink
     end
+    # This is the important part of the test that would fail without proper cloning hygeine
     expect(splitter.to_io).not_to be_a(File)
   end
 end
