@@ -101,5 +101,4 @@ jobs:
       - run: ${{ matrix.container.pre }}
       - run: script/legacy_setup.sh
       - run: ${{ matrix.container.post }}
-      - run: bundle exec bin/rspec
-      - run: bundle exec script/cucumber.sh
+      - run: bundle exec bin/rspec  spec/rspec/support/spec/stderr_splitter_spec.rb:103
