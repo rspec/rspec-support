@@ -6,6 +6,11 @@ Enchancements
 * Improve diff for `anything` matchers by hiding the value "anything" is matched
   against. (Karl Heitmann, #599)
 
+Bug Fixes:
+
+* Switch current thread data to alias/accessors to avoid issues with mocked systems.
+  (Jon Rowe, #610)
+
 ### 3.13.1 / 2024-02-23
 [Full Changelog](http://github.com/rspec/rspec-support/compare/v3.13.0...v3.13.1)
 
