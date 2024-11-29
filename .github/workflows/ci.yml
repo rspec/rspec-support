@@ -133,7 +133,12 @@ jobs:
       JRUBY_OPTS: ${{ matrix.container.jruby_opts || '--dev' }}
       NO_COVERAGE: true
     steps:
-      - uses: actions/checkout@v3
+      - run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - run: git init $GITHUB_WORKSPACE
+      - run: git remote add origin https://github.com/rspec/rspec-support
+      - run: git config --local gc.auto 0
+      - run: git fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +$GITHUB_SHA:$GITHUB_REF
+      - run: git checkout --progress --force $GITHUB_REF
       - run: ${{ matrix.container.pre }}
       - run: script/legacy_setup.sh
       - run: ${{ matrix.container.post }}
