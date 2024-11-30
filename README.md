@@ -1,5 +1,7 @@
 # RSpec::Support [![Build Status](https://github.com/rspec/rspec-support/workflows/RSpec%20CI/badge.svg)](https://github.com/rspec/rspec-support/actions)
 
+**This is the old rspec support repository, please see the monorepo rspec/rspec for new issues and releases.**
+
 `RSpec::Support` provides common functionality to `RSpec::Core`,
 `RSpec::Expectations` and `RSpec::Mocks`. It is considered
 suitable for internal use only at this time.
